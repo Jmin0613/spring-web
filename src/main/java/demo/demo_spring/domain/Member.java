@@ -26,7 +26,7 @@ public class Member {
         return name;
     }
 
-    public void setNaame(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 }

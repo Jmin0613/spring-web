@@ -1,5 +1,6 @@
 package demo.demo_spring.controller;
 
+import demo.demo_spring.dto.MemberRequestDto;
 import org.springframework.web.bind.annotation.*;
 import demo.demo_spring.service.MemberService;
 import demo.demo_spring.domain.Member;
@@ -23,6 +24,15 @@ public class MemberController {
         return memberService.join(member);
         // 컨트롤러 -> 서비스 호출
         // 서비스에서 레포지토리를 통해 데이터 저장하고 반환
+    }
+
+    @PostMapping("/members_dto")
+    public Long save(@RequestBody MemberRequestDto dto){
+        //json 데이터를 DTO 객체로 변환해서 받음
+        Member member = new Member(); //Member 객체 생성
+        member.setName(dto.getName()); //DTO 데이터를 Member객체로 변환해서 넣어줌
+
+        return memberService.join(member); //회원가입 후 생성된 id 반환
     }
 
     //회원 조회 - 개인
