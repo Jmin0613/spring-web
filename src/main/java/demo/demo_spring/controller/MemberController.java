@@ -16,7 +16,13 @@ import java.util.*;
 @RestController
 public class MemberController {
     //웹 요청을 받아서 service로 전달하는 역할
-    private final MemberService memberService = new MemberService();
+    //private final MemberService memberService = new MemberService();
+    // -> 이거 MemberService 바뀌면서 생성자 파라미터 필요 때문에 에러생길거임.
+    private final MemberService memberService;
+
+    public MemberController(MemberService memberService){
+        this.memberService = memberService;
+    } // Service 주세요~ (DI 받는 중)
 
     //회원 가입
     //@Post -> 주로 서버에 데이터를 전송하거나 자원을 생성할 때 사용
