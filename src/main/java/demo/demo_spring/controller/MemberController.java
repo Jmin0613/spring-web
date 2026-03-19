@@ -1,12 +1,15 @@
 package demo.demo_spring.controller;
 
 import demo.demo_spring.dto.MemberCreateRequest;
+import demo.demo_spring.dto.MemberFindAllResponse;
 import demo.demo_spring.dto.MemberLoginRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import demo.demo_spring.service.MemberService;
 import demo.demo_spring.domain.Member;
 
+import java.net.URI;
 import java.util.*;
 
 //@estController -> api 서버. 데이터(json)바로 반환
@@ -27,11 +30,16 @@ public class MemberController {
     //회원 가입
     //@Post -> 주로 서버에 데이터를 전송하거나 자원을 생성할 때 사용
     @PostMapping("/members")
-    public Long save(@RequestBody MemberCreateRequest request){
+    public ResponseEntity<Long> save(@RequestBody MemberCreateRequest request){
         Member member = request.toEntity(); //DTO -> Entity 변환
-        return memberService.join(member);
-        // 서비스에서 레포지토리를 통해 데이터 저장하고 반환
-        //회원가입 후 생성된 id 반환
+        Long id = memberService.join(member); // 서비스에서 레포지토리를 통해 데이터 저장
+
+        // return ResponseEntity.ok(id); -> 회원가입 성공하면 ok반환. 반환 타입 : ResponseEntity<Long>
+        //return ResponseEntity.created(URI.create("/members/"+id)); -> 성공하면 created 반환
+        // 근데 여기서반환되는 타입 BodyBuilder임. 그래서 반환타입 안맞아서 에러.
+        // return ResponseEntity.created(URI.create("/members/"+id)).build(); 그래서 build()
+        // 근데 이렇게 쓰면 나중에 프론트엔드가 body가 없어서 힘들다함.
+        return ResponseEntity.created(URI.create("/members"+id)).body(id); //그래서 이렇게 씀
     }
 
     //회원 조회 - 개인
@@ -45,10 +53,13 @@ public class MemberController {
 
     //회원 전체 조회
     @GetMapping("/members")
-    public List<Member> findAll(){
-        //List로 회원 목록을 보여줌
-        return memberService.findMembers();
-        //레포지토리에서 Map을 List로 변환한 후 서비스를 통해 반환
+    public List<MemberFindAllResponse> findAll(){
+        return memberService.findMembers() //이걸로 받은 List는 List<Member>
+                .stream() //순차적으로. 여기서 타입은 Stream<Member>임.
+                .map(MemberFindAllResponse::fromEntity)
+                //하나씩 꺼내서 DTO로 바꿔줌. 근데 아직 Stream<DTO>임. 리스트 변환 필요
+                .toList();//그래서 DTO로 바꾸고 다시 List<DTO>변환 후, 불변 리스트로 반환
+        //stream().map().toList() -> 순차적으로 DTO변환 후 불변(Immutable) 리스트로 반환
     }
 
     //회원 로그인 -> 일단 name으로 로그인하게 간단히 구현
