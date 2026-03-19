@@ -5,7 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
 @Entity //이 클래스를 db에 저장한다고 알림
-public class Member {
+public class Member { //-------> DB 저장용 객체
 
     // 요구사항 : 회원id, 이름
     @Id //DB의 기본키(PK)를 매칭해주는 어노테이션

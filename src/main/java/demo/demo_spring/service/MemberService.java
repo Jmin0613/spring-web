@@ -38,7 +38,16 @@ public class MemberService {
     public List<Member> findMembers(){
         return repository.findAll();
     }
-    /*왜 Map이 아닌 List로 변환해야 하나?
+
+    //4. 로그인 -> 현재는 일단 name으로만 로그인하게 둠. 나중에 수정할 예정.
+    public Member login(String name){ //Member 객체인데, 받아쓰는건 name
+        return repository.findByName(name) // 받은 name으로 회원찾기
+                .orElse(null); //없으면 null반환
+    }
+
+}
+
+    /*3번 회원 전체 조회 -> 왜 Map이 아닌 List로 변환해야 하나?
 
     현재 Map 구조 :
     "1": { "id": 1, "name": "이주민" },
@@ -57,4 +66,3 @@ public class MemberService {
     List는 손님에게 보여주는 상품 목록 느낌임.
     창고 그대로는 손님한테 안보여주잖아?
      */
-}
