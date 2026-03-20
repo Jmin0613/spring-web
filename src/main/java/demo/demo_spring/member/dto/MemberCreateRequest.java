@@ -1,6 +1,6 @@
-package demo.demo_spring.dto;
+package demo.demo_spring.member.dto;
 
-import demo.demo_spring.domain.Member;
+import demo.demo_spring.member.domain.Member;
 
 public class MemberCreateRequest {
     //회원가입 만들떄 필요한 데이터?

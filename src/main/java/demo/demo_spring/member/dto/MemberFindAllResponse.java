@@ -1,6 +1,6 @@
-package demo.demo_spring.dto;
+package demo.demo_spring.member.dto;
 
-import demo.demo_spring.domain.Member;
+import demo.demo_spring.member.domain.Member;
 
 public class MemberFindAllResponse {
     private Long id;
@@ -11,6 +11,7 @@ public class MemberFindAllResponse {
         this.name = member.getName();
     }
 
+    //DTO로 변환해서 보내주기
     public static MemberFindAllResponse fromEntity(Member member){
         return new MemberFindAllResponse(member);
     }

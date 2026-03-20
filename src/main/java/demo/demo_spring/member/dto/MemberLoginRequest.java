@@ -1,4 +1,4 @@
-package demo.demo_spring.dto;
+package demo.demo_spring.member.dto;
 
 public class MemberLoginRequest { // ----> 로그인 요청용 객체
 

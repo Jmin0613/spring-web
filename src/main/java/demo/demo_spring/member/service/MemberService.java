@@ -1,8 +1,7 @@
-package demo.demo_spring.service;
+package demo.demo_spring.member.service;
 
-import demo.demo_spring.domain.Member;
-import demo.demo_spring.repository.MemberRepository;
-import demo.demo_spring.repository.MemoryMemberRepository;
+import demo.demo_spring.member.domain.Member;
+import demo.demo_spring.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

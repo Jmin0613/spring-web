@@ -1,4 +1,4 @@
-package demo.demo_spring.domain;
+package demo.demo_spring.member.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,6 +12,11 @@ public class Member { //-------> DB 저장용 객체
     @GeneratedValue //db가 알아서 값을 자동 증가시킴 -> 기본키 생성을 DB에 위임
     private Long id;
     private String name;
+
+    //기본생성자
+    public Member(){};
+    //원래는 protected여야하는데, MemberCreateRequest랑 패키지가 달라져서 오류가 뜸.
+    // 일단 public으로 선언해두자.
 
     //getter setter
     public Long getId() {

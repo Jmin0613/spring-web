@@ -1,6 +1,6 @@
-package demo.demo_spring.repository;
+package demo.demo_spring.member.repository;
 
-import demo.demo_spring.domain.Member;
+import demo.demo_spring.member.domain.Member;
 
 import java.util.*;
 

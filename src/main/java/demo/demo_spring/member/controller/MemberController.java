@@ -1,13 +1,13 @@
-package demo.demo_spring.controller;
+package demo.demo_spring.member.controller;
 
-import demo.demo_spring.dto.MemberCreateRequest;
-import demo.demo_spring.dto.MemberFindAllResponse;
-import demo.demo_spring.dto.MemberLoginRequest;
+import demo.demo_spring.member.dto.MemberCreateRequest;
+import demo.demo_spring.member.dto.MemberFindAllResponse;
+import demo.demo_spring.member.dto.MemberLoginRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import demo.demo_spring.service.MemberService;
-import demo.demo_spring.domain.Member;
+import demo.demo_spring.member.service.MemberService;
+import demo.demo_spring.member.domain.Member;
 
 import java.net.URI;
 import java.util.*;
@@ -24,6 +24,8 @@ public class MemberController {
     private final MemberService memberService;
 
     public MemberController(MemberService memberService){
+        // -> 뭐가 들어올지는 몰라, 일단 받아서 쓸게 -> 결정권이 외부(스프링)에 있음
+        // 어떻게 보면 의존성 사용과 생성을 분리
         this.memberService = memberService;
     } // Service 주세요~ (DI 받는 중)
 
