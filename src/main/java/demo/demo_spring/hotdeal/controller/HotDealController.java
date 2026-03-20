@@ -3,6 +3,7 @@ package demo.demo_spring.hotdeal.controller;
 import demo.demo_spring.hotdeal.domain.HotDeal;
 import demo.demo_spring.hotdeal.dto.HotDealCreateRequest;
 import demo.demo_spring.hotdeal.dto.HotDealFindResponse;
+import demo.demo_spring.hotdeal.dto.HotDealUpdateRequest;
 import demo.demo_spring.hotdeal.repository.HotDealRepository;
 import demo.demo_spring.hotdeal.service.HotDealService;
 import org.springframework.web.bind.annotation.*;
@@ -51,5 +52,12 @@ public class HotDealController {
     public String buy(@PathVariable long id){
         hotDealService.buy(id); //사오기
         return "구매 성공";
+    }
+
+    // 5. 핫딜 업데이트. PUT -> 수정
+    @PutMapping("/hotdeals/{id}")
+    public void update(@PathVariable long id, @RequestBody HotDealUpdateRequest request){
+        hotDealService.update(id, request);
+        //반환값 필요x
     }
 }

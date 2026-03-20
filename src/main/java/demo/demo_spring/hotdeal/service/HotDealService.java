@@ -1,6 +1,7 @@
 package demo.demo_spring.hotdeal.service;
 
 import demo.demo_spring.hotdeal.domain.HotDeal;
+import demo.demo_spring.hotdeal.dto.HotDealUpdateRequest;
 import demo.demo_spring.hotdeal.repository.HotDealRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,5 +76,17 @@ public class HotDealService {
         // 또한 save()를 해주면 새로 insert되는거 아닌가 했는데,
         // jpa 안에서, id 있으면 update/ 없으면 insert 였음.
         // save는 insert + update 둘 다 한다
+    }
+
+    //4. 핫딜 상품 정보 업데이트
+    public void update(Long id, HotDealUpdateRequest request) {
+        HotDeal hotDeal = hotDealRepository.findById(id)
+                .orElseThrow(()-> new IllegalStateException("핫딜 없음"));
+
+        hotDeal.setTitle(request.getTitle());
+        hotDeal.setPrice(request.getPrice());
+        hotDeal.setDiscountPrice(request.getDiscountPrice());
+        hotDeal.setQuantity(request.getQuantity());
+        //save안해도 됨 -> jpa 더티체킹
     }
 }
