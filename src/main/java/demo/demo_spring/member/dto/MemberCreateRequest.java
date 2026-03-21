@@ -7,7 +7,7 @@ public class MemberCreateRequest {
     //id, name
     //그중 외부에서 받아야 하는것 : name
 
-    // private long id; -> 서버가 주는 것
+    // private Long id; -> 서버가 주는 것
     private String name; //사용자(외부)에게 받는 것
 
     // name만 getter/setter

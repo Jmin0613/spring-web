@@ -8,7 +8,7 @@ import lombok.*;
 public class HotDealUpdateRequest {
     //핫딜 상품 정보 업데이트할떄 사용할 DTO
 
-    //private long id; -> 서버가 주는 상품 아이디
+    //private Long id; -> 서버가 주는 상품 아이디
     private String title;
     private int price;
     private int discountPrice;

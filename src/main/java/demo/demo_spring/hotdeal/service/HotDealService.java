@@ -5,6 +5,7 @@ import demo.demo_spring.hotdeal.dto.HotDealUpdateRequest;
 import demo.demo_spring.hotdeal.repository.HotDealRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.time.*;
 import java.util.*;
@@ -24,7 +25,7 @@ public class HotDealService {
     }
 
     // 1. 핫딜 저장
-    public long save(HotDeal hotDeal){
+    public Long save(HotDeal hotDeal){
         hotDealRepository.save(hotDeal); //jpa는 save 기본 제공
         return hotDeal.getId(); //저장 후 핫딜 상품 id 반환
     }
@@ -89,4 +90,30 @@ public class HotDealService {
         hotDeal.setQuantity(request.getQuantity());
         //save안해도 됨 -> jpa 더티체킹
     }
+
+    //5. 핫딜 상품 정보 삭제
+    public void delete(Long id){
+        //id로 삭제해야 할 핫딜 상품이 실제로 존재하는지, 존재 확인
+        HotDeal hotDeal = hotDealRepository.findById(id)
+                .orElseThrow(()-> new IllegalStateException("핫딜 없음")); //없으면 예외
+        
+        hotDealRepository.delete(hotDeal); //있으면 삭제
+    }
 }
+
+    /*
+    delete는 update보다 단순. update는 어떤값을 어떻게 바꿀지 받아야하는데,
+    delete는 어떤 대상을 지울지만 알면 되기 때문. -> id 하나로 처리가능! 대신 삭제 전에 존재확인이 필요할듯
+
+    그리고 생각이 깊어졌다 -> Delete도 DTO가 필요할가..?
+    save : 새 데이터를 받아서 저장해야 함
+    update : 기존 데이터를 수정해야 함
+    delete : 보통 대상 하나를 찾아서 지우기만 하면 됨
+    이러니간 Delete에서는 보통 id 하나만 있으면 충분한 경우가 많으니간 DTO 따로 안만들어도 될 거 같음.
+    애초에 DTO는 무조건 만드는게 아니라, 외부에서 받아야 할 데이터를 담는 그릇이니간.
+
+    그러니간 id하나만 필요할때 DTO 필요없고, 2개 이상부터 필요!
+    ----> 이거 틀렸음!!!!!!!!!!!!! 데이터 2개 이상이면 DTO가 필요한게 아님.
+    중요한건 "받는 값이 단순한가? 의미있는 묶음인가?" 이거임.
+    값이 여러개면 당연히 DTO를 쓰는게 보통 더 좋겠지만, 핵심은 값 개수보다는 "구조와 역할"!
+     */

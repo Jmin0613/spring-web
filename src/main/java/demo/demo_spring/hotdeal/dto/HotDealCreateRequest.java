@@ -11,7 +11,7 @@ public class HotDealCreateRequest { //상품 등록할때 사용할 요청reques
     // 핫딜 상품 등록시, 필요한 데이터
     // id, title, price, discountPrice, quantity, startTime, endTime
 
-    //private long id; -> 서버가 주는 상품 아이디
+    //private Long id; -> 서버가 주는 상품 아이디
     private String title;
     private int price;
     private int discountPrice;

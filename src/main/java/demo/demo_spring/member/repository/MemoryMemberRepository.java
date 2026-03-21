@@ -9,7 +9,7 @@ public class MemoryMemberRepository {
 
     //DB를 대신할 가짜DB 생성
     private static Map<Long, Member> store = new HashMap<>();
-    private static long sequence = 0L;
+    private static Long sequence = 0L;
 
     //회원가입
     public Member save(Member member){
@@ -33,7 +33,7 @@ public class MemoryMemberRepository {
      */
 
     //id로 회원찾기
-    public Optional<Member> findById(long id){
+    public Optional<Member> findById(Long id){
         //Optional 이라는 객체안데 Member를 담는다. 값의 상태까지 포함하는 객체.
         //감싸지 않으면 값이 없을 때 null을 반환하는데
         //null을 그대로 쓰면 NullPointerException 위험

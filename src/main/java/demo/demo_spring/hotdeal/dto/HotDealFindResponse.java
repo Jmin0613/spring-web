@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 // @AllArgsConstructor
 public class HotDealFindResponse {
     // 고객에 보여줄 것만 뽑기
-    private long id;
+    private Long id;
     private String title; //상품 게시글 제목
     private int price; //원래 가격
     private int discountPrice; //핫딜 가격
