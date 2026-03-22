@@ -99,6 +99,20 @@ public class HotDealService {
         
         hotDealRepository.delete(hotDeal); //있으면 삭제
     }
+
+    //6. 핫딜 상품 구매 - 비관적 락 -> 동시에 같은 핫딜 상품 구매 접근 막기 (재고 수정 충돌 방지)
+    public void buyPessimisticLock(Long id){
+        //1. 비관적 락을 이용해 id를 넣어 해당 핫딜 상품 가져오기
+        HotDeal hotDeal = hotDealRepository.findByIdWithPessimisticLock(id)
+                .orElseThrow(() -> new IllegalStateException("핫딜 없음")); //없으면 예외 던지기
+        //2. id를 넣어 재고를 확인
+        if(hotDeal.getQuantity() <= 0){
+            throw new IllegalStateException("재고 없음"); //재고 없으면 예외 던지기
+        }
+        //3. 재고가 있을시, -1 감소
+        hotDeal.setQuantity(hotDeal.getQuantity()-1); //-> 이부분 나중에 리팩토링할때 엔티티메서드로 바꿔주자.
+        //4. 비관적 락 구매 메서드끝나고, 트랜잭션 커밋될떄 자물쇠 자동으로 풀림
+    }
 }
 
     /*
