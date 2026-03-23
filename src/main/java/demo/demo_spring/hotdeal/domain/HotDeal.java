@@ -1,8 +1,6 @@
 package demo.demo_spring.hotdeal.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
@@ -22,10 +20,14 @@ public class HotDeal {
     private LocalDateTime startTime; //핫딜 시작 시간
     private LocalDateTime endTime; //핫딜 종료 시간
 
+    @Version //낙관적 락 버전관리기능 추가
+    private Long version;
+
+
     //기본 생성자. 외부에서 마음대로 생성못하고 jpa만 쓰게 protected로 설정해주기.
     public HotDeal(){};
 
-    //생성자 getter setter
+    //생성자 getter setter -> 리팩토링 해주기.
     public Long getId() {
         return id;
     }

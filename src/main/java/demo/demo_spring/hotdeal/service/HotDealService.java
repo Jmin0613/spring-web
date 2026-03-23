@@ -100,12 +100,12 @@ public class HotDealService {
         hotDealRepository.delete(hotDeal); //있으면 삭제
     }
 
-    //6. 핫딜 상품 구매 - 비관적 락 -> 동시에 같은 핫딜 상품 구매 접근 막기 (재고 수정 충돌 방지)
+    //6-1. 핫딜 상품 구매 - 비관적 락 -> 동시에 같은 핫딜 상품 구매 접근 막기 (재고 수정 충돌 방지)
     public void buyPessimisticLock(Long id){
         //1. 비관적 락을 이용해 id를 넣어 해당 핫딜 상품 가져오기
         HotDeal hotDeal = hotDealRepository.findByIdWithPessimisticLock(id)
                 .orElseThrow(() -> new IllegalStateException("핫딜 없음")); //없으면 예외 던지기
-        //2. id를 넣어 재고를 확인
+        //2. 재고 수량 확인
         if(hotDeal.getQuantity() <= 0){
             throw new IllegalStateException("재고 없음"); //재고 없으면 예외 던지기
         }
@@ -113,6 +113,30 @@ public class HotDealService {
         hotDeal.setQuantity(hotDeal.getQuantity()-1); //-> 이부분 나중에 리팩토링할때 엔티티메서드로 바꿔주자.
         //4. 비관적 락 구매 메서드끝나고, 트랜잭션 커밋될떄 자물쇠 자동으로 풀림
     }
+    //6-2. 핫딜 상품 구매 - 낙관적 락
+    public void buyOptimisticLock(Long id){
+        //1. id넣어 해당 등록 상품 있는지 확인
+        HotDeal hotDeal = hotDealRepository.findById(id)
+                .orElseThrow(()-> new IllegalStateException("핫딜 없음"));
+        //2. 재고 수량 확인
+        if(hotDeal.getQuantity()<=0){
+            throw new IllegalStateException("재고 없음");
+        }
+        //3. 재고있을시 -1
+        hotDeal.setQuantity(hotDeal.getQuantity()-1);
+        // 흐름은 비관적 락과 거의 비슷함. 조회 메서드만 findBuId로 바꾸고, 충돌검사는 @Version이 자동으로 해줌
+        // 하지만, 겉보기 코드가 비관적 락과 비슷해도
+        // db 반영 시점에 version 충돌이 나면 JPA가 예외를 던짐.
+    }
+    //6-3. 핫딜 상품 구매 - 낙관적 락 + 재시도
+    /* 문제. 재시도 루프는 트랜잭션 바깥에 있어야 함
+    이미 실패해서 엉망이 된 트랜잭션 주머니 안에서 백날 다시 시도해봤자 계속 실패하기 때문.
+    트랜잭션은 전부 성공하든지, 아예 없었던 일로 하든지(Rollback)
+    낙관적 락이 충돌하면 jpa는 ObjectOptimisticLockingFailureException이라는 에러를 던짐
+    이게 발생하는 순간 해당 트랜잭션은 롤백 대상으로 확정
+    이미 망가진 트랜잭션 안에서 재시도를 계속 해봐야 db는 "이 트랜잭션은 이미 끝"이라고 거절.
+    고로 트랜잭션 밖에서 재시도를 할 수 있게, 따로 클래스 구현해야함.
+     */
 }
 
     /*

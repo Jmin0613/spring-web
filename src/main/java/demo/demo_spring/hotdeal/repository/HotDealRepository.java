@@ -22,6 +22,9 @@ public interface HotDealRepository extends JpaRepository<HotDeal, Long> {
     // 그런데 조건이 있다. HotDeal객체가 가진 id필드값이 파라미터로 들어온 id랑 같은 것만 골라내라. (=:id)
     Optional<HotDeal> findByIdWithPessimisticLock(@Param("id") Long id);
 
+
+
+}
     /* 공부하다 궁금해진 것. jpa에 이미 findById있는데 왜 @Query를 쓰는걸가?
     비관적 락(@Lock)을 걸기위해 이 query가 실행되는 시점을, 직접 통제하고 싶어서.
     나중에 핫딜 정보와 상품정보를 한꺼번에 가져오는 Fetch join같은 복잡한 쿼리가 필요할떄,
@@ -29,9 +32,8 @@ public interface HotDealRepository extends JpaRepository<HotDeal, Long> {
     즉, 꼭 필요한건 아니지만, 지금처럼 락 조회 메서드를 따로 만들때는 좋다.
      */
 
-}
-/* jpa에서 비관적 락 구현하는 LockModType의 종류 3가지
+    /* jpa에서 비관적 락 구현하는 LockModType의 종류 3가지
     PESSIMISTIC_READ : 다른 트랜잭션에서 데이터 읽기(조회)만 가능. 쓰기X
     PESSIMISTIC_WRITE(FOR UPDATE의 주인공) : 다른 트랜잭션에게 내 트랜잭션 끝나기 전까지 대기시킴(읽기,쓰기 X)
     PESSIMISTIC_FORCE_INCREMENT : 다른 트랜잭션에서 읽기,쓰기 X + 건드리기만해도 버전 올리는 버저닝
- */
+    */

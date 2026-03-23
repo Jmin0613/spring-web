@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 public class HotDealServiceTest{
@@ -22,17 +23,20 @@ public class HotDealServiceTest{
     //테스트를 위한 핫딜 객체 생성 + 서비스, 레포지토리 연결
     private final HotDealService hotDealService;
     private final HotDealRepository hotDealRepository;
+    private final OptimisticLockFacade optimisticLockFacade; //낙관적 락 + 재시도
 
     @Autowired
     public HotDealServiceTest(HotDealService hotDealService,
-                              HotDealRepository hotDealRepository) {
+                              HotDealRepository hotDealRepository,
+                              OptimisticLockFacade optimisticLockFacade) {
         this.hotDealService = hotDealService;
         this.hotDealRepository = hotDealRepository;
+        this.optimisticLockFacade = optimisticLockFacade;
     }
 
-    @Test //JUnit에게 테스트하라고 알려줌
+    @Test //비관적 락
     // 재고는 5개. 요청은 20개.
-    public void concurrentTest() throws InterruptedException{
+    public void BuyWithPessimisticLockTest() throws InterruptedException{
         // 만약 중간에 끊어지면 InterruptedException예외 던짐
         int threadCnt= 20; //스레드 개수
         AtomicInteger success = new AtomicInteger(); //성공횟수
@@ -49,8 +53,8 @@ public class HotDealServiceTest{
         hotDeal.setEndTime(LocalDateTime.now().plusMinutes(10)); // 10분 후 종료 설정
 
         HotDeal savedHotDeal = hotDealRepository.save(hotDeal); //등록하여 핫딜 객체 가져오기
-        //serivce를 이용하지 않고 repository를 이용해 save한 이유
-        // 서비스에 저장하면 그쪽 다른 로직들과 엉킬수도있고
+        //service를 이용하지 않고 repository를 이용해 save한 이유
+        //서비스에 저장하면 그쪽 다른 로직들과 엉킬수도있고
         //내가 테스트 하는 목적인 "비관적 락"의 동작만을 살펴볼 수 없기에
         //이를 위해 준비? 테스트 데이터를 가장 짧게 레포지토리에 넣기위해 사용.
         Long id = savedHotDeal.getId();
@@ -75,8 +79,7 @@ public class HotDealServiceTest{
         // 테스트 실행 : 20명이 동시에 구매요청 상황
         for(int i=0;i<threadCnt;i++){
             executorService.submit(()->{
-                try{
-                    hotDealService.buyPessimisticLock(id);
+                try{hotDealService.buyPessimisticLock(id); //비관적 락 테스트
                     success.incrementAndGet(); //성공횟수 +1
                     // success++ 안한 이유 : 여러스레드가 동시에 ++하면 꼬일 수 있기에,
                     //증가 연산을 원자적으로 안전하게 해주는 AtomicInteger의 incrementAndGet()사용.
@@ -95,7 +98,7 @@ public class HotDealServiceTest{
         HotDeal testResult = hotDealRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("핫딜 없음"));
         //JUnit의 검증 메서드. assertEquals(기대값, 실제값)
-        assertEquals(0,testResult.getQuantity());
+        assertEquals(0,testResult.getQuantity()); //비관적 락 테스트
         assertEquals(5, success.get());
         assertEquals(15,fail.get());
         // 출력만하면 눈으로 보고 판단을 내려야하는데, 이건 assertEquals가 알아서 판단해줌.
@@ -108,6 +111,126 @@ public class HotDealServiceTest{
         System.out.println("최종 재고 = " + testResult.getQuantity());
     }
 
+    @Test //낙관적 락
+    // 재고는 5개. 요청은 20개.
+    public void BuyWithOptimisticLockTest() throws InterruptedException{
+        // 만약 중간에 끊어지면 InterruptedException예외 던짐
+        int threadCnt= 20; //스레드 개수
+        AtomicInteger success = new AtomicInteger(); //성공횟수
+        AtomicInteger fail = new AtomicInteger(); //실패횟수
+
+        //테스트 상품 등록
+        HotDeal hotDeal = new HotDeal();
+        hotDeal.setTitle("테스트 상품");
+        hotDeal.setPrice(10000);
+        hotDeal.setDiscountPrice(5000);
+        hotDeal.setQuantity(5); //재고
+        hotDeal.setStartTime(LocalDateTime.now().minusMinutes(1)); // 1분전 시작 설정
+        hotDeal.setEndTime(LocalDateTime.now().plusMinutes(10)); // 10분 후 종료 설정
+
+        HotDeal savedHotDeal = hotDealRepository.save(hotDeal); //등록하여 핫딜 객체 가져오기
+        Long id = savedHotDeal.getId();
+
+        // 20개의 스레드 관리할 풀 생성
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
+        // 20번 작업 끝날때까지 대기
+        CountDownLatch latch = new CountDownLatch(threadCnt);
+        //ExecutorService = 일 시키는 관리자
+        //newFixedThreadPool(32) = 직원 32명 고용
+        //CountDownLatch(20) = 끝나야 할 작업 20개 체크리스트
+
+        // 테스트 실행 : 20명이 동시에 구매요청 상황
+        for(int i=0;i<threadCnt;i++){
+            executorService.submit(()->{
+                try{
+                    hotDealService.buyOptimisticLock(id); // 낙관적 락 테스트
+                    success.incrementAndGet(); //성공횟수 +1
+                } catch(Exception e) {
+                    fail.incrementAndGet(); // 실패 횟수 +1
+                }finally {
+                    latch.countDown();
+                }
+            });
+        }
+        latch.await(); //20번 작업 모두 끝날떄까지 여기서 대기!(latch는 작업 몇개 남았는지 세는 도구)
+        executorService.shutdown(); //새로운 작업을 안받는다는 종료 요청
+
+        //검증 : 재고 0, 성공횟수 5, 실패횟수 15 여야함.
+        HotDeal testResult = hotDealRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("핫딜 없음"));
+
+        //낙관적 락 테스트
+        // assertTrue(조건, "실패 시 출력 메시지")
+        assertTrue(testResult.getQuantity()>=0); //재고 음수 방지
+        assertEquals(5, success.get() + testResult.getQuantity()); //실패했을시, 재시도 로직 추가 전이라 성공+남은재고 확인
+        assertEquals(threadCnt, success.get() + fail.get()); // 요청개수 -> 중간 누락 확인용
+
+        //assert가 검증만 하고 출력은 안 하기 때문에, 확인용
+        //asserEquals는 검증만하지 출력은 안함.
+        System.out.println("성공 횟수 = " + success.get());
+        System.out.println("실패 횟수 = " + fail.get());
+        System.out.println("최종 재고 = " + testResult.getQuantity());
+    }
+
+    @Test //낙관적 락 + 재시도
+    // 재고는 5개. 요청은 20개.
+    public void BuyWithOptimisticLockRetryTest() throws InterruptedException{
+        // 만약 중간에 끊어지면 InterruptedException예외 던짐
+        int threadCnt= 20; //스레드 개수
+        AtomicInteger success = new AtomicInteger(); //성공횟수
+        AtomicInteger fail = new AtomicInteger(); //실패횟수
+
+        //테스트 상품 등록
+        HotDeal hotDeal = new HotDeal();
+        hotDeal.setTitle("테스트 상품");
+        hotDeal.setPrice(10000);
+        hotDeal.setDiscountPrice(5000);
+        hotDeal.setQuantity(5); //재고
+        hotDeal.setStartTime(LocalDateTime.now().minusMinutes(1)); // 1분전 시작 설정
+        hotDeal.setEndTime(LocalDateTime.now().plusMinutes(10)); // 10분 후 종료 설정
+
+        HotDeal savedHotDeal = hotDealRepository.save(hotDeal); //등록하여 핫딜 객체 가져오기
+        Long id = savedHotDeal.getId();
+
+        // 20개의 스레드 관리할 풀 생성
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
+        // 20번 작업 끝날때까지 대기
+        CountDownLatch latch = new CountDownLatch(threadCnt);
+        //ExecutorService = 일 시키는 관리자
+        //newFixedThreadPool(32) = 직원 32명 고용
+        //CountDownLatch(20) = 끝나야 할 작업 20개 체크리스트
+
+        // 테스트 실행 : 20명이 동시에 구매요청 상황
+        for(int i=0;i<threadCnt;i++){
+            executorService.submit(()->{
+                try{
+                    optimisticLockFacade.buyOptimisticLockWithRetry(id); //낙관적 락 + 재시도
+                    success.incrementAndGet(); //성공횟수 +1
+                } catch(Exception e) {
+                    fail.incrementAndGet(); // 실패 횟수 +1
+                }finally {
+                    latch.countDown();
+                }
+            });
+        }
+        latch.await();
+        executorService.shutdown();
+
+        //검증 : 재고 0, 성공횟수 5, 실패횟수 15 여야함.
+        HotDeal testResult = hotDealRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("핫딜 없음"));
+
+        //낙관적 락 + 재시도 테스트
+        assertEquals(0, testResult.getQuantity());
+        assertEquals(5, success.get());
+        assertEquals(15,fail.get());
+
+        //assert가 검증만 하고 출력은 안 하기 때문에, 확인용
+        //asserEquals는 검증만하지 출력은 안함.
+        System.out.println("성공 횟수 = " + success.get());
+        System.out.println("실패 횟수 = " + fail.get());
+        System.out.println("최종 재고 = " + testResult.getQuantity());
+    }
 }
 /* throw vs throws
 
