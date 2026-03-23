@@ -25,11 +25,11 @@ public class MemberService {
     public Long join(Member member) {
         validateDuplicateMember(member);
         repository.save(member);
-        return member.getId();
+        return member.getId(); //기본키 반환
     }
     //중복 검사. 가입 가능 여부 판단이기에 service에 만듦.
     private void validateDuplicateMember(Member member){ //외부에서 쓸 필요x -> private
-        repository.findByName(member.getName())
+        repository.findByLoginId(member.getLoginId())
                 .ifPresent(m ->{ //ifPresent : 값이 있으면 실행하라 -> m이 있으면(중복) 에러를 터트려라
                     throw new IllegalStateException("이미 존재하는 회원입니다."); //에러 던지기
                 });
@@ -49,10 +49,14 @@ public class MemberService {
         return repository.findAll();
     }
 
-    //4. 로그인 -> 현재는 일단 name으로만 로그인하게 둠. 나중에 수정할 예정.
-    public Member login(String name){ //Member 객체인데, 받아쓰는건 name
-        return repository.findByName(name) // 받은 name으로 회원찾기
-                .orElse(null); //없으면 null반환
+    //4. 로그인
+    public Member login(String loginId, String password){
+        Member member = repository.findByLoginId(loginId) // loginId로 회원조회
+                .orElseThrow(()-> new IllegalStateException("존재하지 않는 아이디입니다."));
+        if(!member.getPassword().equals(password)){
+            throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+        }
+        return member;
     }
 
 }
