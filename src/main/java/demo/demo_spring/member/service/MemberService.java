@@ -43,7 +43,7 @@ public class MemberService {
     }
 
     //3. 회원 전체 조회
-    public List<Member> findMembers(){
+    public List<Member> findMembers() {
         return repository.findAll();
     }
 
