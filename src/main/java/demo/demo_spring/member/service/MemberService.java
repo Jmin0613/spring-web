@@ -38,10 +38,8 @@ public class MemberService {
     //Optional 꺼내서 조회 기능 완성하기
     //2. 회원 조회 - 개인
     public Member findOne(Long id){
-        return repository.findById(id).orElse(null);
-        //findById(id) 아이디를 조회
-        //.orElse(null)값을 꺼냄. 없으면 null.
-        //Optional에 올 값이 null인 경우 orElse안에 있는 내용을 실행
+        return repository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("회원이 없습니다.")); //null들어가면 npe 위험있어서 변경
     }
 
     //3. 회원 전체 조회
@@ -58,6 +56,7 @@ public class MemberService {
         }
         return member;
     }
+
 
 }
 

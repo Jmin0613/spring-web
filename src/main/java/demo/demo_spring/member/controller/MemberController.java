@@ -1,6 +1,7 @@
 package demo.demo_spring.member.controller;
 
 import demo.demo_spring.member.dto.MemberCreateRequest;
+import demo.demo_spring.member.dto.MemberInfoResponse;
 import demo.demo_spring.member.dto.MemberLoginRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +10,6 @@ import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.member.domain.Member;
 
 import java.net.URI;
-import java.util.*;
 
 @RestController
 public class MemberController {
@@ -40,9 +40,6 @@ public class MemberController {
         //로그인id와 비밀번호 넘겨서 로그인
         Member member = memberService.login(request.getLoginId(), request.getPassword());
 
-        if(member == null){ //조회되는 회원이 없음
-            throw new IllegalStateException("회원이 없습니다."); //로그인 안된다고 예외 던지기
-        }
         session.setAttribute("loginMember", member); //세션 관리
         //loginMember라는 이름으로 member객체를 서버에 저장
 
@@ -58,12 +55,20 @@ public class MemberController {
 
     //내 정보 조회
     @GetMapping("/members/myinfo")
-    public Member myInfo(HttpSession session){
+    public MemberInfoResponse myInfo(HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
 
         if(loginMember == null){
             throw new IllegalStateException("로그인이 필요합니다");
         }
-        return memberService.findOne(loginMember.getId()); //추후 추가 예정
+        // 세션에 이미 있는데 한번 더 회원 정보를 확인하는 이유
+        // db 기준 회신 상태 응답을 위해.
+        // 로그인 한 후에, 비밀번호나 이메일 바꿧을 수도 있으니간.
+        // DB가 바뀌었다고 세션 객체가 자동으로 같이 바뀌진 않음.
+        // 세션은 단지 서버가 "이 사용자는 로그인한 상태"라는 것을 기억하는거지, db랑 실시간 동기화는 아님.
+        // ------> 웹 요청/인증 상태 검사는 서비스로 안넘기고 컨트롤러에서. 이경우 세션이라는 웹기술.
+
+        Member member = memberService.findOne(loginMember.getId());
+        return MemberInfoResponse.fromEntity(member); //dto
     }
 }

@@ -7,13 +7,14 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 public class MemberCreateRequest {
+    // 회원가입 요청 DTO
 
     private String loginId; //로그인 id
     private String password;//로그인 비밀번호
     private String email; // 이메일
     private String name; //사용자 이름
 
-    //DTOㅂ 기본 생성자
+    //DTO 기본 생성자
     //스프링이 @RequestBody로 JSON을 객체로 바인딩할 때 기본 생성자가 필요할 수 있음
     // -> 빈 객체 만들고, JSON값 채워넣는 흐름
     //public MemberCreateRequest() {}; -> @NoArgsConstructor사용

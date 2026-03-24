@@ -15,23 +15,13 @@ public class HotDealController {
 
     //클라이언트(web) 요청 받아서 service로 넘길 객체 생성
     private final HotDealService hotDealService;
-    private final HotDealRepository hotDealRepository;
 
     //생성자주입 + di
-    public HotDealController(HotDealService hotDealService, HotDealRepository hotDealRepository){
+    public HotDealController(HotDealService hotDealService){
         this.hotDealService = hotDealService;
-        this.hotDealRepository = hotDealRepository;
     }
 
-    // 1. 핫딜등록(Post)
-    @PostMapping("/hotdeals")
-    public Long save(@RequestBody HotDealCreateRequest request){
-        HotDeal hotDeal = request.toEntity(); //DTO -> Entity 변환
-        Long id = hotDealService.save(hotDeal); // 서비스에서 레포지토리를 통해 데이터 저장
-        return id;
-    }
-
-    // 2. 핫딜 전체 조회 (Get) -> 고객 기준
+    // 1. 핫딜 전체 조회 (Get)
     @GetMapping("/hotdeals")
     public List<HotDealFindResponse> findAll(){
         return hotDealService.findAll() //List<HotDeal>
@@ -40,33 +30,18 @@ public class HotDealController {
                 .toList(); //List<DTO>
     }
 
-    // 3. 핫딜 단건 조회 (Get) -> 고객 기준
+    // 2. 핫딜 단건 조회 (Get)
     @GetMapping("/hotdeals/{id}")
     public HotDealFindResponse findById(@PathVariable Long id){ //URL에서 id값 추출
         HotDeal hotDeal = hotDealService.findById(id); //꺼내오기
         return HotDealFindResponse.fromEntity(hotDeal); //DTO처리해서 보내주기
     }
 
-    // 4. 핫딜 구매 (Post)
+    // 3. 핫딜 구매 (Post)
     @PostMapping("/hotdeals/{id}/buy")
     public String buy(@PathVariable Long id){
         hotDealService.buy(id); //사오기
         return "구매 성공";
-    }
-
-    // 5. 핫딜 업데이트. PUT -> 수정
-    @PutMapping("/hotdeals/{id}")
-    public void update(@PathVariable Long id, @RequestBody HotDealUpdateRequest request){
-        hotDealService.update(id, request);
-        //반환값 필요x
-    }
-
-    //6. 핫딜 상품 삭제. Delete -> 삭제
-    @DeleteMapping("/hotdeals/{id}")
-    //처음에 /hotdeals/{id}/delete햇는데, 보통 delete는 HTTP 메서드 자체가 삭제 의미해서 굳이 안붙인단다.
-    //Rest..Rest스러운게 뭘까..
-    public void delete(@PathVariable Long id){
-        hotDealService.delete(id);
     }
 }
 /*

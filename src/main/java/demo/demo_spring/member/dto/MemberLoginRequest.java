@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor //DTO도 @RequestBody로 받을걸라서 스프링이 JSON->객체 변환시 필요할 수 있음
 public class MemberLoginRequest { // ----> 로그인 입력값 전달용 DTO
+    // 관리자/회원 공통 로그인 요청 DTO
 
     //로그인 기준 : loginId+password
     private String loginId;
