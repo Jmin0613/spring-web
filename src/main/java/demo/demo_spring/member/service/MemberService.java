@@ -56,8 +56,6 @@ public class MemberService {
         }
         return member;
     }
-
-
 }
 
     /*3번 회원 전체 조회 -> 왜 Map이 아닌 List로 변환해야 하나?

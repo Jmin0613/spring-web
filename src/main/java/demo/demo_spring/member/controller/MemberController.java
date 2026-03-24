@@ -59,7 +59,7 @@ public class MemberController {
         Member loginMember = (Member)session.getAttribute("loginMember");
 
         if(loginMember == null){
-            throw new IllegalStateException("로그인이 필요합니다");
+            throw new IllegalStateException("로그인 필요");
         }
         // 세션에 이미 있는데 한번 더 회원 정보를 확인하는 이유
         // db 기준 회신 상태 응답을 위해.

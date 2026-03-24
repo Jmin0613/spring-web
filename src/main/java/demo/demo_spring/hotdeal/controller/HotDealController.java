@@ -1,11 +1,10 @@
 package demo.demo_spring.hotdeal.controller;
 
 import demo.demo_spring.hotdeal.domain.HotDeal;
-import demo.demo_spring.hotdeal.dto.HotDealCreateRequest;
 import demo.demo_spring.hotdeal.dto.HotDealFindResponse;
-import demo.demo_spring.hotdeal.dto.HotDealUpdateRequest;
-import demo.demo_spring.hotdeal.repository.HotDealRepository;
 import demo.demo_spring.hotdeal.service.HotDealService;
+import demo.demo_spring.member.domain.Member;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -39,9 +38,19 @@ public class HotDealController {
 
     // 3. 핫딜 구매 (Post)
     @PostMapping("/hotdeals/{id}/buy")
-    public String buy(@PathVariable Long id){
+    public String buy(@PathVariable Long id, HttpSession session){
+        checkLogin(session); //로그인 체크
+
         hotDealService.buy(id); //사오기
         return "구매 성공";
+    }
+
+    private Member checkLogin(HttpSession session){
+        Member loginMember = (Member)session.getAttribute("loginMember"); //세션에서 로그인 정보 꺼내오기
+        if(loginMember == null){
+            throw new IllegalStateException(("로그인 필요"));
+        }
+        return loginMember;
     }
 }
 /*
