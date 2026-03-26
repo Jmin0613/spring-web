@@ -32,7 +32,6 @@ public class AdminController {
     // 1. 회원 단건 조회 (Get)
     @GetMapping("/members/{id}")
     public MemberInfoResponse findOne(@PathVariable Long id, HttpSession session){
-        checkAdmin(session);//관리자 권한 체크
 
         Member member = memberService.findOne(id);
         return MemberInfoResponse.fromEntity(member); //dto
@@ -41,7 +40,6 @@ public class AdminController {
     // 2. 회원 전체 조회 (Get)
     @GetMapping("/members")
     public List<MemberFindAllResponse> memberFindAll(HttpSession session){
-        checkAdmin(session);//관리자 권한 체크
 
         return memberService.findMembers() //이걸로 받은 List는 List<Member>
                 .stream() //순차적으로. 여기서 타입은 Stream<Member>임.
@@ -55,7 +53,6 @@ public class AdminController {
     // 1. 핫딜 등록 (Post)
     @PostMapping("/hotdeals")
     public Long save(@RequestBody HotDealCreateRequest request, HttpSession session){
-        checkAdmin(session);//관리자 권한 체크
 
         HotDeal hotDeal = request.toEntity(); //DTO -> Entity 변환
         Long id = hotDealService.save(hotDeal); // 서비스에서 레포지토리를 통해 데이터 저장
@@ -65,7 +62,6 @@ public class AdminController {
     // 2. 핫딜 전체 조회 (Get)
     @GetMapping("/hotdeals")
     public List<HotDealFindResponse> hotDealFindAll(HttpSession session){
-        checkAdmin(session);//관리자 권한 체크
 
         return hotDealService.findAll() //List<HotDeal>
                 .stream() //stream<HotDeal>
@@ -76,7 +72,6 @@ public class AdminController {
     // 3. 핫딜 업데이트 (Put)
     @PutMapping("/hotdeals/{id}")
     public void update(@PathVariable Long id, @RequestBody HotDealUpdateRequest request, HttpSession session){
-        checkAdmin(session);//관리자 권한 체크
 
         hotDealService.update(id, request);
     }
@@ -84,25 +79,7 @@ public class AdminController {
     //4. 핫딜 상품 삭제 (Delete)
     @DeleteMapping("/hotdeals/{id}")
     public void delete(@PathVariable Long id, HttpSession session){
-        checkAdmin(session);//관리자 권한 체크
         hotDealService.delete(id);
-    }
-
-    //관리자 권한 체크 - 자바 내부 코드
-    //관리자 전용 메서드 들어가기전, 로그인여부+role확인
-    private Member checkLogin(HttpSession session){
-        Member loginMember = (Member)session.getAttribute("loginMember"); //세션에서 로그인 정보 꺼내오기
-        if(loginMember == null){
-            throw new IllegalStateException(("로그인 필요"));
-        }
-        return loginMember;
-    }
-
-    private void checkAdmin(HttpSession session){
-        Member loginMember = checkLogin(session); //세션에 저장된 로그인 정보 체크
-        if(loginMember.getRole()!= Role.ADMIN){ //Role확인
-            throw new IllegalStateException("관리자만 접근 가능");
-        }
     }
 
 }
