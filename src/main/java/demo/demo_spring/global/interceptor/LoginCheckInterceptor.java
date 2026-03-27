@@ -1,4 +1,4 @@
-package demo.demo_spring.interceptor;
+package demo.demo_spring.global.interceptor;
 
 import demo.demo_spring.member.domain.Member;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,0 +1,16 @@
+<1. 관리자 목록 조회> -> AdminProductListResponse
+id, name, price, stock,
+createdAt, UpdatedAt, status
+
+<2. 관리자 상세 조회> -> AdminProductDetailResponse
+id, name, description, imageUrl,
+price, stock, category,
+createdAt, UpdatedAt, status
+
+<3. 사용자 목록 조회> -> ProductListResponse
+id, name, imageUrl,
+price, category, status
+
+<4. 사용자 상세 조회> -> ProductDetailResponse
+id, name, description, imageUrl,
+price, category, status

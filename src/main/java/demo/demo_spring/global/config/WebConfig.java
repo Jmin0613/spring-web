@@ -1,7 +1,7 @@
-package demo.demo_spring.config;
+package demo.demo_spring.global.config;
 
-import demo.demo_spring.interceptor.AdminCheckInterceptor;
-import demo.demo_spring.interceptor.LoginCheckInterceptor;
+import demo.demo_spring.global.interceptor.AdminCheckInterceptor;
+import demo.demo_spring.global.interceptor.LoginCheckInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
