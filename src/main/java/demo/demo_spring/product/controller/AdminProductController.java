@@ -23,7 +23,7 @@ public class AdminProductController {
     }
 
     // 수정
-    @PutMapping("/admin/products/{id}")
+    @PatchMapping("/admin/products/{id}")
     public void patch(@PathVariable Long id, @RequestBody ProductUpdateRequest request){
         productService.patch(id, request);
     }
