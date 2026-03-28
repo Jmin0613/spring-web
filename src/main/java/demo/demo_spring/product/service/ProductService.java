@@ -53,7 +53,7 @@ public class ProductService {
     }
 
     //수정
-    public void update(Long id, ProductUpdateRequest request){
+    public void patch(Long id, ProductUpdateRequest request){
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("상품 없음"));
         product.updateProduct(
@@ -80,7 +80,7 @@ public class ProductService {
                 .stream().map(AdminProductListResponse::fromEntity) //Stream<DTO>
                 .toList(); //List<DTO>
     }
-    //관리자 단건조회
+    //관리자 단건 상세조회
     public AdminProductDetailResponse adminFindProduct(Long id){
         Product product = productRepository.findById(id)
                 .orElseThrow(()->new IllegalStateException("상품 없음"));
@@ -93,7 +93,7 @@ public class ProductService {
                 .stream().map(ProductListResponse::fromEntity) //Stream<DTO>
                 .toList(); //List<DTO>
     }
-    //사용자 단건조회
+    //사용자 단건 상세조회
     public ProductDetailResponse memberFindProduct(Long id){
         Product product = productRepository.findById(id)
                 .orElseThrow(()->new IllegalStateException("상품 없음"));
