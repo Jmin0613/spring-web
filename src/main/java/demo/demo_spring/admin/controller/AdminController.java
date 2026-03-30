@@ -2,9 +2,8 @@ package demo.demo_spring.admin.controller;
 
 import demo.demo_spring.hotdeal.domain.HotDeal;
 import demo.demo_spring.hotdeal.dto.HotDealCreateRequest;
-import demo.demo_spring.hotdeal.dto.HotDealFindResponse;
+import demo.demo_spring.hotdeal.dto.HotDealListResponse;
 import demo.demo_spring.hotdeal.dto.HotDealUpdateRequest;
-import demo.demo_spring.member.domain.Role;
 import demo.demo_spring.member.dto.MemberFindAllResponse;
 import demo.demo_spring.member.dto.MemberInfoResponse;
 import jakarta.servlet.http.HttpSession;
@@ -61,11 +60,11 @@ public class AdminController {
 
     // 2. 핫딜 전체 조회 (Get)
     @GetMapping("/hotdeals")
-    public List<HotDealFindResponse> hotDealFindAll(HttpSession session){
+    public List<HotDealListResponse> hotDealFindAll(HttpSession session){
 
         return hotDealService.findAll() //List<HotDeal>
                 .stream() //stream<HotDeal>
-                .map(HotDealFindResponse::fromEntity)//Stream<DTO>
+                .map(HotDealListResponse::fromEntity)//Stream<DTO>
                 .toList(); //List<DTO>
     }
 

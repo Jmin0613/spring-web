@@ -50,7 +50,7 @@ public class HotDeal {
 
         this.product = product; this.hotDealPrice = hotDealPrice; this.hotDealStock = hotDealStock;
         this.startTime = startTime; this.endTime = endTime;
-        this.status = HotDealStatus.READY
+        this.status = HotDealStatus.READY;
     }
 
     // 핫딜 이벤트 등록/생성 메서드

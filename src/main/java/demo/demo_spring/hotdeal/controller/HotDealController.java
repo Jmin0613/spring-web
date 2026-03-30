@@ -1,9 +1,8 @@
 package demo.demo_spring.hotdeal.controller;
 
 import demo.demo_spring.hotdeal.domain.HotDeal;
-import demo.demo_spring.hotdeal.dto.HotDealFindResponse;
+import demo.demo_spring.hotdeal.dto.HotDealListResponse;
 import demo.demo_spring.hotdeal.service.HotDealService;
-import demo.demo_spring.member.domain.Member;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,18 +21,18 @@ public class HotDealController {
 
     // 1. 핫딜 전체 조회 (Get)
     @GetMapping("/hotdeals")
-    public List<HotDealFindResponse> findAll(){
+    public List<HotDealListResponse> findAll(){
         return hotDealService.findAll() //List<HotDeal>
                 .stream() //stream<HotDeal>
-                .map(HotDealFindResponse::fromEntity)//Stream<DTO>
+                .map(HotDealListResponse::fromEntity)//Stream<DTO>
                 .toList(); //List<DTO>
     }
 
     // 2. 핫딜 단건 조회 (Get)
     @GetMapping("/hotdeals/{id}")
-    public HotDealFindResponse findById(@PathVariable Long id){ //URL에서 id값 추출
+    public HotDealListResponse findById(@PathVariable Long id){ //URL에서 id값 추출
         HotDeal hotDeal = hotDealService.findById(id); //꺼내오기
-        return HotDealFindResponse.fromEntity(hotDeal); //DTO처리해서 보내주기
+        return HotDealListResponse.fromEntity(hotDeal); //DTO처리해서 보내주기
     }
 
     // 3. 핫딜 구매 (Post)
