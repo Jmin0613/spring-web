@@ -16,7 +16,7 @@ public class HotDealCreateRequest { // 핫딜 등록시 사용할 요청request 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    /*DTO -> Entity 변환하는 toEntity() 지금 DTO안에서 못 만듦
+    /* DTO -> Entity 변환하는 toEntity() 지금 DTO안에서 못 만듦
      저번처럼, DTO 정보만으로 엔티티를 완성하기 어려움
      이번에도 Service와 도메인쪽에 넘기는게 좋아보임.
      1. DTO가 요청값만 들고 있음

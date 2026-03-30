@@ -32,7 +32,7 @@ public class HotDealListResponse {
         this.status = hotDeal.getStatus();
     }
 
-    //Entity ->DTO 변환 메서드
+    // Entity ->DTO 변환 메서드
     public static HotDealListResponse fromEntity(HotDeal hotDeal){
         return new HotDealListResponse(hotDeal);
     }

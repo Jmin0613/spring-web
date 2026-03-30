@@ -40,7 +40,7 @@ public class AdminHotDealListResponse {
         this.status = hotDeal.getStatus();
     }
 
-    //Entity ->DTO 변환 메서드
+    //Entity -> DTO 변환 메서드
     public static AdminHotDealListResponse fromEntity(HotDeal hotDeal){
         return new AdminHotDealListResponse(hotDeal);
     }

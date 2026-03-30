@@ -29,7 +29,7 @@ public class AdminHotDealDetailResponse {
 
     private HotDealStatus status;
 
-    //HotDeal 생성자 -> fromEntity()가 내부에서 호출할 생성자
+    // HotDeal 생성자 -> fromEntity()가 내부에서 호출할 생성자
     private AdminHotDealDetailResponse(HotDeal hotDeal){
         this.hotDealId = hotDeal.getId(); this.productId = hotDeal.getProduct().getId();
         this.name = hotDeal.getProduct().getName();
@@ -42,7 +42,7 @@ public class AdminHotDealDetailResponse {
         this.status = hotDeal.getStatus();
     }
 
-    //Entity ->DTO 변환 메서드
+    // Entity ->DTO 변환 메서드
     public static AdminHotDealDetailResponse fromEntity(HotDeal hotDeal) {
         return new AdminHotDealDetailResponse(hotDeal);
     }

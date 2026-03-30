@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 public class HotDealUpdateRequest {
-    //핫딜 상품 정보 업데이트할떄 사용할 DTO
+    // 핫딜 상품 정보 업데이트할떄 사용할 DTO
 
     //update에서는 DTO를 엔티티로 새로 만드는 게 아니라
     //기존 엔티티에 DTO 값을 덮어써야 함.

@@ -19,7 +19,7 @@ public class HotDealDetailResponse {
     private LocalDateTime endTime; //핫딜 종료 시간
     private HotDealStatus status; //핫딜 상태
 
-    //상세 추가
+    // 상세 추가
     private String description;
     private int hotDealStock; //핫딜은 한정수량 느낌이 강하니간, 남은 재고 보여주기
 
