@@ -1,11 +1,10 @@
 package demo.demo_spring.product.controller;
 
+import demo.demo_spring.product.dto.ProductBuyRequest;
 import demo.demo_spring.product.dto.ProductDetailResponse;
 import demo.demo_spring.product.dto.ProductListResponse;
 import demo.demo_spring.product.service.ProductService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -27,5 +26,12 @@ public class ProductController {
     @GetMapping("/products/{id}")
     public ProductDetailResponse memberFindProduct(@PathVariable Long id){
         return productService.memberFindProduct(id);
+    }
+
+    // 상품 구매
+    @PostMapping("/products/{id}/buy")
+    public String buy(@PathVariable Long id, @RequestBody ProductBuyRequest request){
+        productService.buy(id, request.getQuantity());
+        return "구매 성공";
     }
 }

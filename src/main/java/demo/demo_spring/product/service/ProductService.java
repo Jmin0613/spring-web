@@ -61,7 +61,7 @@ public class ProductService {
                 request.getPrice(), request.getStock(), request.getCategory(),
                 request.getStatus(), LocalDateTime.now()
         );
-        }
+    }
         /* 원래 update000()스타일로 다 만들가했는데, 그냥 updateProduct()하나에 모아서 코드 조금 더 단순하게 했음
         아직까지는 괜찮은데, 더 늘어나거나 검증 규칙 복잡해지면 분리하는 것 염두해 두는 중.
          */
@@ -102,5 +102,29 @@ public class ProductService {
             throw new IllegalStateException("현재 판매되는 상품이 아님");
         }
         return ProductDetailResponse.fromEntity(product);
+    }
+
+    // 사용자 상품 구매 + Pessimistic Lock
+    public void buy(Long id, Integer quantity){
+        // quantity를 Integer로 받아서 null 체크
+        if(quantity == null){
+            throw new IllegalStateException("구매 수량 누락");
+        }
+
+        // 업데이트 시간
+        LocalDateTime now = LocalDateTime.now();
+
+        //1. 비관적 락을 이용해 id를 넣어 상품 가져오기
+        Product product = productRepository.findByIdWithPessimisticLock(id)
+                .orElseThrow(()->new IllegalStateException("상품 없음"));
+        //2. 판매 상태 확인
+        if(product.getStatus()==ProductStatus.HIDDEN){
+            throw new IllegalStateException("현재 판매하지 않는 상품");
+        }
+        //3. 재고,수량 체크 + 구매 진행하는 엔티티메서드
+        product.buy(quantity, now);
+
+        // 락 조회 : Service/Repository
+        //재고 차감 규칙 : Entity
     }
 }

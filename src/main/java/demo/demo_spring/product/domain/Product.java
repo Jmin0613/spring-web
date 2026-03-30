@@ -43,8 +43,16 @@ public class Product {
 
     // 상품 등록/생성 메서드 -> 값들 받아와서 조립
     public static Product createProduct(String name, String description, String imageUrl,
-                                 int price, int stock, String category,
-                                 LocalDateTime now, ProductStatus status){
+                                        int price, int stock, String category,
+                                        LocalDateTime now, ProductStatus status){
+        // 생성하기 전, 간단한 검증 추가
+        if (price <=0){
+            throw new IllegalStateException("잘못된 가격 입력");
+        }
+        if (stock <=0){
+            throw new IllegalStateException("잘못된 수량 입력");
+        }
+
         return new Product(
                 name, description, imageUrl,
                 price, stock, category,
@@ -68,6 +76,22 @@ public class Product {
         /* String의 경우 ""도 null이 아니라고 받아서 저장해버림.
         이를 막기위해 && !name.isBlank()사용
          */
+    }
+
+    //상품 구매 시, 재고 차감용 메서드
+    public void buy(int quantity, LocalDateTime now){ // 사용자 구매 입장 stock(재고 수량), quantity(구매 수량)
+        if(quantity <= 0){
+            throw new IllegalStateException("잘못된 구매 수량");
+        }
+        if(this.stock < quantity){
+            throw new IllegalStateException("재고 부족");
+        }
+        this.stock -= quantity; //구매 성공 + 재고 차감
+
+        if(this.stock == 0){
+            this.status = ProductStatus.SOLD_OUT; //재고 0 -> 품절처리
+        }
+        updatedAt = now; //수정일 반영
     }
 }
 /* @GeneratedValue strategy

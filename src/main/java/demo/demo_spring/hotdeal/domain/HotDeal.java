@@ -1,86 +1,74 @@
 package demo.demo_spring.hotdeal.domain;
 
+import demo.demo_spring.product.domain.Product;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Entity // db테이블과 연결된 객체라고 선언! db랑 매핑되는 객체.
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class HotDeal {
 
     @Id //DB의 기본키(PK)를 매칭해주는 어노테이션
-    @GeneratedValue //db가 알아서 값을 자동 증가시킴 -> 기본키 생성을 DB에 위임
-    private Long id; //상품 번호, 상품id, 품번
-    // private String name; //상품 이름 -> 아직 상품 테이블 안만들어서 주석처리하고 진행해봄
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // DB auto increment 방식으로 생성 명시
+    private Long id; //server hotdeal id
 
-    private String title; //핫딜 게시글 제목
-    private int price; //원가격
-    private int discountPrice; //할인가격
-    private int quantity; //재고 수량
+    @ManyToOne // HotDeal은 Product에 속해있음.
+    @JoinColumn(name = "product_id", nullable = false)
+    //DB테이블에서 product_id라는 컬럼을 통해 상품 테이블과 연결
+    private Product product; // db -> product_id
+
+    private int hotDealPrice; //가격
+    private int hotDealStock; //재고
 
     private LocalDateTime startTime; //핫딜 시작 시간
     private LocalDateTime endTime; //핫딜 종료 시간
 
-    @Version //낙관적 락 버전관리기능 추가
-    private Long version;
+    @CreatedDate // 생성시간 자동
+    private LocalDateTime createdAt; // 등록시간
+    @LastModifiedDate // 수정시간 자동
+    private LocalDateTime updatedAt; // 수정시간
 
+    @Enumerated(EnumType.STRING)
+    private HotDealStatus status; //핫딜 상태
 
-    //기본 생성자. 외부에서 마음대로 생성못하고 jpa만 쓰게 protected로 설정해주기.
-    public HotDeal(){};
+    // 기본 생성자 -> @NoArgsConstructor
 
-    //생성자 getter setter -> 리팩토링 해주기.
-    public Long getId() {
-        return id;
+    // 핫딜 이벤트 생성자
+    private HotDeal (Product product, int hotDealPrice, int hotDealStock,
+                     LocalDateTime startTime, LocalDateTime endTime){
+        // createdAt, updatedAt은 Auditing으로 넣어줄 것
+
+        this.product = product; this.hotDealPrice = hotDealPrice; this.hotDealStock = hotDealStock;
+        this.startTime = startTime; this.endTime = endTime;
+        this.status = HotDealStatus.READY
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    // 핫딜 이벤트 등록/생성 메서드
+    public static HotDeal createHotDeal(Product product, int hotDealPrice, int hotDealStock,
+                                        LocalDateTime startTime, LocalDateTime endTime){
+        // 생성하기 전, 간단한 검증 추가
+        if (hotDealPrice <=0){
+            throw new IllegalStateException("잘못된 가격 입력");
+        }
+        if (hotDealStock <=0){
+            throw new IllegalStateException("잘못된 수량 입력");
+        }
+        if(endTime.isBefore(startTime)){
+            throw new IllegalStateException("핫딜 진행 시간 오류");
+        }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
-    }
-
-    public int getDiscountPrice() {
-        return discountPrice;
-    }
-
-    public void setDiscountPrice(int discountPrice) {
-        this.discountPrice = discountPrice;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
+        return new HotDeal(
+                product, hotDealPrice,hotDealStock, startTime, endTime
+        );
     }
 }
