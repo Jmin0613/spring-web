@@ -1,44 +1,37 @@
 package demo.demo_spring.hotdeal.controller;
 
-import demo.demo_spring.hotdeal.domain.HotDeal;
+import demo.demo_spring.hotdeal.dto.HotDealBuyRequest;
+import demo.demo_spring.hotdeal.dto.HotDealDetailResponse;
 import demo.demo_spring.hotdeal.dto.HotDealListResponse;
 import demo.demo_spring.hotdeal.service.HotDealService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
 @RestController
 public class HotDealController {
-
-    //클라이언트(web) 요청 받아서 service로 넘길 객체 생성
-    private final HotDealService hotDealService;
-
     //생성자주입 + di
+    private final HotDealService hotDealService;
     public HotDealController(HotDealService hotDealService){
         this.hotDealService = hotDealService;
     }
 
-    // 1. 핫딜 전체 조회 (Get)
+    // 전체 조회
     @GetMapping("/hotdeals")
-    public List<HotDealListResponse> findAll(){
-        return hotDealService.findAll() //List<HotDeal>
-                .stream() //stream<HotDeal>
-                .map(HotDealListResponse::fromEntity)//Stream<DTO>
-                .toList(); //List<DTO>
+    public List<HotDealListResponse> findAllHotDeal(){
+        return hotDealService.findAllHotDeal();
     }
 
-    // 2. 핫딜 단건 조회 (Get)
+    // 단건 조회
     @GetMapping("/hotdeals/{id}")
-    public HotDealListResponse findById(@PathVariable Long id){ //URL에서 id값 추출
-        HotDeal hotDeal = hotDealService.findById(id); //꺼내오기
-        return HotDealListResponse.fromEntity(hotDeal); //DTO처리해서 보내주기
+    public HotDealDetailResponse findById(@PathVariable Long id){
+        return hotDealService.findHotDeal(id);
     }
 
-    // 3. 핫딜 구매 (Post)
+    // 핫딜 구매
     @PostMapping("/hotdeals/{id}/buy")
-    public String buy(@PathVariable Long id, HttpSession session){
-        hotDealService.buy(id); //사오기
+    public String buy(@PathVariable Long id, @RequestBody HotDealBuyRequest request){
+        hotDealService.buy(id, request.getQuantity());
         return "구매 성공";
     }
 }

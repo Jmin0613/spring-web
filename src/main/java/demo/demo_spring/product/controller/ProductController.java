@@ -18,14 +18,14 @@ public class ProductController {
 
     // 전체조회
     @GetMapping("/products")
-    public List<ProductListResponse> memberFindAllProduct(){
-        return productService.memberFindAllProduct();
+    public List<ProductListResponse> FindAllProduct(){
+        return productService.findAllProduct();
     }
 
     // 단건 상세조회
     @GetMapping("/products/{id}")
-    public ProductDetailResponse memberFindProduct(@PathVariable Long id){
-        return productService.memberFindProduct(id);
+    public ProductDetailResponse FindProduct(@PathVariable Long id){
+        return productService.findProduct(id);
     }
 
     // 상품 구매

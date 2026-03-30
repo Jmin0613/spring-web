@@ -83,18 +83,18 @@ public class ProductService {
     //관리자 단건 상세조회
     public AdminProductDetailResponse adminFindProduct(Long id){
         Product product = productRepository.findById(id)
-                .orElseThrow(()->new IllegalStateException("상품 없음"));
+                .orElseThrow(()->new IllegalStateException("해당 상품 없음"));
         return AdminProductDetailResponse.fromEntity(product);
     }
 
     //사용자 전체조회
-    public List<ProductListResponse> memberFindAllProduct(){
+    public List<ProductListResponse> findAllProduct(){
         return productRepository.findAll() //List<Product>
                 .stream().map(ProductListResponse::fromEntity) //Stream<DTO>
                 .toList(); //List<DTO>
     }
     //사용자 단건 상세조회
-    public ProductDetailResponse memberFindProduct(Long id){
+    public ProductDetailResponse findProduct(Long id){
         Product product = productRepository.findById(id)
                 .orElseThrow(()->new IllegalStateException("상품 없음"));
         // 상품이 HIDDEN 비공개 상태일때 안보이게 하기
