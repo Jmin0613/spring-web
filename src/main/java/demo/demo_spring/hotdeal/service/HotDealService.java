@@ -48,7 +48,7 @@ public class HotDealService {
     }
 
     // 핫딜 수정
-    public void patch(Long id, HotDealUpdateRequest request) {
+    public void update(Long id, HotDealUpdateRequest request) {
         // hotDealId로 HotDeal조회 -> 없으면 예외
         HotDeal hotDeal = hotDealRepository.findById(id)
                 .orElseThrow(()-> new IllegalStateException("해당 핫딜 없음"));
@@ -56,10 +56,17 @@ public class HotDealService {
         // HotDeal.updateHotDeal() 호출
         hotDeal.updateHotDeal(
                 request.getHotDealPrice(), request.getHotDealStock(),
-                request.getStartTime(), request.getEndTime(), request.getStatus()
+                request.getStartTime(), request.getEndTime() // request.getStatus()
         );
 
         //save안해도 됨 -> jpa 더티체킹
+    }
+
+    // 관리자 긴급 중단
+    public void adminEmergencyStop(Long id){
+        HotDeal hotDeal = hotDealRepository.findById(id)
+                        .orElseThrow(()->new IllegalStateException("해당 핫딜 없음"));
+        hotDeal.adminEmergencyStop();
     }
 
     // 핫딜 삭제
@@ -67,8 +74,8 @@ public class HotDealService {
         // 삭제 전 핫딜 상품 존재 여부 확인
         HotDeal hotDeal = hotDealRepository.findById(id)
                 .orElseThrow(()-> new IllegalStateException("핫딜 없음")); //없으면 예외
-
-        hotDealRepository.delete(hotDeal); //있으면 삭제
+        hotDeal.returnRemainingStockToProduct(); // 삭제 전 남은 재고 반환
+        hotDealRepository.delete(hotDeal); // 삭제
     }
 
     // 관계자 핫딜 전체 조회

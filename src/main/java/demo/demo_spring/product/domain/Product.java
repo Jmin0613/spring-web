@@ -93,6 +93,35 @@ public class Product {
         }
         updatedAt = now; //수정일 반영
     }
+
+    // 핫딜 재고 이동용 메서드
+    public void allocateToHotDeal(int hotDealStock){
+        if(hotDealStock <= 0){
+            throw new IllegalStateException("잘못된 핫딜 재고 할당 요청.");
+        }
+        if(this.stock < hotDealStock){ //할당 재고 부족시 예외
+            throw new IllegalStateException("일반 상품 재고 부족하여 핫딜 재고를 찰당 할 수 없음.");
+        }
+        this.stock -= hotDealStock; //일반 재고 차감
+    }
+    // 남은 핫딜 재고 반환
+    public void restoreFromHotDeal(int hotDealStock){
+        if(hotDealStock<=0){
+            // 혹시 모르니 한 번 더 검증. 그런데 검증을 너무 남발하는거 아닌가 조금 의심됨.
+            // 이미 hotDeal에서 보낼때도 검증을 하는데.. 흐음... 추가 검증이 너무 많아도 문제일듯.
+            throw new IllegalStateException("추가하려는 재고는 0이하 일 수 없음.");
+        }
+        this.stock+=hotDealStock;
+    }
+    /* HotDeal엔티티 메서드와 별개로 핫딜 재고 반환 메서드를 또 만든 이유 :
+    stock을 product엔티티에서만 수정할 수 있게 해주기 위해서.
+    hotDeal엔티티가 product의 stock을 직접 건드리지 못하게 하기 위해서.
+    또한 핫딜이 종료될때 본인의 상태와 재고를 스스로 정리시키기 위해서.
+
+    핫딜엔티티의 반환 메서드 : 내 핫딜 재고가 얼마인지 확인하고 열결된 상품의 재고반환메서드를 호출
+    상품엔티티의 반환 메서드 : 일단 재고를 받고 그 만큼 스스로 재고 수 올리기.
+     */
+
 }
 /* @GeneratedValue strategy
 1. IDENTITY : DB가 auto increment로 관리

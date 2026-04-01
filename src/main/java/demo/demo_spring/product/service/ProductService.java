@@ -53,7 +53,7 @@ public class ProductService {
     }
 
     //수정
-    public void patch(Long id, ProductUpdateRequest request){
+    public void update(Long id, ProductUpdateRequest request){
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("상품 없음"));
         product.updateProduct(

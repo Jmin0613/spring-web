@@ -57,7 +57,7 @@ public class HotDeal {
     // 핫딜 이벤트 등록/생성 메서드
     public static HotDeal createHotDeal(Product product, int hotDealPrice, int hotDealStock,
                                         LocalDateTime startTime, LocalDateTime endTime){
-        // 생성하기 전, 간단한 검증 추가
+        // 생성하기 전, 간단한 가격/수량/시간 검증 추가
         if (hotDealPrice <=0){
             throw new IllegalStateException("잘못된 가격 입력");
         }
@@ -65,8 +65,14 @@ public class HotDeal {
             throw new IllegalStateException("잘못된 수량 입력");
         }
         if(endTime.isBefore(startTime)){
-            throw new IllegalStateException("핫딜 진행 시간 오류");
+            throw new IllegalStateException("핫딜 마감시간은 시작시간보다 뒤여야 함.");
         }
+        if(endTime.isEqual(startTime)){
+            throw new IllegalStateException("핫딜 진행 시작시간과 마감시간은 같을 수 없음.");
+        }
+
+        // Product에 재공 할당 요청
+        product.allocateToHotDeal(hotDealStock); //통과되면 재고 차감
 
         return new HotDeal(
                 product, hotDealPrice,hotDealStock, startTime, endTime
@@ -75,8 +81,8 @@ public class HotDeal {
 
     // 핫딜 이벤트 정보 수정 메서드
     public void updateHotDeal(Integer hotDealPrice, Integer hotDealStock,
-                              LocalDateTime startTime, LocalDateTime endTime,
-                              HotDealStatus status) {
+                              LocalDateTime startTime, LocalDateTime endTime
+                              ) { //HotDealStatus status
         // 시간 변경 검증.
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime newStartTime = (startTime != null) ? startTime : this.startTime;
@@ -89,12 +95,32 @@ public class HotDeal {
             throw new IllegalStateException("핫딜 종료 시간은 시작 시간 이후여야 함");
         }
 
-        // 수정 반영
+        // 수정 반영 -> null이면 기본값 유지
         if (hotDealPrice != null) this.hotDealPrice = hotDealPrice;
-        if (hotDealStock != null) this.hotDealStock = hotDealStock;
         if (startTime != null) this.startTime = startTime;
         if (endTime != null) this.endTime = endTime;
-        if (status != null) this.status = status;
+        // if (status != null) this.status = status; -> 상태처리 메서드 분리하기
+
+        // 재고 차이값 처리 (현재 핫딜 재고this.hotDealStock vs 새로 입력된 핫딜 재고hotDealStock)
+        if (hotDealStock != null){
+            if (hotDealStock<=0){
+                throw new IllegalStateException("수정될 핫딜의 재고값은 0보다 높아야 함.");
+                //update에서는 hotDealStock을 1 이상만 허용
+                //재고를 0으로 만들고 싶으면 STOPPED 또는 delete로 별도 처리하기
+            }
+            if(this.hotDealStock<hotDealStock){ // 새 > 기존. 꺼내오기.
+                int diff = hotDealStock-this.hotDealStock;
+                product.allocateToHotDeal(diff);
+            }
+            else if (this.hotDealStock>hotDealStock){ //새 < 기존. 돌려주기.
+                int diff = this.hotDealStock-hotDealStock;
+                product.restoreFromHotDeal(diff);
+            }
+            else { //새 == 기존
+                return;
+            }
+            this.hotDealStock = hotDealStock;
+        }
     }
 
     // 핫딜 구매 메서드
@@ -114,16 +140,55 @@ public class HotDeal {
 
     // 핫딜 상태 자동 갱신 메서드
     public void refreshStatus(LocalDateTime now) {
+        // 판매 시간만 보고 다시 ON_SALE로 변경되지 않게 return
+        if(this.status == HotDealStatus.STOPPED){
+            return;
+        }
+
         if (this.hotDealStock == 0) { //재고소진 -> 품절
             this.status = HotDealStatus.SOLD_OUT;
         } else if (now.isBefore(this.startTime)) { //준비
             this.status = HotDealStatus.READY;
         } else if (now.isAfter(this.endTime)) { //종료
+            returnRemainingStockToProduct(); //남은 재고 반환 후 상태변경
             this.status = HotDealStatus.END;
         } else if(now.isEqual(this.endTime)){ //종료시간 딱 겹쳤을 때
+            returnRemainingStockToProduct(); //남은 재고 반환 후 상태변경
             this.status = HotDealStatus.END;
         } else {
             this.status = HotDealStatus.ON_SALE; // 그 외
         }
+    }
+
+    // 남은 핫딜 재고 반환 메서드
+    public void returnRemainingStockToProduct(){
+        if (this.hotDealStock < 0){
+            throw new IllegalStateException("남은 핫딜 재고 이동 중 문제 발생.");
+        }
+        if (this.hotDealStock == 0){
+            return;
+        }
+        product.restoreFromHotDeal(hotDealStock);
+        this.hotDealStock = 0;
+    }
+
+    // 관리자 긴급 중단 메서드 -> 핫딜 자신의 상태와 재고를 바꾸는 것이기에 도메인에 넣음.
+    public void adminEmergencyStop(){
+        // 이미 STOPPED면 그냥 return
+        if (this.status == HotDealStatus.STOPPED){
+            return;
+        }
+        if (this.status == HotDealStatus.SOLD_OUT){
+            throw new IllegalStateException("이미 재고 소진된 핫딜 상품임.");
+        }
+        if (this.status == HotDealStatus.END){
+            throw new IllegalStateException("이미 판매 종료된 핫딜 상품임.");
+        }
+
+        // 남은 hotDealStock을 Product로 반환
+        // READY는 핫딜 삭제까진 안가고, 잠시 update전 긴급하게 중지 시킬떄 사용하기 위해 함께 추가함.
+        returnRemainingStockToProduct();
+        // status를 STOPPED로 변경
+        this.status = HotDealStatus.STOPPED;
     }
 }

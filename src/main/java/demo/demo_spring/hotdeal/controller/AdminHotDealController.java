@@ -24,8 +24,14 @@ public class AdminHotDealController {
 
     // 수정
     @PatchMapping("/admin/hotdeals/{id}")
-    public void patch(@PathVariable Long id, @RequestBody HotDealUpdateRequest request){
-        hotDealService.patch(id, request);
+    public void update(@PathVariable Long id, @RequestBody HotDealUpdateRequest request){
+        hotDealService.update(id, request);
+    }
+
+    // 긴급 중단
+    @PatchMapping("/admin/hotdeals/{id}/stop")
+    public void stop(@PathVariable Long id){
+        hotDealService.adminEmergencyStop(id);
     }
 
     // 삭제
