@@ -80,32 +80,42 @@ public class HotDealService {
 
     // 관계자 핫딜 전체 조회
     public List<AdminHotDealListResponse> adminFindAllHotDeal(){
+        LocalDateTime now = LocalDateTime.now();
         return hotDealRepository.findAll() // List<HotDeal>
-                .stream().map(AdminHotDealListResponse::fromEntity) //Stream<DTO>
+                .stream()
+                .peek(h -> h.refreshStatus(now)) //조회할 때 현재 시간 기준으로 상태 확인
+                .map(AdminHotDealListResponse::fromEntity) //Stream<DTO>
                 .toList(); //List<DTO>
     }
     // 관계자 핫딜 단건 조회
     public AdminHotDealDetailResponse adminFindHotDeal(Long id){
+        LocalDateTime now = LocalDateTime.now();
         HotDeal hotDeal = hotDealRepository.findById(id)
                 .orElseThrow(()->new IllegalStateException("해당 핫딜 없음"));
+        hotDeal.refreshStatus(now); //조회할 때 현재 시간 기준으로 상태 확인
         return AdminHotDealDetailResponse.fromEntity(hotDeal);
     }
 
     // 사용자 핫딜 전체 조회
     public List<HotDealListResponse> findAllHotDeal(){
+        LocalDateTime now = LocalDateTime.now();
         return hotDealRepository.findAll() // List<HotDeal>
                 .stream()
-                .filter(hotDeal -> hotDeal.getStatus() == ON_SALE)
+                .peek(h -> h.refreshStatus(now)) //조회할 때 현재 시간 기준으로 상태 확인
+                .filter(hotDeal -> hotDeal.getStatus() == ON_SALE
+                        || hotDeal.getStatus() == READY)
                 .map(HotDealListResponse::fromEntity) //Stream<DTO>
                 .toList(); //List<DTO>
     }
     // 사용자 핫딜 단건 조회
     public HotDealDetailResponse findHotDeal(Long id){
+        LocalDateTime now = LocalDateTime.now();
         HotDeal hotDeal = hotDealRepository.findById(id)
                 .orElseThrow(()-> new IllegalStateException("해당 핫딜 없음"));
-        if(hotDeal.getStatus() == HotDealStatus.READY){ // status != ON_SALE
-            throw new IllegalStateException("현재 준비중인 핫딜임");
-        }
+//        if(hotDeal.getStatus() == HotDealStatus.READY){ // status != ON_SALE
+//            throw new IllegalStateException("현재 준비중인 핫딜임");
+//        } 준비중인 상품도 조회 가능하게. 미리 상품을 둘러봐야지 ㅇ.ㅇ
+        hotDeal.refreshStatus(now); //조회할 때 현재 시간 기준으로 상태 확인
         if(hotDeal.getStatus() == HotDealStatus.SOLD_OUT){
             throw new IllegalStateException("현재 품절 핫딜임");
         }
@@ -125,6 +135,10 @@ public class HotDealService {
         //1. 비관적 락을 이용해 id를 넣어 해당 핫딜 상품 가져오기
         HotDeal hotDeal = hotDealRepository.findByIdWithPessimisticLock(id)
                 .orElseThrow(() -> new IllegalStateException("핫딜 없음")); //없으면 예외 던지기
+        if(hotDeal.getStatus() != ON_SALE){
+            throw new IllegalStateException("현재 판매 중인 핫딜이 아님.");
+        }
+
         //2. 재고 수량 확인
         if(hotDeal.getHotDealStock() <= 0){
             throw new IllegalStateException("재고 없음"); //재고 없으면 예외 던지기

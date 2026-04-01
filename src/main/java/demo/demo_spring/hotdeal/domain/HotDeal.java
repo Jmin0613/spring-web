@@ -58,17 +58,18 @@ public class HotDeal {
     public static HotDeal createHotDeal(Product product, int hotDealPrice, int hotDealStock,
                                         LocalDateTime startTime, LocalDateTime endTime){
         // 생성하기 전, 간단한 가격/수량/시간 검증 추가
+        LocalDateTime now = LocalDateTime.now();
         if (hotDealPrice <=0){
             throw new IllegalStateException("잘못된 가격 입력");
         }
         if (hotDealStock <=0){
             throw new IllegalStateException("잘못된 수량 입력");
         }
-        if(endTime.isBefore(startTime)){
-            throw new IllegalStateException("핫딜 마감시간은 시작시간보다 뒤여야 함.");
+        if(startTime.isBefore(now)||endTime.isBefore(now)){
+            throw new IllegalStateException("핫딜 진행 시간은 현재 이후여야 함.");
         }
-        if(endTime.isEqual(startTime)){
-            throw new IllegalStateException("핫딜 진행 시작시간과 마감시간은 같을 수 없음.");
+        if(endTime.isBefore(startTime) || endTime.isEqual(startTime)){
+            throw new IllegalStateException("핫딜 마감시간은 시작시간보다 뒤여야 함.");
         }
 
         // Product에 재공 할당 요청
@@ -89,7 +90,7 @@ public class HotDeal {
         LocalDateTime newEndTime = (endTime != null) ? endTime : this.endTime;
 
         if(newStartTime.isBefore(now) || newEndTime.isBefore(now)){ // -> 진행 중인 핫딜 수정 불가하게 추가로 막음
-            throw new IllegalStateException("핫딜 시작/종료 시간은 현재보다 이후여야 함");
+            throw new IllegalStateException("핫딜 진행 중 수정 불가.");
         }
         if(newEndTime.isBefore(newStartTime)){
             throw new IllegalStateException("핫딜 종료 시간은 시작 시간 이후여야 함");
@@ -125,16 +126,26 @@ public class HotDeal {
 
     // 핫딜 구매 메서드
     public void buy(int quantity){
-        if(quantity <= 0 ){
-            throw new IllegalStateException("잘못된 구매 수량");
+        if(this.status == HotDealStatus.STOPPED){
+            throw new IllegalStateException("판매 중단된 핫딜임.");
         }
-        if(this.hotDealStock < quantity){
-            throw new IllegalStateException("재고 부족");
+        else if(this.status == HotDealStatus.END){
+            throw new IllegalStateException("판매 종료된 핫딜임.");
         }
-        this.hotDealStock -=quantity; //구매 성공 + 재고 차감
+        else if(this.status == HotDealStatus.READY){
+            throw new IllegalStateException("아직 준비 중인 핫딜임.");
+        } else { //ON_SALE
+            if (quantity <= 0) {
+                throw new IllegalStateException("잘못된 구매 수량");
+            }
+            if (this.hotDealStock < quantity) {
+                throw new IllegalStateException("재고 부족");
+            }
+            this.hotDealStock -= quantity; //구매 성공 + 재고 차감
 
-        if(this.hotDealStock == 0){
-            this.status = HotDealStatus.SOLD_OUT; //재고 0 -> 품절처리
+            if (this.hotDealStock == 0) {
+                this.status = HotDealStatus.SOLD_OUT; //재고 0 -> 품절처리
+            }
         }
     }
 
