@@ -54,7 +54,11 @@ public class HotDeal {
     // 핫딜 이벤트 등록/생성 메서드
     public static HotDeal createHotDeal(Product product, int hotDealPrice, int hotDealStock,
                                         LocalDateTime startTime, LocalDateTime endTime){
-        // 생성 전 가격/수량/시간 검증
+        // Product null 체크
+        if(product == null){
+            throw new IllegalStateException("등록하려는 핫딜의 원본 상품이 없습니다.");
+        }
+        // 가격/수량/시간 검증
         LocalDateTime now = LocalDateTime.now();
         if (hotDealPrice <=0){
             throw new IllegalStateException("잘못된 가격을 입력하였습니다.");
