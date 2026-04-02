@@ -13,18 +13,18 @@ public class AdminCheckInterceptor implements HandlerInterceptor {
         //1. 세션 꺼내기 + null체크
         HttpSession session = request.getSession(false);
         if(session==null){
-            throw new IllegalStateException("로그인 필요");
+            throw new IllegalStateException("로그인이 필요합니다.");
         }
 
         //2. loginMember꺼내기 + null체크
         Member loginMember = (Member)session.getAttribute("loginMember");
         if(loginMember==null){
-            throw new IllegalStateException("로그인 필요");
+            throw new IllegalStateException("로그인이 필요합니다.");
         }
 
         //3. loginMember.getRole() 확인
         if(loginMember.getRole()!= Role.ADMIN){
-            throw new IllegalStateException("관리자 권한 없음"); //ADMIN 아니면 예외
+            throw new IllegalStateException("관리자 권한이 없습니다."); //ADMIN 아니면 예외
         }
         return true;
     }

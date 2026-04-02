@@ -11,17 +11,17 @@ public class HotDealDetailResponse {
     // 사용자 핫딜 상세 응답 response DTO
 
     private Long hotDealId; //핫딜 고유 id
-    private String name; //상품명
+    private String name;
     private String imageUrl; //대표 이미지
-    private int price; //일반 가격
-    private int hotDealPrice; //핫딜 가격
-    private LocalDateTime startTime; //핫딜 시작 시간
-    private LocalDateTime endTime; //핫딜 종료 시간
-    private HotDealStatus status; //핫딜 상태
+    private int price; //원가격
+    private int hotDealPrice;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private HotDealStatus status;
 
     // 상세 추가
     private String description;
-    private int hotDealStock; //핫딜은 한정수량 느낌이 강하니간, 남은 재고 보여주기
+    private int hotDealStock; //핫딜은 한정수량 느낌 강함 -> 남은 재고 보여주기
 
     //HotDeal 생성자 -> fromEntity()가 내부에서 호출할 생성자
     private HotDealDetailResponse(HotDeal hotDeal){

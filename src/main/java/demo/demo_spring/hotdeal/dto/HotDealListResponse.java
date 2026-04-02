@@ -10,17 +10,16 @@ import java.time.LocalDateTime;
 public class HotDealListResponse {
     // 사용자 목록 응답response DTO
     // 그동안과 다른점. 그동안의 응답 dto는 해당 엔티티 하나만을 바라보았다면,
-    // 이번 응답dto는 hotDeal이 참조하고 있는 연관 엔티티인 Product까지 보고 꺼내와야 한다는 것.
+    // 이번 응답dto는 hotDeal이 참조하고 있는 연관 엔티티인 Product까지 보고 꺼내와야 함.
 
-    // 사용자에게 보여줄 것들
     private Long hotDealId; //핫딜 고유 id
-    private String name; //상품명
+    private String name;
     private String imageUrl; //대표 이미지
-    private int price; //일반 가격
+    private int price; //원가격
     private int hotDealPrice; //핫딜 가격
-    private LocalDateTime startTime; //핫딜 시작 시간
-    private LocalDateTime endTime; //핫딜 종료 시간
-    private HotDealStatus status; //핫딜 상태
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private HotDealStatus status;
 
     // hotDeal 생성자 -> fromEntity()가 내부에서 호출할 생성자
     private HotDealListResponse(HotDeal hotDeal){

@@ -17,12 +17,11 @@ public class MemberInfoResponse {
     private Role role;
 
     //생성자 -> @AllArgsConstructor
-
     //DTO로 변환해서 보내주기
     public static MemberInfoResponse fromEntity(Member member){
         return new MemberInfoResponse(member.getId(), member.getLoginId(),
                 member.getEmail(), member.getName(), member.getRole());
     }
+    // -------------------------> 이것도 리팩토링 해주기
 
-    // setter 필요없음
 }

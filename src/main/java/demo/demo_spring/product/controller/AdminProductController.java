@@ -16,7 +16,7 @@ public class AdminProductController {
         this.productService = productService;
     }
 
-    // 등록 (save -> create)
+    // 등록
     @PostMapping("/admin/products")
     public Long create(@RequestBody ProductCreateRequest request){
         return productService.create(request); //등록한 상품의 id값 반환
