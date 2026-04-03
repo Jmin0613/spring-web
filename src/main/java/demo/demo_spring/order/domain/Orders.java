@@ -26,7 +26,7 @@ public class Orders {
     // DB테이블에서 member_id라는 컬럼을 통해 회원(주문자) 테이블과 연결
     private Member member; //db -> member_id
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, orphanRemoval = true)
     // cascade = CascadeType.ALL : 부모에게 일어난 일을 자식에게도 똑같이 전파
     // 이거 안하면 나중에 save할때, order만 save하면 orderItem들은 저장되지 않아서 각각 save해줘야해서 귀찮음.
     // 이거 해두면 부모인 order만 save해도 그 안에 담긴 자식들 orderItem들도 자동으로 함께 save되서 편함.

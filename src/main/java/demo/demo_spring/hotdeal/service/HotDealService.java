@@ -4,6 +4,7 @@ import demo.demo_spring.hotdeal.domain.HotDeal;
 import demo.demo_spring.hotdeal.domain.HotDealStatus;
 import demo.demo_spring.hotdeal.dto.*;
 import demo.demo_spring.hotdeal.repository.HotDealRepository;
+import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,14 @@ public class HotDealService {
     //Repository 주입 + DI
     private final HotDealRepository hotDealRepository;
     private final ProductRepository productRepository;
+    private final OrderService orderService;
+
     public HotDealService(HotDealRepository hotDealrepository,
-                          ProductRepository productRepository){
+                          ProductRepository productRepository, OrderService orderService){
         this.hotDealRepository = hotDealrepository;
         this.productRepository = productRepository;
         //HotDeal엔티티 생성에 Product 객체가 필요하기에 같이 생성
+        this.orderService = orderService;
     }
 
     // 핫딜 등록
@@ -120,7 +124,7 @@ public class HotDealService {
     }
 
     // 사용자 핫딜 구매 + Pessimistic Lock
-    public void buy(Long id, Integer quantity){
+    public void buy(Long id, Integer quantity, Long memberId){
         // quantity를 Integer로 받아서 null 체크
         if(quantity == null){
             throw new IllegalStateException("구매 수량이 누락되었습니다.");
@@ -129,7 +133,7 @@ public class HotDealService {
         //1. 비관적 락을 이용해 id를 넣어 해당 핫딜 상품 가져오기
         HotDeal hotDeal = hotDealRepository.findByIdWithPessimisticLock(id)
                 .orElseThrow(() -> new IllegalStateException("해당하는 핫딜이 없습니다.")); //없으면 예외 던지기
-        if(hotDeal.getStatus() != ON_SALE){
+        if(hotDeal.getStatus() != HotDealStatus.ON_SALE){
             throw new IllegalStateException("현재 판매 중인 핫딜이 아닙니다.");
         }
 
@@ -140,5 +144,9 @@ public class HotDealService {
         //3. 재고가 있을시, -1 감소
         hotDeal.buy(quantity);
         //4. 비관적 락 구매 메서드끝나고, 트랜잭션 커밋될떄 자물쇠 자동으로 풀림
+
+        //5. 구매 완료 후 주문 생성
+        orderService.create(memberId, hotDeal.getProduct(), quantity, hotDeal.getHotDealPrice());
+
     }
 }

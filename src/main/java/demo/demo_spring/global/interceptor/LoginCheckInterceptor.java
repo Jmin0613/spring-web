@@ -20,7 +20,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
         //2 로그인 여부 체크
         if(session == null){ //세션 없으면 예외시키기
-            throw new IllegalStateException(("로그인 필요")); //false대신 예외 던저주기
+            throw new IllegalStateException(("로그인아 필요합니다.")); //false대신 예외 던저주기
         }// 세션 만약 null이면, 뒤 session.getAttribute()에서 npe터짐.
 
         //Object loginMember = session.getAttribute("loginMember"); //loginMember 추출
@@ -29,7 +29,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         // Member라 확신하면 캐스팅
 
         if(loginMember== null){ //로그인 없으면 예외시키기
-            throw new IllegalStateException(("로그인 필요")); //false대신 예외 던저주기
+            throw new IllegalStateException(("로그인이 필요합니다.")); //false대신 예외 던저주기
         }
         return true;//통과
     }
