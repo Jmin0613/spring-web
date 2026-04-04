@@ -23,13 +23,13 @@ public class ProductController {
 
     // 전체조회
     @GetMapping("/products")
-    public List<ProductListResponse> FindAllProduct(){
+    public List<ProductListResponse> findAllProduct(){
         return productService.findAllProduct();
     }
 
     // 단건 상세조회
     @GetMapping("/products/{id}")
-    public ProductDetailResponse FindProduct(@PathVariable Long id){
+    public ProductDetailResponse findProduct(@PathVariable Long id){
         return productService.findProduct(id);
     }
 

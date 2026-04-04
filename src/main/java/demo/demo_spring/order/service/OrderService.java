@@ -44,13 +44,13 @@ public class OrderService {
 
     // 사용자 내 주문 조회
     public List<OrderListResponse> findMyOrders(Long memberId){
-        return orderRepository.findOrderByMemberId(memberId)
+        return orderRepository.findOrderByMember_Id(memberId)
                 .stream().map(OrderListResponse::fromEntity)
                 .toList();
     }
     // 사용자 내 주문 상세 조회
-    public OrderDetailResponse findOrder(Long memberId, Long orderId){
-        Orders orders = orderRepository.findByOrderMemberId(memberId, orderId)
+    public OrderDetailResponse findOrder( Long orderId, Long memberId){
+        Orders orders = orderRepository.findByIdAndMember_Id(orderId, memberId)
                 .orElseThrow(()-> new IllegalStateException("해당하는 주문이 없습니다."));
         return OrderDetailResponse.fromEntity(orders);
     }
