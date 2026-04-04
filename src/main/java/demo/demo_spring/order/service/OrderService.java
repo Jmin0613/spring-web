@@ -4,6 +4,7 @@ import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.order.domain.OrderItem;
 import demo.demo_spring.order.domain.Orders;
+import demo.demo_spring.order.dto.OrderDetailResponse;
 import demo.demo_spring.order.dto.OrderListResponse;
 import demo.demo_spring.order.repository.OrderRepository;
 import demo.demo_spring.product.domain.Product;
@@ -41,11 +42,17 @@ public class OrderService {
         return order.getId();
     }
 
-    // 주문 조회
-    public List<OrderListResponse> findMyOrders(){
-        return orderRepository.findAll()
+    // 사용자 내 주문 조회
+    public List<OrderListResponse> findMyOrders(Long memberId){
+        return orderRepository.findOrderByMemberId(memberId)
                 .stream().map(OrderListResponse::fromEntity)
                 .toList();
+    }
+    // 사용자 내 주문 상세 조회
+    public OrderDetailResponse findOrder(Long memberId, Long orderId){
+        Orders orders = orderRepository.findByOrderMemberId(memberId, orderId)
+                .orElseThrow(()-> new IllegalStateException("해당하는 주문이 없습니다."));
+        return OrderDetailResponse.fromEntity(orders);
     }
 
     // 주문 취소
