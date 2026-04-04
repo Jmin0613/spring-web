@@ -15,7 +15,7 @@ public class MemberCreateRequest {
     private String name;
 
     //Member 엔티티로 변환
-    public Member toEntity() {
+    public Member toEntity() { //리팩토링떄 없애고 다른거랑 통일하기
         return new Member(loginId,password,email,name, Role.USER);
     }
 }
