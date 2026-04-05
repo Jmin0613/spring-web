@@ -48,7 +48,7 @@ public class NoticeService {
     }
 
     // 공지글 보기 -> 상세보기
-    public NoticeDetailResponse readNotice(Long id){
+    public NoticeDetailResponse findNotice(Long id){
         Notice notice = noticeRepository.findById(id)
                 .orElseThrow(()->new IllegalStateException("해당하는 공지글이 없습니다."));
         return NoticeDetailResponse.fromEntity(notice);
