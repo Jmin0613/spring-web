@@ -13,10 +13,14 @@ public class HotDealListResponse {
     // 이번 응답dto는 hotDeal이 참조하고 있는 연관 엔티티인 Product까지 보고 꺼내와야 함.
 
     private Long hotDealId; //핫딜 고유 id
-    private String name;
+    private Long productId; //원본 상품 고유 id
+    private String procutName;
     private String imageUrl; //대표 이미지
-    private int price; //원가격
+
+    private int originalPrice; //원가격
     private int hotDealPrice; //핫딜 가격
+    private int discountRate; //할인율
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private HotDealStatus status;
@@ -25,10 +29,12 @@ public class HotDealListResponse {
     private HotDealListResponse(HotDeal hotDeal){
         this.hotDealId = hotDeal.getId();
         // 응답DTO는 연관관계를 따라가서 필요한 값 꺼내올 수 있음.
-        this.name = hotDeal.getProduct().getName(); this.imageUrl = hotDeal.getProduct().getImageUrl();
-        this.price = hotDeal.getProduct().getPrice(); this.hotDealPrice = hotDeal.getHotDealPrice();
+        this.procutName = hotDeal.getProduct().getName(); this.imageUrl = hotDeal.getProduct().getImageUrl();
+        this.originalPrice = hotDeal.getProduct().getPrice(); this.hotDealPrice = hotDeal.getHotDealPrice();
         this.startTime = hotDeal.getStartTime(); this.endTime = hotDeal.getEndTime();
         this.status = hotDeal.getStatus();
+        this.discountRate = hotDeal.calculateDiscountRate();
+        this.productId = getProductId();
     }
 
     // Entity ->DTO 변환 메서드

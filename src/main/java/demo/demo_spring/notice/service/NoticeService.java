@@ -1,10 +1,10 @@
 package demo.demo_spring.notice.service;
 
 import demo.demo_spring.notice.domain.Notice;
-import demo.demo_spring.notice.dto.AdminNoticeCreateRequest;
+import demo.demo_spring.notice.dto.NoticeCreateRequest;
 import demo.demo_spring.notice.dto.NoticeDetailResponse;
 import demo.demo_spring.notice.dto.NoticeListResponse;
-import demo.demo_spring.notice.dto.AdminNoticeUpdateRequest;
+import demo.demo_spring.notice.dto.NoticeUpdateRequest;
 import demo.demo_spring.notice.repository.NoticeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,14 +21,14 @@ public class NoticeService {
     }
 
     // 공지글 등록
-    public Long createNotice(AdminNoticeCreateRequest request){
+    public Long createNotice(NoticeCreateRequest request){
         Notice notice = Notice.createNotice(request.getTitle(), request.getContent());
         Notice savedNotice = noticeRepository.save(notice);
         return savedNotice.getId();
     }
 
     // 공지글 수정
-    public void updateNotice(Long id, AdminNoticeUpdateRequest request){
+    public void updateNotice(Long id, NoticeUpdateRequest request){
         Notice notice = noticeRepository.findById(id)
                 .orElseThrow(()->new IllegalStateException("해당하는 공지글이 없습니다."));
         notice.updateNoice(request.getTitle(), request.getContent());

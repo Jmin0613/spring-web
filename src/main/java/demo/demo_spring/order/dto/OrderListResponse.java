@@ -13,10 +13,15 @@ public class OrderListResponse {
     private OrderStatus status; //주문 상태 (완료 or 취소)
     private int totalPrice; //총 구매금액/결제금액
 
+    private int itemCount; //주문 상품 종류 수/주문 항목 수
+    private String representativeItemName; //대표 상품 이름
+
     //Order 생성자 -> fromEntity()가 내부에서 호출할 생성자
     private OrderListResponse(Orders orders){
         this.orderId = orders.getId(); this.orderDate = orders.getOrderedAt();
         this.status = orders.getStatus(); this.totalPrice = orders.getTotalPrice();
+        this.itemCount = orders.getOrderItems().size();
+        this.representativeItemName = orders.getOrderItems().getFirst().getProductName();
     }
 
     //엔티티 -> DTO

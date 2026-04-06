@@ -17,11 +17,11 @@ public class NoticeController {
     }
 
     // 목록
-    @GetMapping("/notice")
+    @GetMapping("/notices")
     public List<NoticeListResponse> findAllNotice(){return noticeService.findAllNotice();}
 
     // 글보기 -> 상세보기
-    @GetMapping("/notice/{id}")
+    @GetMapping("/notices/{id}")
     public NoticeDetailResponse findNotice(@PathVariable Long id){
         return noticeService.findNotice(id);
     }

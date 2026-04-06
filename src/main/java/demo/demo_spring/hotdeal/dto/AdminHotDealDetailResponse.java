@@ -13,12 +13,13 @@ public class AdminHotDealDetailResponse {
     private Long hotDealId;
     private Long productId;
 
-    private String name;
+    private String procutName;
     private String description;
     private String imageUrl;
 
-    private int price;
+    private int originalPrice;
     private int hotDealPrice;
+    private int discountRate;
     private int hotDealStock;
 
     private LocalDateTime startTime;
@@ -32,14 +33,15 @@ public class AdminHotDealDetailResponse {
     // HotDeal 생성자 -> fromEntity()가 내부에서 호출할 생성자
     private AdminHotDealDetailResponse(HotDeal hotDeal){
         this.hotDealId = hotDeal.getId(); this.productId = hotDeal.getProduct().getId();
-        this.name = hotDeal.getProduct().getName();
+        this.procutName = hotDeal.getProduct().getName();
         this.description = hotDeal.getProduct().getDescription();
         this.imageUrl = hotDeal.getProduct().getImageUrl();
-        this.price = hotDeal.getProduct().getPrice(); this.hotDealPrice = hotDeal.getHotDealPrice();
+        this.originalPrice = hotDeal.getOriginalPrice(); this.hotDealPrice = hotDeal.getHotDealPrice();
         this.hotDealStock = hotDeal.getHotDealStock();
         this.startTime = hotDeal.getStartTime(); this.endTime = hotDeal.getEndTime();
         this.createdAt = hotDeal.getCreatedAt(); this.updatedAt = hotDeal.getUpdatedAt();
         this.status = hotDeal.getStatus();
+        this.discountRate = hotDeal.calculateDiscountRate();
     }
 
     // Entity ->DTO 변환 메서드

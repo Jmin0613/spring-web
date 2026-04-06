@@ -27,6 +27,7 @@ public class HotDeal {
     //DB테이블에서 product_id라는 컬럼을 통해 상품 테이블과 연결
     private Product product; // db -> product_id
 
+    private int originalPrice;
     private int hotDealPrice;
     private int hotDealStock;
 
@@ -49,6 +50,7 @@ public class HotDeal {
         this.product = product; this.hotDealPrice = hotDealPrice; this.hotDealStock = hotDealStock;
         this.startTime = startTime; this.endTime = endTime;
         this.status = HotDealStatus.READY;
+        this.originalPrice = product.getPrice();
     }
 
     // 핫딜 이벤트 등록/생성 메서드
@@ -199,5 +201,14 @@ public class HotDeal {
         returnRemainingStockToProduct();
         // status를 STOPPED로 변경
         this.status = HotDealStatus.STOPPED;
+    }
+
+    // 할인율 계산 메서드 -> 파생값. 추후 필드 선언 고려
+    public int calculateDiscountRate(){
+        if(originalPrice <= 0){ //원하 0 이하 체크
+            throw new IllegalStateException("잘못된 원가입니다.");
+        }
+        double rate = ((double) (originalPrice-hotDealPrice)/originalPrice)*100;
+        return (int) Math.round(rate); //반올림하여 정수로 반환
     }
 }
