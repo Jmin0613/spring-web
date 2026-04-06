@@ -1,10 +1,11 @@
 package demo.demo_spring.notice.dto;
 
 import demo.demo_spring.notice.domain.Notice;
-import org.aspectj.weaver.ast.Not;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 public class NoticeDetailResponse {
     private String title;
     private String content;
@@ -15,5 +16,6 @@ public class NoticeDetailResponse {
         this.createdAt = notice.getCreatedAt();
     }
 
-    public static NoticeDetailResponse fromEntity(Notice notice){return new NoticeDetailResponse(notice);}
+    public static NoticeDetailResponse fromEntity(Notice notice){
+        return new NoticeDetailResponse(notice);}
 }

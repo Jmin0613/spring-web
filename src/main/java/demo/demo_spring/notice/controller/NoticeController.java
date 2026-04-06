@@ -23,7 +23,7 @@ public class NoticeController {
     }
 
     // 수정
-    @PostMapping("/admin/notice/{id}")
+    @PatchMapping("/admin/notice/{id}")
     public void update(@PathVariable Long id, @RequestBody NoticeUpdateRequest request){
         noticeService.updateNotice(id, request);
     }
@@ -33,11 +33,11 @@ public class NoticeController {
     public void delete(@PathVariable Long id){noticeService.deleteNotice(id);}
 
     // 목록
-    @GetMapping("/admin/notice")
+    @GetMapping("/notice")
     public List<NoticeListResponse> findAllNotice(){return noticeService.findAllNotice();}
 
     // 글보기 -> 상세보기
-    @GetMapping("/admin/notice/{id}")
+    @GetMapping("/notice/{id}")
     public NoticeDetailResponse findNotice(@PathVariable Long id){
         return noticeService.findNotice(id);
     }

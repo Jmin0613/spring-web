@@ -23,7 +23,8 @@ public class NoticeService {
     // 공지글 등록
     public Long createNotice(NoticeCreateRequest request){
         Notice notice = Notice.createNotice(request.getTitle(), request.getContent());
-        return notice.getId();
+        Notice savedNotice = noticeRepository.save(notice);
+        return savedNotice.getId();
     }
 
     // 공지글 수정
