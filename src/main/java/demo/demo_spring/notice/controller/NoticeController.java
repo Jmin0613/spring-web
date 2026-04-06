@@ -1,11 +1,11 @@
 package demo.demo_spring.notice.controller;
 
-import demo.demo_spring.notice.dto.NoticeCreateRequest;
 import demo.demo_spring.notice.dto.NoticeDetailResponse;
 import demo.demo_spring.notice.dto.NoticeListResponse;
-import demo.demo_spring.notice.dto.NoticeUpdateRequest;
 import demo.demo_spring.notice.service.NoticeService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -15,22 +15,6 @@ public class NoticeController {
     public NoticeController(NoticeService noticeService){
         this.noticeService = noticeService;
     }
-
-    // 등록
-    @PostMapping("/admin/notice")
-    public Long create(@RequestBody NoticeCreateRequest request){
-        return noticeService.createNotice(request);
-    }
-
-    // 수정
-    @PatchMapping("/admin/notice/{id}")
-    public void update(@PathVariable Long id, @RequestBody NoticeUpdateRequest request){
-        noticeService.updateNotice(id, request);
-    }
-
-    // 삭제
-    @DeleteMapping("/admin/notice/{id}")
-    public void delete(@PathVariable Long id){noticeService.deleteNotice(id);}
 
     // 목록
     @GetMapping("/notice")
