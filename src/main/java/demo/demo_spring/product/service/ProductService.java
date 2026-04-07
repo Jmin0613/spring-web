@@ -8,7 +8,6 @@ import demo.demo_spring.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -27,11 +26,9 @@ public class ProductService {
 
     //등록
     public Long create(ProductCreateRequest request){
-        LocalDateTime now = LocalDateTime.now(); // 현재 시간 만듦
         Product product = Product.createProduct( //Product생성 메서드 호출
                 request.getName(), request.getDescription(), request.getImageUrl(),
-                request.getPrice(), request.getStock(), request.getCategory(),
-                now, ProductStatus.ON_SALE
+                request.getPrice(), request.getStock(), request.getCategory(), ProductStatus.ON_SALE
         );
         Product savedProduct = productRepository.save(product); //저장
         return savedProduct.getId(); //저장한 상품 id 반환
@@ -44,7 +41,7 @@ public class ProductService {
         product.updateProduct( //수정할 값 넣어주기
                 request.getName(), request.getDescription(), request.getImageUrl(),
                 request.getPrice(), request.getStock(), request.getCategory(),
-                request.getStatus(), LocalDateTime.now()
+                request.getStatus()
         ); //지금은 괜찮은데, 수정할 것 더 늘거나 검증 규칙 복잡해지면 분리하는 것 고려
     }
 
@@ -90,8 +87,6 @@ public class ProductService {
         if(quantity == null){
             throw new IllegalStateException("구매 요청 수량이 누락되었습니다.");
         }
-        // 업데이트 시간
-        LocalDateTime now = LocalDateTime.now();
 
         //1. 비관적 락을 이용해 id를 넣어 상품 가져오기
         Product product = productRepository.findByIdWithPessimisticLock(id)
@@ -101,7 +96,7 @@ public class ProductService {
             throw new IllegalStateException("현재 판매하지 않는 상품입니다.");
         }
         //3. 재고,수량 체크 + 구매 진행하는 엔티티메서드
-        product.buy(quantity, now);
+        product.buy(quantity);
 
         //4. 구매 완료 후 주문 생성
         // member -> 세션에서 꺼내오기

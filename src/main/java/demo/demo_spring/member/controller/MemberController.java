@@ -4,7 +4,6 @@ import demo.demo_spring.member.dto.MemberCreateRequest;
 import demo.demo_spring.member.dto.MemberInfoResponse;
 import demo.demo_spring.member.dto.MemberLoginRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.member.domain.Member;
@@ -21,10 +20,8 @@ public class MemberController {
 
     //회원 가입
     @PostMapping("/members")
-    public ResponseEntity<Long> save(@RequestBody MemberCreateRequest request){
-        Member member = request.toEntity();
-        Long id = memberService.join(member);
-        return ResponseEntity.created(URI.create("/members/"+id)).body(id);
+    public Long save(@RequestBody MemberCreateRequest request){
+        return memberService.create(request);
     }
 
     //회원 로그인

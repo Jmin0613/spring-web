@@ -1,33 +1,42 @@
 package demo.demo_spring.member.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
-
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //DB auto increment 방식으로 생성 명시
     private Long id;
     private String loginId;
     private String password;
+
     private String email;
     private String name;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    // 멤버 생성 엔티티메서드로 리팩토링 해주기
-    public Member(String loginId, String password, String email,
-                  String name, Role role){
+    // createMember를 위한 내부 생성자
+    private Member(String loginId, String password,
+                   String email, String name){
         this.loginId = loginId;
         this.password=password;
         this.email=email;
         this.name=name;
-        this.role=role;
+        this.role=Role.USER;
+    }
+
+    public static Member createMember(String loginId, String password,
+                                      String email, String name){
+        return new Member(
+                loginId, password, email, name
+        );
     }
 
     //비밀번호 변경

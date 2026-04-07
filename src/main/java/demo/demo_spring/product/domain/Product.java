@@ -4,12 +4,16 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //DB auto increment 방식으로 생성 명시
@@ -23,8 +27,10 @@ public class Product {
     private int stock;
     private String category;
 
-    //서비스에서 넣어주기
+    // 시간 자동 입력 및 갱신
+    @CreatedDate
     private LocalDateTime createdAt;
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
@@ -32,18 +38,14 @@ public class Product {
 
     //createProduct를 위한 내부 생성자
     private Product (String name, String description, String imageUrl,
-                    int price, int stock, String category,
-                    LocalDateTime createdAt, LocalDateTime updatedAt,
-                    ProductStatus status){
+                    int price, int stock, String category, ProductStatus status){
         this.name = name; this.description = description; this.imageUrl = imageUrl;
-        this.price = price; this.stock = stock; this.category = category;
-        this.createdAt = createdAt; this.updatedAt = updatedAt; this.status = status;
+        this.price = price; this.stock = stock; this.category = category; this.status = status;
     }
 
     // 상품 등록/생성 메서드 -> 값들 받아와서 조립
     public static Product createProduct(String name, String description, String imageUrl,
-                                        int price, int stock, String category,
-                                        LocalDateTime now, ProductStatus status){
+                                        int price, int stock, String category, ProductStatus status){
 
         if (price <=0){
             throw new IllegalStateException("잘못된 가격을 입력하셨습니다.");
@@ -54,15 +56,14 @@ public class Product {
 
         return new Product(
                 name, description, imageUrl,
-                price, stock, category,
-                now, now, status
+                price, stock, category, status
         );
     }
 
     // 상품 업데이트(부분 수정을 위해 null 체크)
     public void updateProduct(String name, String description, String imageUrl,
                                  Integer price, Integer stock,
-                                 String category, ProductStatus status, LocalDateTime updatedAt){
+                                 String category, ProductStatus status){
         if(name != null && !name.isBlank()) this.name=name;
         if(description != null && !description.isBlank()) this.description=description;
         if(imageUrl != null && !imageUrl.isBlank()) this.imageUrl=imageUrl;
@@ -71,13 +72,13 @@ public class Product {
         if(category!= null && !category.isBlank()) this.category=category;
         if(status!=null) this.status=status;
 
-        this.updatedAt = updatedAt; //수정일 업데이트
+        // 수정일 자동 업데이트
         // String의 경우 ""도 null이 아니라고 받아서 저장해버림 -> 이를 막기위해 && !name.isBlank()사용
 
     }
 
     // 상품 구매 시, 재고 차감용 메서드
-    public void buy(int quantity, LocalDateTime now){
+    public void buy(int quantity){
         //stock(재고 수량), quantity(구매 수량)
 
         if(quantity <= 0){
@@ -91,7 +92,6 @@ public class Product {
         if(this.stock == 0){
             this.status = ProductStatus.SOLD_OUT; //재고 0 -> 품절처리
         }
-        updatedAt = now;
     }
 
     // 핫딜 재고 이동용 메서드

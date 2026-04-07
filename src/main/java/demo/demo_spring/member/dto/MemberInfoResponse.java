@@ -2,11 +2,11 @@ package demo.demo_spring.member.dto;
 
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.domain.Role;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor
 public class MemberInfoResponse {
     // 회원 본인 내 정보 조회 응답 DTO
 
@@ -16,12 +16,15 @@ public class MemberInfoResponse {
     private String name;
     private Role role;
 
-    //생성자 -> @AllArgsConstructor
-    //DTO로 변환해서 보내주기
-    public static MemberInfoResponse fromEntity(Member member){
-        return new MemberInfoResponse(member.getId(), member.getLoginId(),
-                member.getEmail(), member.getName(), member.getRole());
+    // fromEntity가 내부에서 호출할 생성자
+    public MemberInfoResponse(Member member){
+        this.id = member.getId(); this.loginId = member.getLoginId();
+        this.email = member.getEmail(); this.name = member.getName(); this.role = getRole();
     }
-    // -------------------------> 이것도 리팩토링 해주기
+
+    // 엔티티 -> DTO
+    public static MemberInfoResponse fromEntity(Member member){
+        return new MemberInfoResponse(member);
+    }
 
 }

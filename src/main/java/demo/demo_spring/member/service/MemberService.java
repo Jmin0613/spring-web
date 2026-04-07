@@ -1,12 +1,15 @@
 package demo.demo_spring.member.service;
 
 import demo.demo_spring.member.domain.Member;
+import demo.demo_spring.member.dto.MemberCreateRequest;
 import demo.demo_spring.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @Service
+@Transactional
 public class MemberService {
 
     private final MemberRepository repository;
@@ -16,19 +19,23 @@ public class MemberService {
     }
 
     // 회원가입 + 중복 체크
-    public Long join(Member member) {
-        validateDuplicateMember(member);
-        repository.save(member);
-        return member.getId(); //기본키 반환
+    public Long create(MemberCreateRequest request) {
+        validateDuplicateLoginId(request.getLoginId());
+
+        Member member = Member.createMember(
+                request.getLoginId(), request.getPassword(),
+                request.getEmail(), request.getName()
+        );
+        Member savedMember = repository.save(member);
+        return member.getId();
     }
-    // 중복 검사 -> 가입 가능 여부 판단이기에 service에 만듦.
-    private void validateDuplicateMember(Member member){
-        repository.findByLoginId(member.getLoginId())
+    // 아이디 중복 검사
+    private void validateDuplicateLoginId(String loginId){
+        repository.findByLoginId(loginId)
                 .ifPresent(m ->{
-                    throw new IllegalStateException("이미 존재하는 회원입니다.");
+                    throw new IllegalStateException("이미 존재하는 아이디입니다.");
                 });
     }
-    //------------------> 이것도 생성규칙 모으듯, 엔티티메서드로 리팩토링하기. 아, 중복검사는 남기기. 이건 객체생성아님.
 
     // 로그인
     public Member login(String loginId, String password){
