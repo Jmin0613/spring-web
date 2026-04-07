@@ -1,8 +1,22 @@
-// 공지 상세 페이지
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { fetchNoticeDetail } from '../api/noticeApi'
 import type { NoticeDetail } from '../types/notice'
+import './NoticeDetailPage.css'
+
+function formatDate(dateString: string) {
+    const date = new Date(dateString)
+
+    if (Number.isNaN(date.getTime())) {
+        return dateString
+    }
+
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    return `${year}.${month}.${day}`
+}
 
 export default function NoticeDetailPage() {
     const { id } = useParams()
@@ -31,27 +45,66 @@ export default function NoticeDetailPage() {
         loadNoticeDetail()
     }, [id])
 
+    const updatedDateText = useMemo(() => {
+        if (!notice?.updatedAt) {
+            return '-'
+        }
+
+        return formatDate(notice.updatedAt)
+    }, [notice])
+
     if (loading) {
-        return <div style={{ padding: '20px' }}>로딩 중입니다...</div>
+        return (
+            <div className="notice-detail-page">
+                <div className="notice-detail-container">
+                    <p className="notice-detail-state-text">공지 상세를 불러오는 중입니다...</p>
+                </div>
+            </div>
+        )
     }
 
     if (error) {
-        return <div style={{ padding: '20px' }}>{error}</div>
+        return (
+            <div className="notice-detail-page">
+                <div className="notice-detail-container">
+                    <p className="notice-detail-state-text">{error}</p>
+                </div>
+            </div>
+        )
     }
 
     if (!notice) {
-        return <div style={{ padding: '20px' }}>공지 정보를 찾을 수 없습니다.</div>
+        return (
+            <div className="notice-detail-page">
+                <div className="notice-detail-container">
+                    <p className="notice-detail-state-text">공지 정보를 찾을 수 없습니다.</p>
+                </div>
+            </div>
+        )
     }
 
     return (
-        <div style={{ padding: '20px' }}>
-            <h1>{notice.title}</h1>
-            <p>{notice.content}</p>
-            <div>작성일: {notice.createdAt}</div>
-            <div>수정일: {notice.updatedAt}</div>
+        <div className="notice-detail-page">
+            <div className="notice-detail-container">
+                <header className="notice-detail-header">
+                    <p className="notice-detail-badge">NOTICE</p>
+                    <h1 className="notice-detail-title">{notice.title}</h1>
 
-            <div style={{ marginTop: '20px' }}>
-                <Link to="/notices">목록으로 돌아가기</Link>
+                    <div className="notice-detail-meta">
+                        <span>작성일 {formatDate(notice.createdAt)}</span>
+                        <span>수정일 {updatedDateText}</span>
+                    </div>
+                </header>
+
+                <section className="notice-detail-content-box">
+                    <div className="notice-detail-content">{notice.content}</div>
+                </section>
+
+                <div className="notice-detail-bottom">
+                    <Link to="/notices" className="notice-detail-back-button">
+                        목록
+                    </Link>
+                </div>
             </div>
         </div>
     )

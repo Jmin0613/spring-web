@@ -1,0 +1,117 @@
+.notice-detail-page {
+    min-height: 100vh;
+    background-color: #ffffff;
+    padding: 72px 20px 120px;
+}
+
+.notice-detail-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.notice-detail-header {
+    padding-bottom: 28px;
+    border-bottom: 2px solid #1f1f1f;
+}
+
+.notice-detail-badge {
+    display: inline-block;
+    margin: 0 0 16px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background-color: #fff6cc;
+    color: #9a6b00;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.notice-detail-title {
+    margin: 0;
+    color: #111827;
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.35;
+    word-break: keep-all;
+}
+
+.notice-detail-meta {
+    display: flex;
+    gap: 18px;
+    margin-top: 18px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.notice-detail-content-box {
+    padding: 40px 0 56px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.notice-detail-content {
+    color: #374151;
+    font-size: 18px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+    word-break: keep-all;
+    text-align: left;
+}
+
+.notice-detail-bottom {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.notice-detail-back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    height: 48px;
+    padding: 0 20px;
+    border: 1px solid #f1c84b;
+    border-radius: 12px;
+    background-color: #fff6cc;
+    color: #8a6200;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 700;
+    transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.notice-detail-back-button:hover {
+    background-color: #ffefad;
+    transform: translateY(-1px);
+}
+
+.notice-detail-state-text {
+    padding: 80px 20px;
+    color: #6b7280;
+    text-align: center;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .notice-detail-page {
+        padding: 48px 16px 80px;
+    }
+
+    .notice-detail-title {
+        font-size: 28px;
+    }
+
+    .notice-detail-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .notice-detail-content-box {
+        padding: 28px 0 40px;
+    }
+
+    .notice-detail-content {
+        font-size: 16px;
+        line-height: 1.8;
+    }
+}
