@@ -29,6 +29,7 @@ public class ProductInquiry {
     private Product product;
 
     private String productNameSnapshot;
+    private boolean secret; //비밀글 여부
     private String title;
     private String content;
     private String answerContent;
@@ -44,18 +45,19 @@ public class ProductInquiry {
     private InquiryStatus status;
 
     private ProductInquiry(Member member, Product product,
-                           String title, String content) {
+                           String title, String content, boolean secret) {
         this.member = member;
         this.product = product;
         this.productNameSnapshot = product.getName();
         this.title = title;
         this.content = content;
         this.status = InquiryStatus.WAITING;
+        this.secret = secret;
     }
 
     // 문의글 등록/생성 메서드
     public static ProductInquiry createInquiry(Member member, Product product,
-                                               String title, String content) {
+                                               String title, String content, boolean secret) {
         // null체크
         if (member == null) {
             throw new IllegalStateException("문의글 작성 전 로그인이 필요합니다.");
@@ -70,7 +72,7 @@ public class ProductInquiry {
             throw new IllegalStateException("문의글 내용이 비어있습니다.");
         }
 
-        return new ProductInquiry(member, product, title, content);
+        return new ProductInquiry(member, product, title, content, secret);
     }
 
     // 문의글 수정 메서드
@@ -97,7 +99,7 @@ public class ProductInquiry {
     }
 
     // 상태체크 메서드
-    private void validateWaitingStatus(){
+    public void validateWaitingStatus(){
         if(this.status != InquiryStatus.WAITING){
             throw new IllegalStateException("이미 답변 완료된 문의입니다.");
         }

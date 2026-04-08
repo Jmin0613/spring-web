@@ -8,4 +8,5 @@ import lombok.NoArgsConstructor;
 public class ProductInquiryCreateRequest {
     private String title;
     private String content;
+    private boolean secret;
 }

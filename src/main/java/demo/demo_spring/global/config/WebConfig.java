@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
     //스프링 mvc에 인터셉트 등록하는 클래스
 
-    @Override
+    @Override //인터셉터 경우 재정리 필요 -> 리팩토링
     public void addInterceptors(InterceptorRegistry registry){
         //InterceptorRegistry -> 인터셉터를 등록해두는 목록/관리자
         // 우리가 인터셉터를 스프링mvc에 추가하고, 어떤 url에 붙일지 정하고, 순서를 정하게 해주는 도구임.

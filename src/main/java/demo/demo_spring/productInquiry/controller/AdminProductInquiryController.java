@@ -17,11 +17,14 @@ public class AdminProductInquiryController {
     }
 
     // 관리자 답글 작성
-    @PostMapping("/admin/inquiries/{inquiryId}/answer")
-    public void answer(@PathVariable Long inquiryId,
+    @PostMapping("/admin/products/{productId}/inquiries/{inquiryId}/answer")
+    public void answer(@PathVariable Long productId, @PathVariable Long inquiryId,
                        @RequestBody AdminProductInquiryAnswerRequest request,
                        HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
-        productInquiryService.adminAnswer(inquiryId, loginMember.getId(), request);
+        productInquiryService.adminAnswer(productId, inquiryId, loginMember.getId(), request);
     }
+
+    // 문의 조회는 ProductInquiryController를 공용으로 쓰기.
+    // 답글하기 버튼은 프론트엔드에서 role권한 확인하고 ui보여주는걸로.
 }

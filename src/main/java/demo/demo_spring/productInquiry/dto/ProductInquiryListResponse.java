@@ -15,6 +15,7 @@ public class ProductInquiryListResponse {
     private LocalDateTime createdAt; // 작성일
 
     private ProductInquiryListResponse(ProductInquiry productInquiry){
+        this.id = productInquiry.getId();
         this.title = productInquiry.getTitle();
         this.writerName = productInquiry.getMember().getName();
         this.status = productInquiry.getStatus();
