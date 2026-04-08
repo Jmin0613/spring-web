@@ -15,10 +15,8 @@ import java.util.*;
 public class HotDealController {
     //생성자주입 + di
     private final HotDealService hotDealService;
-    private final MemberService memberService;
     public HotDealController(HotDealService hotDealService, MemberService memberService){
         this.hotDealService = hotDealService;
-        this.memberService = memberService;
     }
 
     // 전체 조회

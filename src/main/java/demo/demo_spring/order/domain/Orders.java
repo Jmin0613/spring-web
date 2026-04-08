@@ -21,7 +21,7 @@ public class Orders {
     private Long id; //PK. 주문번호(관계자용)
     // private Long orderNum; // 주문번호(주문자/회원용) -> 시간 이용해서 만들기. ---> 나중에 별도규칙 만들어 추가하기.
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     // DB테이블에서 member_id라는 컬럼을 통해 회원(주문자) 테이블과 연결
     private Member member; //db -> member_id

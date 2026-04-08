@@ -22,7 +22,7 @@ public class HotDeal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; //server hotdeal id
 
-    @ManyToOne // HotDeal은 Product에 속해있음.
+    @ManyToOne(fetch = FetchType.LAZY) // HotDeal은 Product에 속해있음.
     @JoinColumn(name = "product_id", nullable = false)
     //DB테이블에서 product_id라는 컬럼을 통해 상품 테이블과 연결
     private Product product; // db -> product_id
@@ -99,7 +99,7 @@ public class HotDeal {
             throw new IllegalStateException("핫딜 종료 시간은 시작 시간 이후여야 함");
         }
 
-        // 수정 반영 -> null이면 기존값 유지
+        // 수정 반영 -> null이면 기존값 유지 -------------> 이거 isblank() 체크로 리팩토링하기
         if (hotDealPrice != null) this.hotDealPrice = hotDealPrice;
         if (startTime != null) this.startTime = startTime;
         if (endTime != null) this.endTime = endTime;

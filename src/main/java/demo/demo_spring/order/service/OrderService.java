@@ -33,7 +33,7 @@ public class OrderService {
         OrderItem orderItem = OrderItem.createOrderItem(product, quantity, orderPrice);
 
         // 주문서 작성
-        Member member = memberService.findOne(memberId); // 캡슐화와 검증로직 재사용을 위해, member의 레포지토리가 아닌 서비스호출
+        Member member = memberService.getMember(memberId); // 캡슐화와 검증로직 재사용을 위해, member의 레포지토리가 아닌 서비스호출
         Orders order = Orders.createOrder(member, List.of(orderItem));
         // List.of(orderItem) -> 구매 상품목록 모두 추가한 후에는 변하면 안됨(구매 상품 확정)
 

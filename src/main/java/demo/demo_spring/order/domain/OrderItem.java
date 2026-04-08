@@ -14,17 +14,17 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // PK -> 주문상품 레코드 1개 자체의 고유id
 
-    @ManyToOne //OrderItem은 Order속 주문상품들 정보. 어떤 Order에 속하는지 Order와 연결.
+    @ManyToOne(fetch = FetchType.LAZY) //OrderItem은 Order속 주문상품들 정보. 어떤 Order에 속하는지 Order와 연결.
     @JoinColumn(name="order_id", nullable = false)
     //DB테이블에서 order_id라는 컬럼을 통해 주문 테이블과 연결
     private Orders orders; // 어떤 주문에 속하는지 Order객체 참조용 FK
 
-    @ManyToOne //어떤 상품을 샀는지 Product와 연결
+    @ManyToOne(fetch = FetchType.LAZY) //어떤 상품을 샀는지 Product와 연결
     @JoinColumn(name="product_id", nullable = false)
     //DB테이블에서 product_id라는 컬럼을 통해 상품 테이블과 연결
     private Product product; // db -> product_id -> 원본 상품 참조용 FK
 
-    private String productName; // 구매당시 상품명
+    private String productNameSnapshot; // 구매당시 상품명
     private int quantity; // 주문수량
     private int orderPrice; // 주문 당시 가격(일반구매 or 핫딜구매)
 
@@ -43,7 +43,7 @@ public class OrderItem {
             throw new IllegalStateException("구매 가격이 잘못되었습니다.");
         }
 
-        this.product = product; this.productName = product.getName();
+        this.product = product; this.productNameSnapshot = product.getName();
         this.quantity = quantity; this.orderPrice = orderPrice;
     }
 

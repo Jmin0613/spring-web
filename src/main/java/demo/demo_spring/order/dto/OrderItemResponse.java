@@ -14,7 +14,7 @@ public class OrderItemResponse {
     //OrderItem 생성자 -> -> fromEntity()가 내부에서 호출할 생성자
     private OrderItemResponse(OrderItem orderItem){
         this.productId = orderItem.getProduct().getId();
-        this.productName = orderItem.getProductName();
+        this.productName = orderItem.getProductNameSnapshot();
         this.orderPrice = orderItem.getOrderPrice();
         this.quantity = orderItem.getQuantity();
         this.itemTotalPrice = calculateItemTotalPrice();

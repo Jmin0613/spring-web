@@ -51,7 +51,7 @@ public class MemberController {
 
         if(loginMember == null){ throw new IllegalStateException("로그인이 필요합니다."); }
 
-        Member member = memberService.findOne(loginMember.getId());
+        Member member = memberService.getMember(loginMember.getId());
         return MemberInfoResponse.fromEntity(member);
     }
     //--------------->

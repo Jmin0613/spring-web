@@ -21,7 +21,7 @@ public class OrderListResponse {
         this.orderId = orders.getId(); this.orderDate = orders.getOrderedAt();
         this.status = orders.getStatus(); this.totalPrice = orders.getTotalPrice();
         this.itemCount = orders.getOrderItems().size();
-        this.representativeItemName = orders.getOrderItems().getFirst().getProductName();
+        this.representativeItemName = orders.getOrderItems().getFirst().getProductNameSnapshot();
     }
 
     //엔티티 -> DTO
