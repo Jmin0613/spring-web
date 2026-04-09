@@ -10,6 +10,7 @@ import demo.demo_spring.product.service.ProductService;
 import demo.demo_spring.productInquiry.domain.ProductInquiry;
 import demo.demo_spring.productInquiry.dto.*;
 import demo.demo_spring.productInquiry.repository.ProductInquiryRepository;
+import demo.demo_spring.review.domain.Review;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,9 +54,7 @@ public class ProductInquiryService {
         validateInquiryBelongToProduct(productInquiry, productId);
 
         // 작성자 본인 확인
-        if(!memberId.equals(productInquiry.getMember().getId())){
-            throw new IllegalStateException("문의 작성자 본인이 아닙니다.");
-        }
+        validateWriter(memberId, productInquiry);
 
         // 업데이트 메서드 호출(update()에서 상태검사 실시)
         productInquiry.updateInquiry(request.getTitle(), request.getContent());
@@ -71,9 +70,7 @@ public class ProductInquiryService {
         validateInquiryBelongToProduct(productInquiry, productId);
 
         // 작성자 본인 확인
-        if(!memberId.equals(productInquiry.getMember().getId())){
-            throw new IllegalStateException("문의 작성자 본인이 아닙니다.");
-        }
+        validateWriter(memberId, productInquiry);
 
         // 상태확인 -> waiting 상태만 삭제가능(관리자 답변 전까지)
         productInquiry.validateWaitingStatus();
@@ -147,5 +144,11 @@ public class ProductInquiryService {
         }
     }
 
+    // 작성자 본인 확인 메서드
+    private void validateWriter(Long memberId, ProductInquiry productInquiry){
+        if(!memberId.equals(productInquiry.getMember().getId())){
+            throw new IllegalStateException("문의 작성자 본인이 아닙니다.");
+        }
+    }
 
 }
