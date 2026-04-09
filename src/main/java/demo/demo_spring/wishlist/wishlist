@@ -1,0 +1,20 @@
+<Wishlist 정책>
+    : Wishlist는 ManyToOne 두 개로 연결하지만,
+    member와 product의 조합은 유일해야 함.
+
+1. 누가 찜할 수 있나
+로그인 회원만 가능
+
+2. 중복 찜 허용 여부
+절대 불가. 같은 회원이 같은 상품을 두 번 찜 불가
+-> Member + Product 조합은 1개만 허용
+
+3. 추가 및 해제 방식
+추가 -> insert
+삭제 -> delete
+
+4. API 방식
+토글(Toggle)이 아닌, 분리형으로 진행
+Post /products/{productId}/wishlist
+Delete /products/{productId}/wishlist
+Get /wishlist
