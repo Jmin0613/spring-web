@@ -10,7 +10,6 @@ import demo.demo_spring.product.service.ProductService;
 import demo.demo_spring.productInquiry.domain.ProductInquiry;
 import demo.demo_spring.productInquiry.dto.*;
 import demo.demo_spring.productInquiry.repository.ProductInquiryRepository;
-import demo.demo_spring.review.domain.Review;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +31,8 @@ public class ProductInquiryService {
 
     // 회원 문의 작성
     public Long create(Long productId, Long memberId, ProductInquiryCreateRequest request){
-        Member member = memberService.getMember(memberId); //서비스에서 객체로 바로 꺼내올수잇음
-        Product product = productRepository.findById(productId) //서비스에서 DTO로 가져와서, 레포지토리로 접근해서 꺼내옴
+        Member member = memberService.getMember(memberId); //서비스 로직 재사용하는거 나중에 레포지토리로 스타일 통일해주기
+        Product product = productRepository.findById(productId) // 리팩토링 예정
                 .orElseThrow(()-> new IllegalStateException("문의하려는 상품이 없습니다."));
 
         ProductInquiry productInquiry
