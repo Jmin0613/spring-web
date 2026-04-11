@@ -1,6 +1,5 @@
 package demo.demo_spring.review.dto;
 
-import demo.demo_spring.order.domain.OrderItem;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

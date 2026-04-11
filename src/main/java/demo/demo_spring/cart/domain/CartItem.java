@@ -45,7 +45,7 @@ public class CartItem {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    private CartItem(Cart cart, Product product, int quantity){
+    private CartItem(Product product, int quantity){
         if(cart == null){
             throw new IllegalStateException("장바구니가 만들어지지 않았습니다.");
         }
@@ -59,8 +59,8 @@ public class CartItem {
         this.cart = cart; this.product = product; this.quantity = quantity;
     }
 
-    public static CartItem createCartItem(Cart cart, Product product, int quantity){
-        return new CartItem(cart, product, quantity);
+    public static CartItem createCartItem(Product product, int quantity){
+        return new CartItem(product, quantity);
     }
 
     // Cart 연결
