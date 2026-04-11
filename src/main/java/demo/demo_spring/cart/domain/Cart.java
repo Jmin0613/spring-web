@@ -26,6 +26,7 @@ public class Cart {
     @JoinColumn(name = "member_id", nullable = false, unique = true)
     private Member member; // 회원당 장바구니 1개 -> unique제약
 
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems = new ArrayList<>(); //null안되게 바로 초기화
 
     @CreatedDate

@@ -46,9 +46,6 @@ public class CartItem {
     private LocalDateTime updatedAt;
 
     private CartItem(Product product, int quantity){
-        if(cart == null){
-            throw new IllegalStateException("장바구니가 만들어지지 않았습니다.");
-        }
         if(product == null){
             throw new IllegalStateException("장바구니 추가하려는 상품이 없습니다.");
         }
@@ -56,7 +53,7 @@ public class CartItem {
         if(quantity<1){
             throw new IllegalStateException("장바구니 수량이 잘못되었습니다. 수량은 최소 1개 입니다.");
         }
-        this.cart = cart; this.product = product; this.quantity = quantity;
+        this.product = product; this.quantity = quantity;
     }
 
     public static CartItem createCartItem(Product product, int quantity){
