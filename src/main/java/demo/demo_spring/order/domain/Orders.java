@@ -43,7 +43,7 @@ public class Orders {
     private int totalPrice;
 
     @CreatedDate
-    private LocalDateTime orderedAt;
+    private LocalDateTime orderDate;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
@@ -54,7 +54,7 @@ public class Orders {
         if (member == null){
             throw new IllegalStateException("구매자 정보가 누락되었습니다.");
         }
-        //orderedAt -> Auditing으로 저장
+        //orderDate -> Auditing으로 저장
         this.member = member;
         this.status = OrderStatus.ORDERED;
     }

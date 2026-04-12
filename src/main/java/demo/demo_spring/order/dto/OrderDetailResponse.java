@@ -18,7 +18,7 @@ public class OrderDetailResponse {
 
     //Order 생성자 -> -> fromEntity()가 내부에서 호출할 생성자
     private  OrderDetailResponse(Orders orders){
-        this.orderId = orders.getId(); this.orderDate = orders.getOrderedAt();
+        this.orderId = orders.getId(); this.orderDate = orders.getOrderDate();
         this.status = orders.getStatus(); this.totalPrice = orders.getTotalPrice();
 
         this.orderItems = orders.getOrderItems()

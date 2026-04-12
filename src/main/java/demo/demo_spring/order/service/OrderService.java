@@ -44,7 +44,7 @@ public class OrderService {
 
     // 사용자 내 주문 조회
     public List<OrderListResponse> findMyOrders(Long memberId){
-        return orderRepository.findOrderByMember_Id(memberId)
+        return orderRepository.findAllByMemberIdOrderByOrderDateDesc(memberId)
                 .stream().map(OrderListResponse::fromEntity)
                 .toList();
     }

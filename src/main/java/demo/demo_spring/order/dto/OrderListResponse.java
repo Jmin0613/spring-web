@@ -18,7 +18,7 @@ public class OrderListResponse {
 
     //Order 생성자 -> fromEntity()가 내부에서 호출할 생성자
     private OrderListResponse(Orders orders){
-        this.orderId = orders.getId(); this.orderDate = orders.getOrderedAt();
+        this.orderId = orders.getId(); this.orderDate = orders.getOrderDate();
         this.status = orders.getStatus(); this.totalPrice = orders.getTotalPrice();
         this.itemCount = orders.getOrderItems().size();
         this.representativeItemName = orders.getOrderItems().getFirst().getProductNameSnapshot();

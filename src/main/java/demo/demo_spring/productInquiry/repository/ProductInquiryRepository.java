@@ -14,6 +14,6 @@ public interface ProductInquiryRepository extends JpaRepository<ProductInquiry,L
     // createdAt기준으로 내림차순 정렬
     //특정 상품(ProductId)에 달린 문의들을 createAt 최신순으로 전부 조회
 
-    // 특정 회원이 작성한 문의 모아보기 -> 나중에 마이페이지에서 이어지기
+    // memberId로 특정 회원이 작성한 문의 찾기 (마이페이지)
     List<ProductInquiry> findAllByMemberIdOrderByCreatedAtDesc(Long memberId);
 }
