@@ -59,7 +59,7 @@ public class NotificationService {
 
     // 내 알림 조회
     public List<NotificationListResponse> findMyNotification(Long memberId){
-        // 회원 확인
+        // 멤버 확인
         Member member = memberService.getMember(memberId);
 
         // 문의 조회
@@ -68,4 +68,16 @@ public class NotificationService {
                 .map(NotificationListResponse::fromEntity)
                 .toList();
     }
+
+    // 알림 읽기
+    public void readNotification(Long notificationId, Long memberId){
+        // 멤버 조회
+        memberService.getMember(memberId);
+
+        // 알림 존재 여부 + 내 알림 여부 체크
+        Notification notification = notificationRepository.findByIdAndMemberId(notificationId, memberId)
+                .orElseThrow(()->new IllegalStateException("읽어들일 알림이 없습니다."));
+
+        notification.markAdRead();
+    } // ---> 알림 클릭 시, 읽음처리 + 이동 정보 반환하여 상세페이지로 이동하는걸로 리팩토링
 }

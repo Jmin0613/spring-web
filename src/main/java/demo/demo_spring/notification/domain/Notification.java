@@ -47,6 +47,7 @@ public class Notification {
         this.isRead = false; //false가 생성일떄 기본값
     }
 
+    // 문의 답변 알림
     public static Notification createInquiryAnswerNotification(Member member, String inquiryTitle, Long productId, Long inquiryId){
         Notification notification =  new Notification(member, NotificationType.INQUIRY_ANSWER);
 
@@ -63,6 +64,7 @@ public class Notification {
         return notification;
     }
 
+    // 핫딜 시작 알림
     public static Notification createHotDealStartNotification(Member member, Long hotDealId, String hotDealName){
         Notification notification =  new Notification(member, NotificationType.HOTDEAL_START);
         if(hotDealId == null){ throw new IllegalStateException("알림 대상 핫딜 상품이 비어있습니다."); }
@@ -72,4 +74,10 @@ public class Notification {
 
         return notification;
     }
+
+    // 읽음 처리 메서드
+    public void markAdRead(){
+        this.isRead = true;
+    }
+
 }

@@ -5,6 +5,8 @@ import demo.demo_spring.notification.dto.NotificationListResponse;
 import demo.demo_spring.notification.service.NotificationService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -21,6 +23,13 @@ public class NotificationController {
     public List<NotificationListResponse> findMyNotifications(HttpSession session){
         Member loginMember = (Member) session.getAttribute("loginMember");
         return notificationService.findMyNotification(loginMember.getId());
+    }
+
+    // 알림 읽음
+    @PatchMapping("/notifications/{notificationId}/read")
+    public void readNotification(@PathVariable Long notificationId, HttpSession session){
+        Member loginMember = (Member) session.getAttribute("loginMember");
+        notificationService.readNotification(notificationId, loginMember.getId());
     }
 
 
