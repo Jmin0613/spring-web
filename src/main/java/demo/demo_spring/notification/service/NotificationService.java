@@ -78,6 +78,6 @@ public class NotificationService {
         Notification notification = notificationRepository.findByIdAndMemberId(notificationId, memberId)
                 .orElseThrow(()->new IllegalStateException("읽어들일 알림이 없습니다."));
 
-        notification.markAdRead();
+        notification.markAsRead();
     } // ---> 알림 클릭 시, 읽음처리 + 이동 정보 반환하여 상세페이지로 이동하는걸로 리팩토링
 }

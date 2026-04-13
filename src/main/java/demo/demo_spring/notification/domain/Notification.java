@@ -76,7 +76,7 @@ public class Notification {
     }
 
     // 읽음 처리 메서드
-    public void markAdRead(){
+    public void markAsRead(){
         this.isRead = true;
     }
 
