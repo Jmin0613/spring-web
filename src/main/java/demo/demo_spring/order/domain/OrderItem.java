@@ -17,7 +17,7 @@ public class OrderItem {
     @ManyToOne(fetch = FetchType.LAZY) //OrderItem은 Order속 주문상품들 정보. 어떤 Order에 속하는지 Order와 연결.
     @JoinColumn(name="order_id", nullable = false)
     //DB테이블에서 order_id라는 컬럼을 통해 주문 테이블과 연결
-    private Orders orders; // 어떤 주문에 속하는지 Order객체 참조용 FK
+    private Orders order; // 어떤 주문에 속하는지 Order객체 참조용 FK
 
     @ManyToOne(fetch = FetchType.LAZY) //어떤 상품을 샀는지 Product와 연결
     @JoinColumn(name="product_id", nullable = false)
@@ -53,8 +53,8 @@ public class OrderItem {
     }
 
     // Order 연결 메서드
-    void setOrders(Orders orders){
-        this.orders = orders;
+    void setOrders(Orders order){
+        this.order = order;
         // Order가 OrderItem.setOrder호출해서 연결하기
         // OrderItem생성메서드로 order를 연결할 수 있지만, order는 orderItem이 추가된걸 모를 수 있기 떄문.
     }

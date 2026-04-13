@@ -1,14 +1,11 @@
 package demo.demo_spring.mypage.controller;
 
 import demo.demo_spring.member.domain.Member;
-import demo.demo_spring.mypage.dto.MyPageInquiryListResponse;
-import demo.demo_spring.mypage.dto.MyPageOrderListResponse;
-import demo.demo_spring.mypage.dto.MyPageReviewListResponse;
+import demo.demo_spring.mypage.dto.*;
 import demo.demo_spring.mypage.service.MyPageService;
 import demo.demo_spring.wishlist.dto.WishlistListResponse;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -42,6 +39,18 @@ public class MyPageController {
     public List<WishlistListResponse> findMywishlist(HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
         return mypageService.findMyWishlist(loginMember.getId());
+    }
+
+    @PatchMapping("/mypage/myinfo") // 내 정보 변경 - 일단 name, email 먼저
+    public void updateProfile(@RequestBody MemberUpdateRequest request, HttpSession session){
+        Member loginMember = (Member)session.getAttribute("loginMember");
+        mypageService.updateProfile(loginMember.getId(), request);
+    }
+
+    @GetMapping("/mypage/orders/{orderId}") // 내 주문 상세보기
+    public MyPageOrderDetailResponse findMyOrderDetail(@PathVariable Long orderId, HttpSession session){
+        Member loginMember = (Member)session.getAttribute("loginMember");
+        return mypageService.findMyOrderDetail(orderId, loginMember.getId());
     }
 
 }

@@ -33,4 +33,6 @@ public class OrderController {
         Member loginMember = (Member)session .getAttribute("loginMember");
         return orderService.findOrder(id,loginMember.getId());
     }
+    // -------> 이 부분 mypage쪽으로 통합하는거 리팩토링 염두하기
+    // 대신 adminOrderController만들어서 관리자 전용 조회 만들기
 }

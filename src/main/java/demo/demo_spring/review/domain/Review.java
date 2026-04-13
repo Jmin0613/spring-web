@@ -94,7 +94,7 @@ public class Review {
             } this.title = title;
         }
         if (content != null){
-            if(!content.isBlank()){
+            if(content.isBlank()){
                 throw new IllegalStateException("내용을 공백으로 수정할 수 없습니다.");
             } this.content = content;
         }

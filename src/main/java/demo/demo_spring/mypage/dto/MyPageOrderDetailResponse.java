@@ -8,24 +8,23 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-public class MyPageOrderListResponse {
-    // 주문 묶음 DTO - 주문 자체 정보
-
+public class MyPageOrderDetailResponse {
     private Long orderId;
     private LocalDateTime orderDate;
     private OrderStatus status;
-    private List<MyPageOrderItemResponse> orderItems; //order의 orderItem 카드들 리스트
+    private int totalPrice;
+    private List<MyPageOrderItemResponse> orderItems; // DTO 재사용
 
-    private MyPageOrderListResponse(Orders order){
+    private MyPageOrderDetailResponse(Orders order){
         this.orderId = order.getId(); this.orderDate = order.getOrderDate();
-        this.status = order.getStatus();
+        this.status = order.getStatus(); this.totalPrice = order.getTotalPrice();
+
         this.orderItems = order.getOrderItems()
                 .stream()
                 .map(MyPageOrderItemResponse::fromEntity)
                 .toList();
     }
 
-    public static MyPageOrderListResponse fromEntity(Orders order){
-        return new MyPageOrderListResponse(order);
-    }
+    public static MyPageOrderDetailResponse fromEntity(Orders order){ return new MyPageOrderDetailResponse(order);}
+
 }

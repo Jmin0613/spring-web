@@ -50,9 +50,9 @@ public class OrderService {
     }
     // 사용자 내 주문 상세 조회
     public OrderDetailResponse findOrder(Long orderId, Long memberId){
-        Orders orders = orderRepository.findByIdAndMember_Id(orderId, memberId)
+        Orders order = orderRepository.findByIdAndMemberId(orderId, memberId)
                 .orElseThrow(()-> new IllegalStateException("해당하는 주문이 없습니다."));
-        return OrderDetailResponse.fromEntity(orders);
+        return OrderDetailResponse.fromEntity(order);
     }
 
     // 주문 취소

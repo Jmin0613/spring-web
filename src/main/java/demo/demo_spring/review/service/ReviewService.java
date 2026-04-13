@@ -118,7 +118,7 @@ public class ReviewService {
 
     // 주문항목이 로그인 회원것인지 확인하는 메서드
     private void validateOrderItemMatch(OrderItem orderItem, Long memberId){
-        Long orderMemberId = orderItem.getOrders().getMember().getId();
+        Long orderMemberId = orderItem.getOrder().getMember().getId();
         if(!orderMemberId.equals(memberId)){
             throw new IllegalStateException("리뷰 작성 권한이 없습니다.");
         }

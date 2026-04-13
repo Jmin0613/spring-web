@@ -26,7 +26,7 @@ public class Orders {
     // DB테이블에서 member_id라는 컬럼을 통해 회원(주문자) 테이블과 연결
     private Member member; //db -> member_id
 
-    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     // cascade = CascadeType.ALL : 부모에게 일어난 일을 자식에게도 똑같이 전파
     // 이거 안하면 나중에 save할때, order만 save하면 orderItem들은 저장되지 않아서 각각 save해줘야해서 귀찮음.
     // 이거 해두면 부모인 order만 save해도 그 안에 담긴 자식들 orderItem들도 자동으로 함께 save되서 편함.
@@ -66,15 +66,15 @@ public class Orders {
             // 목록은 있는데, 상품이 없음(리스트는 전달됐지만, 주문상품이 0개) -> empty
             throw new IllegalStateException("주문 상품 정보가 누락되었습니다.");
         }
-        Orders orders = new Orders(member); // 아직 비어있는 주문 껍데기 만듦
+        Orders order = new Orders(member); // 아직 비어있는 주문 껍데기 만듦
 
         for(OrderItem orderItem : orderItems){ // 주문상품들 하나씩 채워주기
-            orders.addOrderItem(orderItem); //List 대입이 아니라, 메서드로 넣음
+            order.addOrderItem(orderItem); //List 대입이 아니라, 메서드로 넣음
         }
 
-        orders.calculateTotalPrice(); //총 구매가격
+        order.calculateTotalPrice(); //총 구매가격
 
-        return orders; // 생성한 주문서 반환
+        return order; // 생성한 주문서 반환
 
         /* 그동안은 값들을 내부 생성자를 통해서 다 넣고 바로 return new 객체를 해주었지만,
         지금은 내부 생성자 만들로 값을 채울 수 없음. 그래서 일단 new 객체로 빈 껍데기를 우선으로 만들고

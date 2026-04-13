@@ -1,10 +1,10 @@
 package demo.demo_spring.mypage.service;
 
+import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.repository.MemberRepository;
 import demo.demo_spring.member.service.MemberService;
-import demo.demo_spring.mypage.dto.MyPageInquiryListResponse;
-import demo.demo_spring.mypage.dto.MyPageOrderListResponse;
-import demo.demo_spring.mypage.dto.MyPageReviewListResponse;
+import demo.demo_spring.mypage.dto.*;
+import demo.demo_spring.order.domain.Orders;
 import demo.demo_spring.order.repository.OrderRepository;
 import demo.demo_spring.productInquiry.repository.ProductInquiryRepository;
 import demo.demo_spring.review.repository.ReviewRepository;
@@ -23,12 +23,14 @@ public class MyPageService {
     private final WishlistRepository wishlistRepository;
     private final OrderRepository orderRepository;
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     public MyPageService(ProductInquiryRepository inquiryRepository,
-                         ReviewRepository reviewRepository, WishlistRepository wishlistRepository, OrderRepository orderRepository, MemberService memberService){
+                         ReviewRepository reviewRepository, WishlistRepository wishlistRepository, OrderRepository orderRepository, MemberService memberService, MemberRepository memberRepository){
         this.inquiryRepository = inquiryRepository;
         this.reviewRepository = reviewRepository; this.wishlistRepository = wishlistRepository;
         this.orderRepository = orderRepository; this.memberService = memberService;
+        this.memberRepository = memberRepository;
     }
 
     // 내 주문기록 보기 -> Order쪽 주문 조회, 주문 상세 조회를 마이페이지에서 보는걸로 통합하기. (리팩토링)
@@ -67,8 +69,8 @@ public class MyPageService {
 
     }
 
-    // 내 찜하기 보기
-    public List<WishlistListResponse> findMyWishlist(Long memberId){ // DTO 재활용
+    // 내 찜하기 보기 + DTO 재활용
+    public List<WishlistListResponse> findMyWishlist(Long memberId){
         //멤버 조회
         memberService.getMember(memberId);
         //찜 목록 조회
@@ -78,4 +80,41 @@ public class MyPageService {
                 .toList();
 
     }
+
+    // 내 정보 변경 - 일단 name, email만 (이후 Member 도메인 리팩토링할떄 Nickname추가해서 유니크로 변경 만들어주기)
+    public void updateProfile(Long memberId, MemberUpdateRequest request){
+        //멤버 조회
+        Member member = memberService.getMember(memberId);
+
+        String name = request.getName(); String email = request.getEmail();
+
+        // 변경값 체크
+        if(name == null && email == null){
+            throw new IllegalStateException("수정할 정보가 없습니다.");
+        }
+
+        // 이메일 중복체크 + 기존 이메일과 같은지 체크
+        if(email != null && !email.equals(member.getEmail())) {
+            // 다를 경우, 중복검사 실행
+            if (memberRepository.existsByEmail(email)) {
+                throw new IllegalStateException("중복된 이메일입니다.");
+            }
+        }
+
+        // 통과하면 수정메서드 호출
+        member.updateProfile(request.getName(), request.getEmail());
+
+    }
+
+    // 내 주문 상세보기 -> Orders 필드 리팩토링떄 확장하고 받는사람 정보 등 추가하기
+    public MyPageOrderDetailResponse findMyOrderDetail(Long orderId, Long memberId){
+        // 멤버 조회
+        memberService.getMember(memberId);
+
+        // 주문 조회
+        Orders order = orderRepository.findByIdAndMemberId(orderId, memberId)
+                .orElseThrow(()-> new IllegalStateException("해당하는 주문이 없거나 접근 권한이 없습니다."));
+
+        return MyPageOrderDetailResponse.fromEntity(order);
+    }// --> 이것도 orderService의 findOrder와 통합가능할듯
 }

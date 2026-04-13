@@ -8,4 +8,7 @@ import java.util.*;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByLoginId(String loginId); //loginId로 회원 조회
+
+    // 이메일 이미 존재하는지 중복 체크
+    boolean existsByEmail(String email);
 }

@@ -17,16 +17,16 @@ public class OrderListResponse {
     private String representativeItemName; //대표 상품 이름
 
     //Order 생성자 -> fromEntity()가 내부에서 호출할 생성자
-    private OrderListResponse(Orders orders){
-        this.orderId = orders.getId(); this.orderDate = orders.getOrderDate();
-        this.status = orders.getStatus(); this.totalPrice = orders.getTotalPrice();
-        this.itemCount = orders.getOrderItems().size();
-        this.representativeItemName = orders.getOrderItems().getFirst().getProductNameSnapshot();
+    private OrderListResponse(Orders order){
+        this.orderId = order.getId(); this.orderDate = order.getOrderDate();
+        this.status = order.getStatus(); this.totalPrice = order.getTotalPrice();
+        this.itemCount = order.getOrderItems().size();
+        this.representativeItemName = order.getOrderItems().getFirst().getProductNameSnapshot();
     }
 
     //엔티티 -> DTO
-    public static OrderListResponse fromEntity(Orders orders){
-        return new OrderListResponse(orders);
+    public static OrderListResponse fromEntity(Orders order){
+        return new OrderListResponse(order);
     }
 
 }

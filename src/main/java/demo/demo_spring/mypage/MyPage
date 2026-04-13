@@ -1,0 +1,6 @@
+<MyPage>
+
+1. 회원정보 수정
+MemberController에 두기보다 MyPageController에서 요청을 받고
+MemberService 또는 MyPageService를 통해 수정
+실제 수정 규칙은 Member 엔티티가 담당

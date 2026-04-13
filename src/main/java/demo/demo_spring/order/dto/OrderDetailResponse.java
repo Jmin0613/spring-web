@@ -17,11 +17,11 @@ public class OrderDetailResponse {
     private List<OrderItemResponse> orderItems; // 상품목록
 
     //Order 생성자 -> -> fromEntity()가 내부에서 호출할 생성자
-    private  OrderDetailResponse(Orders orders){
-        this.orderId = orders.getId(); this.orderDate = orders.getOrderDate();
-        this.status = orders.getStatus(); this.totalPrice = orders.getTotalPrice();
+    private  OrderDetailResponse(Orders order){
+        this.orderId = order.getId(); this.orderDate = order.getOrderDate();
+        this.status = order.getStatus(); this.totalPrice = order.getTotalPrice();
 
-        this.orderItems = orders.getOrderItems()
+        this.orderItems = order.getOrderItems()
                 .stream()
                 // 각 OrderItem을 OrderItemResponse로 변환
                 .map(OrderItemResponse::fromEntity)
@@ -30,5 +30,5 @@ public class OrderDetailResponse {
     }
 
     //엔티티 -> DTO
-    public static OrderDetailResponse fromEntity(Orders orders){ return new OrderDetailResponse(orders);}
+    public static OrderDetailResponse fromEntity(Orders order){ return new OrderDetailResponse(order);}
 }

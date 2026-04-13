@@ -45,7 +45,15 @@ public class Notice {
 
     // Notice 수정 메서드
     public void updateNoice(String title, String content){
-        if (title!=null && !title.isBlank()) this.title = title;
-        if (content!=null && !content.isBlank()) this.content = content;
+        if (title != null){
+            if(title.isBlank()){
+                throw new IllegalStateException("제목을 공백으로 수정할 수 없습니다.");
+            } this.title = title;
+        }
+        if (content != null){
+            if(content.isBlank()){
+                throw new IllegalStateException("내용을 공백으로 수정할 수 없습니다.");
+            }
+        }
     }
 }

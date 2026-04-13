@@ -47,4 +47,19 @@ public class Member {
 
     //관리자 승격
     public void promoteToAdmin(){this.role=Role.ADMIN;}
+
+    // 마이페이지 내 정보 변경
+    public void updateProfile(String name, String email){
+        // null blank 체크 + 값 변경
+        if(name != null){
+            if(name.isBlank()){
+                throw new IllegalStateException("이름을 공백으로 수정할 수 없습니다.");
+            } this.name = name;
+        }
+        if(email != null){
+            if(email.isBlank()){
+                throw new IllegalStateException("이메일을 공백으로 수정할 수 없습니다.");
+            } this.email = email;
+        }
+    }
 }
