@@ -4,6 +4,7 @@ import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.domain.Role;
 import demo.demo_spring.member.repository.MemberRepository;
 import demo.demo_spring.member.service.MemberService;
+import demo.demo_spring.notification.service.NotificationService;
 import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.repository.ProductRepository;
 import demo.demo_spring.product.service.ProductService;
@@ -22,11 +23,13 @@ public class ProductInquiryService {
     private final ProductInquiryRepository productInquiryRepository;
     private final MemberService memberService;
     private final ProductRepository productRepository;
+    private final NotificationService notificationService;
 
-    public ProductInquiryService(ProductInquiryRepository productInquiryRepository, MemberService memberService, ProductService productService, ProductRepository productRepository, MemberRepository memberRepository){
+    public ProductInquiryService(ProductInquiryRepository productInquiryRepository, MemberService memberService, ProductService productService, ProductRepository productRepository, MemberRepository memberRepository, NotificationService notificationService){
         this.productInquiryRepository = productInquiryRepository;
         this.memberService = memberService;
         this.productRepository = productRepository;
+        this.notificationService = notificationService;
     }
 
     // 회원 문의 작성
@@ -95,6 +98,10 @@ public class ProductInquiryService {
 
         //답글 메서드 호출(answer()에서 상태검사 실시)
         productInquiry.answer(request.getAnswerContent(),now);
+
+        // 문의 답변 알림 생성 호출
+        notificationService.createInquiryAnswerNotification(
+                productId, inquiryId, productInquiry.getMember().getId(), productInquiry.getTitle());
     }
 
     // 상품별 문의 목록 조회
