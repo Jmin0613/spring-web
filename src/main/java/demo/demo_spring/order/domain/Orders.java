@@ -70,7 +70,7 @@ public class Orders {
             throw new IllegalStateException("주문 상품 정보가 누락되었습니다.");
         }
         this.orderItems.add(orderItem); // Order 입장에서 상품목록(orderItems) 추가
-        orderItem.setOrders(this); // OrderItem입장에서 자신이 속할 Order 연결
+        orderItem.setOrder(this); // OrderItem입장에서 자신이 속할 Order 연결
     }
 
     // 총 구매가격 계산 메서드

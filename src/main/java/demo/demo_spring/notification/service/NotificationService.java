@@ -58,7 +58,7 @@ public class NotificationService {
 
 
     // 내 알림 조회
-    public List<NotificationListResponse> findMyNotification(Long memberId){
+    public List<NotificationListResponse> findMyNotifications(Long memberId){
         // 멤버 확인
         memberService.getMember(memberId);
 

@@ -22,7 +22,7 @@ public class NotificationController {
     @GetMapping("/notifications")
     public List<NotificationListResponse> findMyNotifications(HttpSession session){
         Member loginMember = (Member) session.getAttribute("loginMember");
-        return notificationService.findMyNotification(loginMember.getId());
+        return notificationService.findMyNotifications(loginMember.getId());
     }
 
     // 알림 읽음

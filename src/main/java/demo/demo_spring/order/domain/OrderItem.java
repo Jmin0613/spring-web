@@ -52,7 +52,7 @@ public class OrderItem {
     }
 
     // Order 연결 메서드
-    void setOrders(Orders order){
+    void setOrder(Orders order){
         this.order = order;
         // Order가 OrderItem.setOrder호출해서 연결하기
         // OrderItem생성메서드로 order를 연결할 수 있지만, order는 orderItem이 추가된걸 모를 수 있기 떄문.
