@@ -41,11 +41,6 @@ public class Wishlist {
     private LocalDateTime createdAt;
 
     private Wishlist (Member member, Product product){
-        this.member = member; this.product = product;
-    }
-
-    // 찜추가 메서드
-    public static Wishlist createWishlist(Member member, Product product){
         // null 체크
         if(member == null){
             throw new IllegalStateException("로그인이 필요합니다.");
@@ -53,6 +48,11 @@ public class Wishlist {
         if(product == null){
             throw new IllegalStateException("찜 하시려는 상품이 없습니다.");
         }
+        this.member = member; this.product = product;
+    }
+
+    // 찜추가 메서드
+    public static Wishlist createWishlist(Member member, Product product){
         return new Wishlist(member, product);
     }
 }

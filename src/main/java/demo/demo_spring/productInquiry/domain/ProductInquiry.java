@@ -46,6 +46,12 @@ public class ProductInquiry {
 
     private ProductInquiry(Member member, Product product,
                            String title, String content, boolean secret) {
+        // null체크
+        if (member == null) { throw new IllegalStateException("문의글 작성 전 로그인이 필요합니다."); }
+        if (product == null) { throw new IllegalStateException("문의를 작성하시려는 상품이 없습니다."); }
+        if (title == null || title.isBlank()){ throw new IllegalStateException("문의글 제목이 비어있습니다."); }
+        if (content == null || content.isBlank()){ throw new IllegalStateException("문의글 내용이 비어있습니다."); }
+
         this.member = member;
         this.product = product;
         this.productNameSnapshot = product.getName();
@@ -58,20 +64,6 @@ public class ProductInquiry {
     // 문의글 등록/생성 메서드
     public static ProductInquiry createInquiry(Member member, Product product,
                                                String title, String content, boolean secret) {
-        // null체크
-        if (member == null) {
-            throw new IllegalStateException("문의글 작성 전 로그인이 필요합니다.");
-        }
-        if (product == null) {
-            throw new IllegalStateException("문의를 작성하시려는 상품이 없습니다.");
-        }
-        if (title == null || title.isBlank()){
-            throw new IllegalStateException("문의글 제목이 비어있습니다.");
-        }
-        if (content == null || content.isBlank()){
-            throw new IllegalStateException("문의글 내용이 비어있습니다.");
-        }
-
         return new ProductInquiry(member, product, title, content, secret);
     }
 
@@ -103,7 +95,6 @@ public class ProductInquiry {
         if(this.status != InquiryStatus.WAITING){
             throw new IllegalStateException("이미 답변 완료된 문의입니다.");
         }
-
     }
 
 }

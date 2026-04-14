@@ -27,26 +27,25 @@ public class Notice {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    //createNotice를 위한 내부 생성자
     private Notice (String title, String content){
-        this.title = title; this.content = content;
-    }
-
-    // Notice 등록/생성 메서드
-    public static Notice createNotice(String title, String content){
         if(title == null || title.isBlank()){
             throw new IllegalStateException("공지 제목이 비어있습니다.");
         }
         if(content == null || content.isBlank()){
             throw new IllegalStateException("공지 내용이 비어있습니다.");
         }
+        this.title = title; this.content = content;
+    }
+
+    // Notice 등록/생성 메서드
+    public static Notice createNotice(String title, String content){
         return new Notice(title, content);
     }
 
     // Notice 수정 메서드
     public void updateNoice(String title, String content){
-        if (title != null){
-            if(title.isBlank()){
+        if (title != null){ // null = 미수정
+            if(title.isBlank()){ // blank = 잘못된 입력, 예외
                 throw new IllegalStateException("제목을 공백으로 수정할 수 없습니다.");
             } this.title = title;
         }

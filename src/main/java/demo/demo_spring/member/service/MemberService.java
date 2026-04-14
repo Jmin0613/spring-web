@@ -2,6 +2,7 @@ package demo.demo_spring.member.service;
 
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.dto.MemberCreateRequest;
+import demo.demo_spring.member.dto.MemberFindResponse;
 import demo.demo_spring.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,14 +49,24 @@ public class MemberService {
     }
 
     // 회원 단건 조회
-    public Member getMember(Long id){
-        return memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("해당되는 회원이 없습니다."));
+    public MemberFindResponse adminFindMember(Long id){
+        Member member  = memberRepository.findById(id)
+                .orElseThrow(()-> new IllegalStateException("해당하는 회원이 없습니다."));
+        return MemberFindResponse.fromEntity(member);
     }
 
-    // 회원 전체 조회
-    public List<Member> findMembers() {
-        return memberRepository.findAll();
+    // 관리자용 회원 전체 조회
+    public List<MemberFindResponse> adminFindAllMembers() {
+        return memberRepository.findAll()
+                .stream()
+                .map(MemberFindResponse::fromEntity)
+                .toList();
+    }
+
+    // 내부 공통 메서드
+    public Member getMember(Long id){
+        return memberRepository.findById(id)
+                .orElseThrow(()-> new IllegalStateException("해당하는 회원이 없습니다."));
     }
 
 }

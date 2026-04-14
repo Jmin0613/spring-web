@@ -47,6 +47,19 @@ public class Review {
     private Review (Member member, Product product,
                     OrderItem orderItem, Integer rating,
                     String title, String content){
+        // null 체크
+        if(product == null){ throw new IllegalStateException("리뷰 작성하시려는 상품이 없습니다.");}
+        if(member == null){ throw new IllegalStateException("로그인이 필요합니다."); }
+        if(orderItem == null){ throw new IllegalStateException("리뷰 작성하시려는 주문내역이 없습니다."); }
+        if(title == null || title.isBlank()){ throw new IllegalStateException("리뷰 제목이 비어있습니다."); }
+        if(content == null || content.isBlank()){ throw new IllegalStateException("리뷰 내용이 비어있습니다."); }
+
+        if(rating == null){
+            throw new IllegalStateException("별점을 입력해주세요.");
+        }else if(rating < 1 || rating > 5) { // 별점 범위 체크
+            throw new IllegalStateException("별점은 1~5점 사이여야 합니다.");
+        }
+
         this.member = member; this.product = product; this.orderItem = orderItem;
         this.productNameSnapshot = orderItem.getProductNameSnapshot();
         this.rating = rating; this.title = title; this.content = content;
@@ -56,40 +69,18 @@ public class Review {
     public static Review createReview(Member member, Product product,
                                       OrderItem orderItem, Integer rating,
                                       String title, String content){
-        // null 체크
-        if(product == null){
-            throw new IllegalStateException("리뷰 작성하시려는 상품이 없습니다.");
-        }
-        if(member == null){
-            throw new IllegalStateException("로그인이 필요합니다.");
-        }
-        if(orderItem == null){
-            throw new IllegalStateException("리뷰 작성하시려는 주문내역이 없습니다.");
-        }
-        if(title == null || title.isBlank()){
-            throw new IllegalStateException("리뷰 제목이 비어있습니다.");
-        }
-        if(content == null || content.isBlank()){
-            throw new IllegalStateException("리뷰 내용이 비어있습니다.");
-        }
-        if(rating == null){
-            throw new IllegalStateException("별점을 입력해주세요.");
-        }else if(rating < 1 || rating > 5) { // 별점 범위 체크
-            throw new IllegalStateException("별점은 1~5점 사이여야 합니다.");
-        }
-
         return new Review(member, product, orderItem, rating, title, content);
     }
 
     // 리뷰 수정 메서드
-    public void updateReview(String title, String content, Integer rating){
+    public void updateReview(String title, String content, Integer rating, LocalDateTime now){
         // 시간 제한 체크
-//        if(this.createdAt.plusDays(3).isBefore(LocalDateTime.now())) {
-//            throw new IllegalStateException("리뷰 수정은 작성일로 부터 3일 이내에만 가능합니다.");
-//        } -> 서비스에서 now 넘겨주는 방식으로 리팩토링해주기
+        if(this.createdAt.plusDays(3).isBefore(now)) {
+            throw new IllegalStateException("리뷰 수정은 작성일로 부터 3일 이내에만 가능합니다.");
+        }
 
-        if (title != null){ //값이 넘어왔는데
-            if(title.isBlank()){ //공백
+        if (title != null){ // null = 미수정
+            if(title.isBlank()){ // blank = 잘못된 입력, 예외
                 throw new IllegalStateException("제목을 공백으로 수정할 수 없습니다.");
             } this.title = title;
         }

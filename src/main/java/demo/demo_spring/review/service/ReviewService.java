@@ -14,6 +14,8 @@ import demo.demo_spring.review.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -84,8 +86,11 @@ public class ReviewService {
         // 작성자 본인 확인
         validateWriter(memberId, review);
 
+        // 시간 제한
+        LocalDateTime now = LocalDateTime.now();
+
         // 업데이트
-        review.updateReview(request.getTitle(), request.getContent(), request.getRating());
+        review.updateReview(request.getTitle(), request.getContent(), request.getRating(), now);
     }
 
     // 리뷰 삭제

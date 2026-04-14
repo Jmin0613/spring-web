@@ -7,6 +7,7 @@ import demo.demo_spring.hotdeal.repository.HotDealRepository;
 import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.repository.ProductRepository;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,10 +38,12 @@ public class HotDealService {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(()-> new IllegalStateException("등록하려는 핫딜의 원본 상품이 없습니다."));
 
+        LocalDateTime now = LocalDateTime.now();
+
         // HotDeal.createHotDeal() 호출
         HotDeal hotDeal = HotDeal.createHotDeal(
                 product, request.getHotDealPrice(), request.getHotDealStock(),
-                request.getStartTime(), request.getEndTime()
+                request.getStartTime(), request.getEndTime(), now
         );
 
         // 저장 및 생성된 HotDeal Id 반환
@@ -68,6 +71,14 @@ public class HotDealService {
         HotDeal hotDeal = hotDealRepository.findById(id)
                         .orElseThrow(()->new IllegalStateException("해당하는 핫딜이 없습니다."));
         hotDeal.adminEmergencyStop();
+    }
+
+    // 관리자 중단 재개
+    public void adminResume(Long id){
+        HotDeal hotDeal = hotDealRepository.findById(id)
+                .orElseThrow(()-> new IllegalStateException("해당하는 핫딜이 없습니다."));
+        LocalDateTime now = LocalDateTime.now();
+        hotDeal.adminResume(now);
     }
 
     // 핫딜 삭제

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @Entity
@@ -18,20 +17,24 @@ public class Member {
 
     private String email;
     private String name;
+    // 회원가입 일시도 넣어주기 -> 리팩토링
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    // createMember를 위한 내부 생성자
     private Member(String loginId, String password,
                    String email, String name){
-        this.loginId = loginId;
-        this.password=password;
-        this.email=email;
-        this.name=name;
+        if(loginId == null){ throw new IllegalStateException("로그인 아이디를 입력해주세요.");}
+        if(password == null){ throw new IllegalStateException("비밀번호를 입력해주세요.");}
+        if(email == null){ throw new IllegalStateException("이메일을 입력해주세요.");}
+        if(name == null){ throw new IllegalStateException("이름을 입력해주세요.");}
+
+        this.loginId = loginId; this.password=password;
+        this.email=email; this.name=name;
         this.role=Role.USER;
     }
 
+    // 외부 호출용 회원가입 메서드
     public static Member createMember(String loginId, String password,
                                       String email, String name){
         return new Member(
@@ -39,27 +42,27 @@ public class Member {
         );
     }
 
-    //비밀번호 변경
-    public void changePassword(String password){this.password=password;}
-
-    //이메일 변경
-    public void changeEmail(String email){this.email=email;}
-
-    //관리자 승격
+    // 관리자 승격
     public void promoteToAdmin(){this.role=Role.ADMIN;}
 
-    // 마이페이지 내 정보 변경
+    // 마이페이지 내 정보 변경 - name, email
     public void updateProfile(String name, String email){
-        // null blank 체크 + 값 변경
-        if(name != null){
-            if(name.isBlank()){
+        // null, blank 체크 + 값 변경
+        if(name != null){ // null = 미수정
+            if(name.isBlank()){ // blank = 잘못된 입력, 예외
                 throw new IllegalStateException("이름을 공백으로 수정할 수 없습니다.");
-            } this.name = name;
+            }
+            if(!name.equals(this.name)){ // 회원정보수정은 중요 -> no-op
+                this.name = name;
+            }
         }
         if(email != null){
             if(email.isBlank()){
                 throw new IllegalStateException("이메일을 공백으로 수정할 수 없습니다.");
-            } this.email = email;
+            }
+            if(!email.equals(this.email)){
+                this.email = email;
+            }
         }
     }
 }

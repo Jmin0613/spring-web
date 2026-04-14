@@ -27,7 +27,7 @@ public class NotificationService {
     }
 
     // 문의 답변 등록 알림 생성
-    public Long createInquiryAnswerNotification(Long productId, Long inquiryId, Long memberId,String inquiryTitle){
+    public void createInquiryAnswerNotification(Long productId, Long inquiryId, Long memberId, String inquiryTitle){
         Member member = memberService.getMember(memberId);
 
         // 저장
@@ -35,11 +35,11 @@ public class NotificationService {
                 Notification.createInquiryAnswerNotification(member, inquiryTitle, productId, inquiryId);
 
         Notification savedNotification = notificationRepository.save(notification);
-        return savedNotification.getId();
+        // return savedNotification.getId();
     }
 
     // 핫딜 시작 알림 생성
-    public Long createHotDealStartNotification(Long hotDealId, Long memberId){
+    public void createHotDealStartNotification(Long hotDealId, Long memberId){
         Member member = memberService.getMember(memberId);
         Optional<HotDeal> hotDeal = hotDealRepository.findById(hotDealId);
         if(hotDeal.isEmpty()){
@@ -53,14 +53,14 @@ public class NotificationService {
                 Notification.createHotDealStartNotification(member, hotDealId, hotDealName);
 
         Notification savedNotification = notificationRepository.save(notification);
-        return savedNotification.getId();
+        // return savedNotification.getId();
     }
 
 
     // 내 알림 조회
     public List<NotificationListResponse> findMyNotification(Long memberId){
         // 멤버 확인
-        Member member = memberService.getMember(memberId);
+        memberService.getMember(memberId);
 
         // 문의 조회
         return notificationRepository.findAllByMemberIdOrderByCreatedAtDesc(memberId)

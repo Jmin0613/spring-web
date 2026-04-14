@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -24,8 +23,7 @@ public class HotDeal {
 
     @ManyToOne(fetch = FetchType.LAZY) // HotDeal은 Product에 속해있음.
     @JoinColumn(name = "product_id", nullable = false)
-    //DB테이블에서 product_id라는 컬럼을 통해 상품 테이블과 연결
-    private Product product; // db -> product_id
+    private Product product;
 
     private int originalPrice;
     private int hotDealPrice;
@@ -34,7 +32,6 @@ public class HotDeal {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    // 시간 자동 입력 및 갱신
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate
@@ -43,25 +40,13 @@ public class HotDeal {
     @Enumerated(EnumType.STRING)
     private HotDealStatus status;
 
-    //createHotDeal을 위한 내부 생성자
     private HotDeal (Product product, int hotDealPrice, int hotDealStock,
-                     LocalDateTime startTime, LocalDateTime endTime){
-
-        this.product = product; this.hotDealPrice = hotDealPrice; this.hotDealStock = hotDealStock;
-        this.startTime = startTime; this.endTime = endTime;
-        this.status = HotDealStatus.READY;
-        this.originalPrice = product.getPrice();
-    }
-
-    // 핫딜 이벤트 등록/생성 메서드
-    public static HotDeal createHotDeal(Product product, int hotDealPrice, int hotDealStock,
-                                        LocalDateTime startTime, LocalDateTime endTime){
+                     LocalDateTime startTime, LocalDateTime endTime, LocalDateTime now){
         // Product null 체크
         if(product == null){
             throw new IllegalStateException("등록하려는 핫딜의 원본 상품이 없습니다.");
         }
         // 가격/수량/시간 검증
-        LocalDateTime now = LocalDateTime.now();
         if (hotDealPrice <=0){
             throw new IllegalStateException("잘못된 가격을 입력하였습니다.");
         }
@@ -75,20 +60,28 @@ public class HotDeal {
             throw new IllegalStateException("핫딜 종료는 시작시간보다 뒤여야 합니다.");
         }
 
+        this.product = product; this.hotDealPrice = hotDealPrice; this.hotDealStock = hotDealStock;
+        this.startTime = startTime; this.endTime = endTime;
+        this.status = HotDealStatus.READY;
+        this.originalPrice = product.getPrice();
+    }
+
+    // 핫딜 이벤트 등록/생성 메서드
+    public static HotDeal createHotDeal(Product product, int hotDealPrice, int hotDealStock,
+                                        LocalDateTime startTime, LocalDateTime endTime, LocalDateTime now){
+        HotDeal hotDeal = new HotDeal(product, hotDealPrice,hotDealStock, startTime, endTime, now);
+
         // Product에 재공 할당 요청
         product.allocateToHotDeal(hotDealStock); //통과되면 재고 차감
 
-        return new HotDeal(
-                product, hotDealPrice,hotDealStock, startTime, endTime
-        );
+        return hotDeal;
     }
 
     // 핫딜 이벤트 정보 수정 메서드
     public void updateHotDeal(Integer hotDealPrice, Integer hotDealStock,
                               LocalDateTime startTime, LocalDateTime endTime
                               ) { //HotDealStatus status
-        // 시간 변경 검증
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(); // 시간 변경 검증
         LocalDateTime newStartTime = (startTime != null) ? startTime : this.startTime;
         LocalDateTime newEndTime = (endTime != null) ? endTime : this.endTime;
 
@@ -103,7 +96,6 @@ public class HotDeal {
         if (hotDealPrice != null) this.hotDealPrice = hotDealPrice;
         if (startTime != null) this.startTime = startTime;
         if (endTime != null) this.endTime = endTime;
-        // if (status != null) this.status = status; -> 상태처리 메서드 분리하기
 
         // 재고 차이값 처리 (현재 핫딜 재고this.hotDealStock vs 새로 입력된 핫딜 재고hotDealStock)
         if (hotDealStock != null){
@@ -118,7 +110,7 @@ public class HotDeal {
             }
             else if (this.hotDealStock>hotDealStock){ // 새 < 기존 -> 재고 돌려주기
                 int diff = this.hotDealStock-hotDealStock;
-                product.restoreFromHotDeal(diff);
+                product.restoreStock(diff);
             }
             else { // 새 == 기존
                 return;
@@ -179,7 +171,7 @@ public class HotDeal {
         if (this.hotDealStock == 0){
             return;
         }
-        product.restoreFromHotDeal(hotDealStock);
+        product.restoreStock(hotDealStock);
         this.hotDealStock = 0;
     }
 
@@ -196,11 +188,26 @@ public class HotDeal {
             throw new IllegalStateException("이미 판매 종료된 핫딜 상품입니다.");
         }
 
-        // 남은 hotDealStock을 Product로 반환
-        // READY는 핫딜 삭제까진 안가고, 잠시 update전 긴급하게 중지 시킬떄 사용하기 위해 함께 추가함.
-        returnRemainingStockToProduct();
         // status를 STOPPED로 변경
         this.status = HotDealStatus.STOPPED;
+    }
+
+    // 관리자 중단 재개 메서드
+    public void adminResume(LocalDateTime now){
+        // STOPPED 체크
+        if(this.status != HotDealStatus.STOPPED){
+            throw new IllegalStateException("중지된 핫딜만 재개할 수 있습니다.");
+        }
+        // endTime 체크
+        if(!now.isBefore(this.endTime)){
+            throw new IllegalStateException("종료 시간이 지난 핫딜은 재개할 수 없습니다.");
+        }
+        // 시작전이면 READY, 재고 반환X
+        if(now.isBefore(this.startTime)){
+            this.status = HotDealStatus.READY;
+        } else{
+            this.status = HotDealStatus.ON_SALE;
+        }
     }
 
     // 할인율 계산 메서드 -> 파생값. 추후 필드 선언 고려

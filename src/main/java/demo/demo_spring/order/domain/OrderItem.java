@@ -28,7 +28,6 @@ public class OrderItem {
     private int quantity; // 주문수량
     private int orderPrice; // 주문 당시 가격(일반구매 or 핫딜구매)
 
-    // 내부 생성자
     private OrderItem(Product product, int quantity, int orderPrice){
         //Product null 체크
         if(product == null){
@@ -63,5 +62,10 @@ public class OrderItem {
     public int getTotalPrice(){
         return this.orderPrice * this.quantity;
         // Order가 getTotalPrice를 for문으로 호출해서 order의 총 구매가 구하기
+    }
+
+    // 주문 취소 메서드
+    public void orderCancel(){
+        product.restoreStock(this.quantity);
     }
 }

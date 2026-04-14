@@ -1,6 +1,7 @@
 package demo.demo_spring.member.controller;
 
 import demo.demo_spring.member.dto.MemberCreateRequest;
+import demo.demo_spring.member.dto.MemberFindResponse;
 import demo.demo_spring.member.dto.MemberInfoResponse;
 import demo.demo_spring.member.dto.MemberLoginRequest;
 import jakarta.servlet.http.HttpSession;
@@ -8,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.member.domain.Member;
 
-import java.net.URI;
+import java.util.List;
 
 @RestController
 public class MemberController {
@@ -57,4 +58,14 @@ public class MemberController {
     //--------------->
     // 이런 인증체크 나중가서 더 많아지면 컨트롤러마다 일일이 귀찮으니
     // 인터셉터나 스프링 시큐리티로 인증체크 리팩토링해주기
+
+    // 관리자용 회원 전체 조회
+    @GetMapping("/admin/members")
+    public List<MemberFindResponse> adminFindAllMembers() {return memberService.adminFindAllMembers();}
+
+    // 관리자용 회원 단건 조회
+    @GetMapping("/admin/members/{memberId}")
+    public MemberFindResponse adminFindMember(@PathVariable Long memberId){
+        return memberService.adminFindMember(memberId);
+    }
 }

@@ -36,31 +36,28 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
-    //createProduct를 위한 내부 생성자
     private Product (String name, String description, String imageUrl,
                     int price, int stock, String category, ProductStatus status){
+        if (price < 1){
+            throw new IllegalStateException("잘못된 판매가격은 1 이상이어야 합니다.");
+        }
+        if (stock < 1){
+            throw new IllegalStateException("잘못된 판매수량은 1 이상이어야 합니다.");
+        }
+
         this.name = name; this.description = description; this.imageUrl = imageUrl;
         this.price = price; this.stock = stock; this.category = category; this.status = status;
     }
 
-    // 상품 등록/생성 메서드 -> 값들 받아와서 조립
     public static Product createProduct(String name, String description, String imageUrl,
                                         int price, int stock, String category, ProductStatus status){
-
-        if (price <=0){
-            throw new IllegalStateException("잘못된 가격을 입력하셨습니다.");
-        }
-        if (stock <=0){
-            throw new IllegalStateException("잘못된 수량을 입력하셨습니다.");
-        }
-
         return new Product(
                 name, description, imageUrl,
                 price, stock, category, status
         );
     }
 
-    // 상품 업데이트(부분 수정을 위해 null 체크)
+    // 상품 정보 부분 수정 (부분 수정을 위해 null 체크)
     public void updateProduct(String name, String description, String imageUrl,
                                  Integer price, Integer stock,
                                  String category, ProductStatus status){
@@ -71,10 +68,6 @@ public class Product {
         if(stock!=null) this.stock=stock;
         if(category!= null && !category.isBlank()) this.category=category;
         if(status!=null) this.status=status;
-
-        // 수정일 자동 업데이트
-        // String의 경우 ""도 null이 아니라고 받아서 저장해버림 -> 이를 막기위해 && !name.isBlank()사용
-
     }
 
     // 상품 구매 시, 재고 차감용 메서드
@@ -104,11 +97,12 @@ public class Product {
         }
         this.stock -= hotDealStock; //일반 재고 차감
     }
-    // 남은 핫딜 재고 반환
-    public void restoreFromHotDeal(int hotDealStock){
-        if(hotDealStock<=0){
-            throw new IllegalStateException("추가하려는 재고가 0 이하입니다.");
+
+    // 통합 재고 반환
+    public void restoreStock(int addStock){
+        if(addStock < 1){
+            throw new IllegalStateException("반환하려는 재고가 0 이하입니다.");
         }
-        this.stock+=hotDealStock;
+        this.stock += addStock;
     }
 }
