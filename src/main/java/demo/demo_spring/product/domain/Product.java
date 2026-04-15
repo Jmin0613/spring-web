@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class Product {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //DB auto increment 방식으로 생성 명시
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; //PK
     private String name;
 
@@ -27,7 +27,6 @@ public class Product {
     private int stock;
     private String category;
 
-    // 시간 자동 입력 및 갱신
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate
@@ -38,11 +37,18 @@ public class Product {
 
     private Product (String name, String description, String imageUrl,
                     int price, int stock, String category, ProductStatus status){
+        // 핵심 불변조건만 체크
+        if(name == null || name.isBlank()){
+            throw new IllegalStateException("등록할 상품의 이름을 입력해주세요.");
+        }
+        if(status == null){
+            throw new IllegalStateException("상품 상태가 비어있습니다.");
+        }
         if (price < 1){
-            throw new IllegalStateException("잘못된 판매가격은 1 이상이어야 합니다.");
+            throw new IllegalStateException("상품 판매가격은 1 이상이어야 합니다.");
         }
         if (stock < 1){
-            throw new IllegalStateException("잘못된 판매수량은 1 이상이어야 합니다.");
+            throw new IllegalStateException("상품 판매수량은 1 이상이어야 합니다.");
         }
 
         this.name = name; this.description = description; this.imageUrl = imageUrl;
@@ -74,7 +80,7 @@ public class Product {
     public void buy(int quantity){
         //stock(재고 수량), quantity(구매 수량)
 
-        if(quantity <= 0){
+        if(quantity < 1){
             throw new IllegalStateException("잘못된 구매 수량을 입력하셨습니다.");
         }
         if(this.stock < quantity){
@@ -89,7 +95,7 @@ public class Product {
 
     // 핫딜 재고 이동용 메서드
     public void allocateToHotDeal(int hotDealStock){
-        if(hotDealStock <= 0){
+        if(hotDealStock < 1){
             throw new IllegalStateException("잘못된 핫딜 재고 할당 요청입니다.");
         }
         if(this.stock < hotDealStock){ //할당 재고 부족시 예외

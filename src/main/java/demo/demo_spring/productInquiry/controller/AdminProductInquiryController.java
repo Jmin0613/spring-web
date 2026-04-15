@@ -4,6 +4,7 @@ import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.productInquiry.dto.AdminProductInquiryAnswerRequest;
 import demo.demo_spring.productInquiry.service.ProductInquiryService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +20,7 @@ public class AdminProductInquiryController {
     // 관리자 답글 작성
     @PostMapping("/admin/products/{productId}/inquiries/{inquiryId}/answer")
     public void answer(@PathVariable Long productId, @PathVariable Long inquiryId,
-                       @RequestBody AdminProductInquiryAnswerRequest request,
+                       @RequestBody @Valid AdminProductInquiryAnswerRequest request,
                        HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
         productInquiryService.adminAnswer(productId, inquiryId, loginMember.getId(), request);

@@ -5,6 +5,7 @@ import demo.demo_spring.product.dto.AdminProductListResponse;
 import demo.demo_spring.product.dto.ProductCreateRequest;
 import demo.demo_spring.product.dto.ProductUpdateRequest;
 import demo.demo_spring.product.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
@@ -18,7 +19,7 @@ public class AdminProductController {
 
     // 등록
     @PostMapping("/admin/products")
-    public Long create(@RequestBody ProductCreateRequest request){
+    public Long create(@RequestBody @Valid ProductCreateRequest request){
         return productService.create(request); //등록한 상품의 id값 반환
     }
 

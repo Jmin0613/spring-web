@@ -7,6 +7,7 @@ import demo.demo_spring.product.dto.ProductDetailResponse;
 import demo.demo_spring.product.dto.ProductListResponse;
 import demo.demo_spring.product.service.ProductService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -33,7 +34,7 @@ public class ProductController {
 
     // 상품 구매
     @PostMapping("/products/{id}/buy")
-    public String buy(@PathVariable Long id, @RequestBody ProductBuyRequest request, HttpSession session){
+    public String buy(@PathVariable Long id, @RequestBody @Valid ProductBuyRequest request, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
         productService.buy(id, request.getQuantity(), loginMember.getId());
         return "구매 성공";

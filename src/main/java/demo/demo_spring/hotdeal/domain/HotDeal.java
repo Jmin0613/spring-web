@@ -42,22 +42,31 @@ public class HotDeal {
 
     private HotDeal (Product product, int hotDealPrice, int hotDealStock,
                      LocalDateTime startTime, LocalDateTime endTime, LocalDateTime now){
-        // Product null 체크
+        // 불변조건 null 체크
         if(product == null){
             throw new IllegalStateException("등록하려는 핫딜의 원본 상품이 없습니다.");
         }
-        // 가격/수량/시간 검증
-        if (hotDealPrice <=0){
-            throw new IllegalStateException("잘못된 가격을 입력하였습니다.");
+        if(startTime == null || endTime == null){
+            throw new IllegalStateException("핫딜 시작/종료 시간을 입력해주세요.");
         }
-        if (hotDealStock <=0){
-            throw new IllegalStateException("잘못된 수량을 입력하였습니다.");
+        if(now == null){
+            throw new IllegalStateException("현재 시간이 누락되었습니다.");
         }
+
+        // 시간 불변조건 검증
         if(startTime.isBefore(now)||endTime.isBefore(now)){
             throw new IllegalStateException("핫딜 시작은 현재 이후여야 합니다.");
         }
         if(endTime.isBefore(startTime) || endTime.isEqual(startTime)){
             throw new IllegalStateException("핫딜 종료는 시작시간보다 뒤여야 합니다.");
+        }
+
+        // 가격/수량 불변조건 검증
+        if (hotDealPrice < 1){
+            throw new IllegalStateException("잘못된 가격을 입력하였습니다.");
+        }
+        if (hotDealStock < 1){
+            throw new IllegalStateException("잘못된 수량을 입력하였습니다.");
         }
 
         this.product = product; this.hotDealPrice = hotDealPrice; this.hotDealStock = hotDealStock;
@@ -99,7 +108,7 @@ public class HotDeal {
 
         // 재고 차이값 처리 (현재 핫딜 재고this.hotDealStock vs 새로 입력된 핫딜 재고hotDealStock)
         if (hotDealStock != null){
-            if (hotDealStock<=0){
+            if (hotDealStock < 1){
                 throw new IllegalStateException("수정될 핫딜의 재고값은 0보다 높아야 합니다.");
                 //update에서는 hotDealStock을 1 이상만 허용
                 //재고를 0으로 만들고 싶으면 STOPPED 또는 delete로 별도 처리하기

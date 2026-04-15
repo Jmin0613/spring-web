@@ -47,12 +47,12 @@ public class Review {
     private Review (Member member, Product product,
                     OrderItem orderItem, Integer rating,
                     String title, String content){
-        // null 체크
+        // 핵심 불변조건 검증
         if(product == null){ throw new IllegalStateException("리뷰 작성하시려는 상품이 없습니다.");}
         if(member == null){ throw new IllegalStateException("로그인이 필요합니다."); }
-        if(orderItem == null){ throw new IllegalStateException("리뷰 작성하시려는 주문내역이 없습니다."); }
-        if(title == null || title.isBlank()){ throw new IllegalStateException("리뷰 제목이 비어있습니다."); }
-        if(content == null || content.isBlank()){ throw new IllegalStateException("리뷰 내용이 비어있습니다."); }
+
+        if(title == null || title.isBlank()){ throw new IllegalStateException("리뷰 제목을 입력해주세요.");}
+        if(content == null || content.isBlank()){ throw new IllegalStateException("리뷰 내용을 입력해주세요.");}
 
         if(rating == null){
             throw new IllegalStateException("별점을 입력해주세요.");

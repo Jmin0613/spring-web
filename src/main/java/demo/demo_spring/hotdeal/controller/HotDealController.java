@@ -7,6 +7,7 @@ import demo.demo_spring.hotdeal.service.HotDealService;
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -33,7 +34,7 @@ public class HotDealController {
 
     // 핫딜 구매
     @PostMapping("/hotdeals/{id}/buy")
-    public String buy(@PathVariable Long id, @RequestBody HotDealBuyRequest request, HttpSession session){
+    public String buy(@PathVariable Long id, @RequestBody @Valid HotDealBuyRequest request, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
         hotDealService.buy(id, request.getQuantity(), loginMember.getId());
         return "구매 성공";

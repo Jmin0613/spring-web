@@ -6,6 +6,7 @@ import demo.demo_spring.review.dto.ReviewListResponse;
 import demo.demo_spring.review.dto.ReviewUpdateRequest;
 import demo.demo_spring.review.service.ReviewService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class ReviewController {
 
     // 리뷰글 작성
     @PostMapping("/products/{productId}/reviews")
-    public Long create(@PathVariable Long productId, @RequestBody ReviewCreateRequest request,
+    public Long create(@PathVariable Long productId, @RequestBody @Valid ReviewCreateRequest request,
                        HttpSession session){
         Member loginMember = (Member) session.getAttribute("loginMember");
         return reviewService.create(productId, loginMember.getId(), request);

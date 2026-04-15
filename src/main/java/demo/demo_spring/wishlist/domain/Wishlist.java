@@ -41,7 +41,7 @@ public class Wishlist {
     private LocalDateTime createdAt;
 
     private Wishlist (Member member, Product product){
-        // null 체크
+        // 핵심 불변조건 체크
         if(member == null){
             throw new IllegalStateException("로그인이 필요합니다.");
         }

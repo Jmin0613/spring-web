@@ -21,7 +21,10 @@ public class MemberService {
 
     // 회원가입 + 중복 체크
     public Long create(MemberCreateRequest request) {
+        // loginId, email, nickName 중복 체크
         validateDuplicateLoginId(request.getLoginId());
+        validateDuplicateEmail(request.getEmail());
+        validateDuplicateNickName(request.getNickName());
 
         Member member = Member.createMember(
                 request.getLoginId(), request.getPassword(),
@@ -32,10 +35,21 @@ public class MemberService {
     }
     // 아이디 중복 검사
     private void validateDuplicateLoginId(String loginId){
-        memberRepository.findByLoginId(loginId)
-                .ifPresent(m ->{
-                    throw new IllegalStateException("이미 존재하는 아이디입니다.");
-                });
+        if(memberRepository.existsByLoginId(loginId)){
+            throw new IllegalStateException("이미 존재하는 아이디입니다.");
+        }
+    }
+    // 이메일 중복 검사
+    private void validateDuplicateEmail(String email){
+        if(memberRepository.existsByEmail(email)){
+            throw new IllegalStateException("이미 존재하는 이메일입니다.");
+        }
+    }
+    // 닉네임 중복 검사
+    private void validateDuplicateNickName(String nickName){
+        if(memberRepository.existsByNickName(nickName)){
+            throw new IllegalStateException("이미 존재하는 닉네임입니다.");
+        }
     }
 
     // 로그인

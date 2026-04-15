@@ -46,8 +46,8 @@ public class Cart {
         // Cart는 비어있을 수 있는게 정상 -> 따로 isEmpty() 체크 안함.
         // cartItem는 필요할때 생성 -> Cart 생성 메서드에서 x
 
-        return new Cart(member); //member null 체크는 내부 생성자에서 진행
-    } // ----------> 외부 호출용 생성 메서드와 내부 생성자에서 검증하는거 한 번 정리해서 리팩토링 필요
+        return new Cart(member);
+    }
 
     // cartItem 추가 메서드
     public void addCartItem(CartItem cartItem){
@@ -58,5 +58,5 @@ public class Cart {
         cartItem.setCart(this); // cartItem입장에서 자신이 속할 cart를 연결
     }
 
-    // getTotalQuantity(), getTotalPrice() 추후 추가 예정
+    // getTotalQuantity(), getTotalPrice() 추후 추가 예정 - 리팩토링
 }

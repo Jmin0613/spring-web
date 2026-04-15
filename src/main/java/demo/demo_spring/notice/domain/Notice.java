@@ -28,6 +28,7 @@ public class Notice {
     private LocalDateTime updatedAt;
 
     private Notice (String title, String content){
+        // 불변조건 null 체크
         if(title == null || title.isBlank()){
             throw new IllegalStateException("공지 제목이 비어있습니다.");
         }

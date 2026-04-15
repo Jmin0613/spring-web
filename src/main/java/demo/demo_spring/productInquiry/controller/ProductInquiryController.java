@@ -7,6 +7,7 @@ import demo.demo_spring.productInquiry.dto.ProductInquiryListResponse;
 import demo.demo_spring.productInquiry.dto.ProductInquiryUpdateRequest;
 import demo.demo_spring.productInquiry.service.ProductInquiryService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class ProductInquiryController {
     // 문의글 작성
     @PostMapping("/products/{productId}/inquiries")
     public Long create(@PathVariable Long productId,
-                       @RequestBody ProductInquiryCreateRequest request, HttpSession session){
+                       @RequestBody @Valid ProductInquiryCreateRequest request, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
         return productInquiryService.create(productId, loginMember.getId(), request);
     }

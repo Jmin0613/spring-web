@@ -5,6 +5,7 @@ import demo.demo_spring.notice.dto.NoticeDetailResponse;
 import demo.demo_spring.notice.dto.NoticeListResponse;
 import demo.demo_spring.notice.dto.NoticeUpdateRequest;
 import demo.demo_spring.notice.service.NoticeService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class AdminNoticeController {
 
     // 등록
     @PostMapping("/admin/notice")
-    public Long create(@RequestBody NoticeCreateRequest request){
+    public Long create(@RequestBody @Valid NoticeCreateRequest request){
         return noticeService.createNotice(request);
     }
 

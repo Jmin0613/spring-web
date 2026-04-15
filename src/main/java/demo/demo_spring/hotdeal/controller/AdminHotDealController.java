@@ -5,6 +5,7 @@ import demo.demo_spring.hotdeal.dto.AdminHotDealListResponse;
 import demo.demo_spring.hotdeal.dto.HotDealCreateRequest;
 import demo.demo_spring.hotdeal.dto.HotDealUpdateRequest;
 import demo.demo_spring.hotdeal.service.HotDealService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
@@ -18,7 +19,7 @@ public class AdminHotDealController {
 
     // 등록
     @PostMapping("/admin/hotdeals")
-    public Long create(@RequestBody HotDealCreateRequest request){
+    public Long create(@RequestBody @Valid HotDealCreateRequest request){
         return hotDealService.create(request); //등록한 핫딜의 id값 반환
     }
 
@@ -33,6 +34,10 @@ public class AdminHotDealController {
     public void stop(@PathVariable Long id){
         hotDealService.adminEmergencyStop(id);
     }
+
+    // 중단 재개
+    @PatchMapping("/admin/hotdeals/{id}/resume")
+    public void resume(@PathVariable Long id){ hotDealService.adminResume(id);}
 
     // 삭제
     @DeleteMapping("/admin/hotdeals/{id}")

@@ -34,11 +34,11 @@ public class OrderItem {
             throw new IllegalStateException("구매하려는 원본 상품 정보가 누락되었습니다.");
         }
         // 구매수량 1이상 확인
-        if(quantity <= 0){
+        if(quantity < 1){
             throw new IllegalStateException("구매 수량이 잘못되었습니다.");
         }
         // 구매 당시 가격 0보다 큰지
-        if(orderPrice<=0){
+        if(orderPrice < 1){
             throw new IllegalStateException("구매 가격이 잘못되었습니다.");
         }
 

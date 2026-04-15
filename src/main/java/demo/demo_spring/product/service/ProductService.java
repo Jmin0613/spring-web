@@ -1,5 +1,7 @@
 package demo.demo_spring.product.service;
 
+import demo.demo_spring.member.domain.Member;
+import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.domain.ProductStatus;
@@ -17,10 +19,12 @@ public class ProductService {
     //repository 주입 + DI
     private final ProductRepository productRepository;
     private final OrderService orderService;
+    private final MemberService memberService;
 
-    public ProductService(ProductRepository productRepository, OrderService orderService){ //외부에서 받은 Repository를
+    public ProductService(ProductRepository productRepository, OrderService orderService, MemberService memberService){ //외부에서 받은 Repository를
         this.productRepository = productRepository; //이 클래스에서 사용하기 위해 저장
         this.orderService = orderService;
+        this.memberService = memberService;
     }
 
 
@@ -83,6 +87,8 @@ public class ProductService {
 
     // 사용자 상품 구매 + Pessimistic Lock
     public void buy(Long id, Integer quantity, Long memberId){
+        Member member = memberService.getMember(memberId);
+
         // quantity를 Integer로 받아서 null 체크
         if(quantity == null){
             throw new IllegalStateException("구매 요청 수량이 누락되었습니다.");
@@ -100,7 +106,7 @@ public class ProductService {
 
         //4. 구매 완료 후 주문 생성
         // member -> 세션에서 꺼내오기
-        orderService.create(memberId, product, quantity, product.getPrice());
+        orderService.create(member, product, quantity, product.getPrice());
 
         // 락 조회 : Service/Repository
         //재고 차감 규칙 : Entity

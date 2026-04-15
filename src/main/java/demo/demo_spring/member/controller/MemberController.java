@@ -5,6 +5,7 @@ import demo.demo_spring.member.dto.MemberFindResponse;
 import demo.demo_spring.member.dto.MemberInfoResponse;
 import demo.demo_spring.member.dto.MemberLoginRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.member.domain.Member;
@@ -21,13 +22,13 @@ public class MemberController {
 
     //회원 가입
     @PostMapping("/members")
-    public Long save(@RequestBody MemberCreateRequest request){
+    public Long save(@RequestBody @Valid MemberCreateRequest request){
         return memberService.create(request);
     }
 
     //회원 로그인
     @PostMapping("/login")
-    public String login(@RequestBody MemberLoginRequest request,
+    public String login(@RequestBody @Valid MemberLoginRequest request,
                         HttpSession session){
         //로그인id와 비밀번호 넘겨서 로그인
         Member member = memberService.login(request.getLoginId(), request.getPassword());

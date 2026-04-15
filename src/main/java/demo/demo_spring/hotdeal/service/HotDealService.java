@@ -4,6 +4,8 @@ import demo.demo_spring.hotdeal.domain.HotDeal;
 import demo.demo_spring.hotdeal.domain.HotDealStatus;
 import demo.demo_spring.hotdeal.dto.*;
 import demo.demo_spring.hotdeal.repository.HotDealRepository;
+import demo.demo_spring.member.domain.Member;
+import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.repository.ProductRepository;
@@ -23,13 +25,14 @@ public class HotDealService {
     private final HotDealRepository hotDealRepository;
     private final ProductRepository productRepository;
     private final OrderService orderService;
+    private final MemberService memberService;
 
     public HotDealService(HotDealRepository hotDealrepository,
-                          ProductRepository productRepository, OrderService orderService){
+                          ProductRepository productRepository, OrderService orderService, MemberService memberService){
         this.hotDealRepository = hotDealrepository;
         this.productRepository = productRepository;
-        //HotDeal엔티티 생성에 Product 객체가 필요하기에 같이 생성
         this.orderService = orderService;
+        this.memberService = memberService;
     }
 
     // 핫딜 등록
@@ -38,15 +41,14 @@ public class HotDealService {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(()-> new IllegalStateException("등록하려는 핫딜의 원본 상품이 없습니다."));
 
-        LocalDateTime now = LocalDateTime.now();
-
         // HotDeal.createHotDeal() 호출
+        LocalDateTime now = LocalDateTime.now();
         HotDeal hotDeal = HotDeal.createHotDeal(
                 product, request.getHotDealPrice(), request.getHotDealStock(),
                 request.getStartTime(), request.getEndTime(), now
         );
 
-        // 저장 및 생성된 HotDeal Id 반환
+        // 저장
         HotDeal savedHotDeal = hotDealRepository.save(hotDeal);
         return savedHotDeal.getId();
     }
@@ -60,7 +62,7 @@ public class HotDealService {
         // HotDeal.updateHotDeal() 호출
         hotDeal.updateHotDeal(
                 request.getHotDealPrice(), request.getHotDealStock(),
-                request.getStartTime(), request.getEndTime() // request.getStatus()
+                request.getStartTime(), request.getEndTime()
         );
 
         //save안해도 됨 -> jpa 더티체킹
@@ -136,6 +138,8 @@ public class HotDealService {
 
     // 사용자 핫딜 구매 + Pessimistic Lock
     public void buy(Long id, Integer quantity, Long memberId){
+        Member member = memberService.getMember(memberId);
+
         // quantity를 Integer로 받아서 null 체크
         if(quantity == null){
             throw new IllegalStateException("구매 수량이 누락되었습니다.");
@@ -149,7 +153,7 @@ public class HotDealService {
         }
 
         //2. 재고 수량 확인
-        if(hotDeal.getHotDealStock() <= 0){
+        if(hotDeal.getHotDealStock() < 1){
             throw new IllegalStateException("재고가 모두 소진되었습니다."); //재고 없으면 예외 던지기
         }
         //3. 재고가 있을시, -1 감소
@@ -157,7 +161,7 @@ public class HotDealService {
         //4. 비관적 락 구매 메서드끝나고, 트랜잭션 커밋될떄 자물쇠 자동으로 풀림
 
         //5. 구매 완료 후 주문 생성
-        orderService.create(memberId, hotDeal.getProduct(), quantity, hotDeal.getHotDealPrice());
+        orderService.create(member, hotDeal.getProduct(), quantity, hotDeal.getHotDealPrice());
 
     }
 }

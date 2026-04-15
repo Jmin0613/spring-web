@@ -6,6 +6,7 @@ import demo.demo_spring.cart.dto.CartItemUpdateRequest;
 import demo.demo_spring.cart.service.CartService;
 import demo.demo_spring.member.domain.Member;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class CartController {
 
     // 내 장바구니 담기
     @PostMapping("/products/{productId}/cart-items")
-    public Long create(@PathVariable Long productId,@RequestBody CartItemCreateRequest request,
+    public Long create(@PathVariable Long productId,@RequestBody @Valid CartItemCreateRequest request,
                        HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
         return cartService.create(productId, loginMember.getId(), request);
@@ -28,7 +29,7 @@ public class CartController {
 
     // 내 장바구니 수정
     @PatchMapping("/cart-items/{cartItemId}") // "/cartItems/**" 인터셉터 경로 추가
-    public void update(@PathVariable Long cartItemId, @RequestBody CartItemUpdateRequest request,
+    public void update(@PathVariable Long cartItemId, @RequestBody @Valid CartItemUpdateRequest request,
                        HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
         cartService.update(cartItemId, loginMember.getId(), request);
