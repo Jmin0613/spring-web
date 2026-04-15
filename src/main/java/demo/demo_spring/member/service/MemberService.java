@@ -25,9 +25,9 @@ public class MemberService {
 
         Member member = Member.createMember(
                 request.getLoginId(), request.getPassword(),
-                request.getEmail(), request.getName()
+                request.getEmail(), request.getName(), request.getNickName()
         );
-        Member savedMember = memberRepository.save(member);
+        memberRepository.save(member);
         return member.getId();
     }
     // 아이디 중복 검사

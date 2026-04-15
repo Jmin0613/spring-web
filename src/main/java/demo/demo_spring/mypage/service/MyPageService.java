@@ -86,13 +86,20 @@ public class MyPageService {
         //멤버 조회
         Member member = memberService.getMember(memberId);
 
-        String name = request.getName(); String email = request.getEmail();
+        String nickName = request.getNickName(); String email = request.getEmail();
 
         // 변경값 체크
-        if(name == null && email == null){
+        if(nickName == null && email == null){
             throw new IllegalStateException("수정할 정보가 없습니다.");
         }
 
+        // 닉네임 중복체크 + 기본 닉네임과 같은지 체크
+        if(nickName != null && !nickName.equals(member.getNickName())){
+            // 다를 경우, 중복검사 실행
+            if(memberRepository.existsByNickName(nickName)){
+                throw new IllegalStateException("중복된 닉네임입니다.");
+            }
+        }
         // 이메일 중복체크 + 기존 이메일과 같은지 체크
         if(email != null && !email.equals(member.getEmail())) {
             // 다를 경우, 중복검사 실행
@@ -102,7 +109,7 @@ public class MyPageService {
         }
 
         // 통과하면 수정메서드 호출
-        member.updateProfile(request.getName(), request.getEmail());
+        member.updateProfile(request.getNickName(), request.getEmail());
 
     }
 

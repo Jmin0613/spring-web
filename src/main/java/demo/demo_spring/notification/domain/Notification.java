@@ -57,8 +57,9 @@ public class Notification {
             throw new IllegalStateException("알림 대상 문의 제목이 비어있습니다.");
         }
 
-        notification.title = "문의에 답변이 달렸습니다.";
-        notification.content = "\"" + inquiryTitle + "\"에 관리자 답변이 달렸습니다.";
+        notification.title = "\"%s\"에 관리자 답변이 달렸습니다.".formatted(inquiryTitle);
+        notification.content = "\"%s\"에 대한 답변이 등록되었습니다. 클릭하여 답변 내용을 확인하세요."
+                .formatted(inquiryTitle);
         notification.productId = productId; notification.inquiryId = inquiryId;
 
         return notification;
@@ -68,8 +69,9 @@ public class Notification {
     public static Notification createHotDealStartNotification(Member member, Long hotDealId, String hotDealName){
         Notification notification =  new Notification(member, NotificationType.HOTDEAL_START);
         if(hotDealId == null){ throw new IllegalStateException("알림 대상 핫딜 상품이 비어있습니다."); }
-        notification.title = "핫딜이 곧 시작합니다.";
-        notification.content = "\"" + hotDealName + "\"핫딜 상품이 곧 판매를 시작합니다.";
+        notification.title = "핫딜 상품 \"%s\"이 곧 시작합니다.".formatted(hotDealName);
+        notification.content = "\"%s\"이 곧 판매를 시작합니다. 클릭하여 상세 페이지로 이동하여 주세요."
+                .formatted(hotDealName);
         notification.productId = hotDealId;
 
         return notification;

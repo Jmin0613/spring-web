@@ -15,10 +15,8 @@ import java.util.*;
 public class ProductController {
     // 서비스 생성 + 주입 + di
     private final ProductService productService;
-    private final MemberService memberService;
     public ProductController(ProductService productService, MemberService memberService) {
         this.productService = productService;
-        this.memberService = memberService;
     }
 
     // 전체조회
