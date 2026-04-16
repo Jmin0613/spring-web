@@ -7,7 +7,9 @@ import demo.demo_spring.cart.repository.CartItemRepository;
 import demo.demo_spring.cart.repository.CartRepository;
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
+import demo.demo_spring.order.domain.DeliveryInfo;
 import demo.demo_spring.order.domain.OrderItem;
+import demo.demo_spring.order.dto.DeliveryInfoRequest;
 import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.domain.ProductStatus;
@@ -215,11 +217,18 @@ public class CartService {
             // 주문 상품 리스트에 추가
             orderItems.add(orderItem);
         }
-        Long orderId = orderService.create(member, orderItems); // 주문상품 리스트로 실제 주문서 생성
+        DeliveryInfo deliveryInfo = toDeliveryInfo(request.getDeliveryInfo());
+        Long orderId = orderService.create(member, orderItems, deliveryInfo); // 주문상품 리스트로 실제 주문서 생성
 
         cartItemRepository.deleteAll(cartItems); // 구매한 상품 장바구니에서 삭제
 
         return orderId; // 주문 번호
+    }
+    // 배송 정보
+    private DeliveryInfo toDeliveryInfo(DeliveryInfoRequest request){
+        return new DeliveryInfo(
+                request.getReceiverName(), request.getPhoneNumber(), request.getAddress(), request.getDeliveryMemo()
+        );
     }
 
     // Cart 조회 또는 생성 메서드 -> 있으면 꺼내기, 없으면 만들어 보내기

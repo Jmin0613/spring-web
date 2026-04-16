@@ -36,7 +36,7 @@ public class ProductController {
     @PostMapping("/products/{id}/buy")
     public String buy(@PathVariable Long id, @RequestBody @Valid ProductBuyRequest request, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
-        productService.buySingle(id, request.getQuantity(), loginMember.getId());
+        productService.buySingle(id, request.getQuantity(), loginMember.getId(), request.getDeliveryInfo());
         return "구매 성공";
     }
 }

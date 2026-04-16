@@ -6,6 +6,8 @@ import demo.demo_spring.hotdeal.dto.*;
 import demo.demo_spring.hotdeal.repository.HotDealRepository;
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
+import demo.demo_spring.order.domain.DeliveryInfo;
+import demo.demo_spring.order.dto.DeliveryInfoRequest;
 import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.repository.ProductRepository;
@@ -136,7 +138,7 @@ public class HotDealService {
     }
 
     // 사용자 핫딜 구매 + Pessimistic Lock
-    public void buy(Long id, Integer quantity, Long memberId){
+    public void buy(Long id, Integer quantity, Long memberId, DeliveryInfoRequest deliveryInfoRequest){
         Member member = memberService.getMember(memberId);
 
         // quantity를 Integer로 받아서 null 체크
@@ -160,7 +162,14 @@ public class HotDealService {
         //4. 비관적 락 구매 메서드끝나고, 트랜잭션 커밋될떄 자물쇠 자동으로 풀림
 
         //5. 구매 완료 후 주문 생성
-        orderService.createSingle(member, hotDeal.getProduct(), quantity, hotDeal.getHotDealPrice());
+        DeliveryInfo deliveryInfo = toDeliveryInfo(deliveryInfoRequest);
+        orderService.createSingle(member, hotDeal.getProduct(), quantity, hotDeal.getHotDealPrice(), deliveryInfo);
 
+    }
+    // 배송 정보
+    private DeliveryInfo toDeliveryInfo(DeliveryInfoRequest request){
+        return new DeliveryInfo(
+                request.getReceiverName(), request.getPhoneNumber(), request.getAddress(), request.getDeliveryMemo()
+        );
     }
 }

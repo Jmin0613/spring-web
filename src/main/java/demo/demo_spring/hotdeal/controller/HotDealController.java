@@ -36,7 +36,7 @@ public class HotDealController {
     @PostMapping("/hotdeals/{hotDealId}/buy")
     public String buy(@PathVariable Long hotDealId, @RequestBody @Valid HotDealBuyRequest request, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
-        hotDealService.buy(hotDealId, request.getQuantity(), loginMember.getId());
+        hotDealService.buy(hotDealId, request.getQuantity(), loginMember.getId(), request.getDeliveryInfo());
         return "구매 성공";
     }
 }

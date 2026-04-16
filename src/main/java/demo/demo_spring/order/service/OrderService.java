@@ -2,6 +2,7 @@ package demo.demo_spring.order.service;
 
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
+import demo.demo_spring.order.domain.DeliveryInfo;
 import demo.demo_spring.order.domain.OrderItem;
 import demo.demo_spring.order.domain.Orders;
 import demo.demo_spring.order.repository.OrderRepository;
@@ -25,18 +26,18 @@ public class  OrderService {
     }
 
     // 주문 생성 - HotDeal 즉시 구매 + Product 즉시 구매
-    public Long createSingle(Member member, Product product, int quantity, int orderPrice){
+    public Long createSingle(Member member, Product product, int quantity, int orderPrice, DeliveryInfo deliveryInfo){
         // 구매할 상품목록 작성
         OrderItem orderItem = OrderItem.createOrderItem(product, quantity, orderPrice);
 
         // 주문서 작성 + 저장 넘겨주기
-        return create(member, List.of(orderItem)); //구매확정 -> 불변
+        return create(member, List.of(orderItem), deliveryInfo); //구매확정 -> 불변
     }
 
     // 주문 생성 - Product 다건주문 구매
-    public Long create(Member member, List<OrderItem> orderItems){
+    public Long create(Member member, List<OrderItem> orderItems, DeliveryInfo deliveryInfo){
         // 주문서 작성
-        Orders order = Orders.createOrder(member, orderItems);
+        Orders order = Orders.createOrder(member, orderItems, deliveryInfo);
 
         // 저장 + 주문번호 리턴
         Orders savedOrder = orderRepository.save(order);

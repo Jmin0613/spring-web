@@ -1,5 +1,6 @@
 package demo.demo_spring.mypage.dto;
 
+import demo.demo_spring.order.domain.DeliveryInfo;
 import demo.demo_spring.order.domain.DeliveryStatus;
 import demo.demo_spring.order.domain.OrderStatus;
 import demo.demo_spring.order.domain.Orders;
@@ -17,6 +18,8 @@ public class MyPageOrderDetailResponse {
     private int totalPrice;
     private List<MyPageOrderItemResponse> orderItems; // DTO 재사용
 
+    private DeliveryInfo deliveryInfo;
+
     private MyPageOrderDetailResponse(Orders order){
         this.orderId = order.getId(); this.orderDate = order.getOrderDate();
         this.orderStatus = order.getOrderStatus(); this.deliveryStatus = order.getDeliveryStatus();
@@ -26,6 +29,8 @@ public class MyPageOrderDetailResponse {
                 .stream()
                 .map(MyPageOrderItemResponse::fromEntity)
                 .toList();
+
+        this.deliveryInfo = order.getDeliveryInfo();
     }
 
     public static MyPageOrderDetailResponse fromEntity(Orders order){ return new MyPageOrderDetailResponse(order);}

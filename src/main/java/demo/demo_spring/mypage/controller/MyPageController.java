@@ -52,7 +52,7 @@ public class MyPageController {
 
     @GetMapping("/mypage/orders") // 내 주문기록 보기
     public List<MyPageOrderListResponse> findMyOrders(HttpSession session){
-        Member loginMember = (Member)session.getAttribute("loginMember"); // 로그인세션 꺼내는 것도 공통화 염두해두기 (리팩토링)
+        Member loginMember = (Member)session.getAttribute("loginMember");
         return mypageService.findMyOrders(loginMember.getId());
     }
 
