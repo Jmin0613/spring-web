@@ -80,8 +80,8 @@ public class MyPageService {
 
     }
 
-    // 내 정보 변경 - nickName, email. 추후 비밀번호 변경 확장하기
-    public void updateProfile(Long memberId, MemberUpdateRequest request){
+    // 내 정보 변경 - nickName, email
+    public void updateProfile(MemberUpdateRequest request, Long memberId){
         //멤버 조회
         Member member = memberService.getMember(memberId);
 
@@ -111,6 +111,30 @@ public class MyPageService {
         member.updateProfile(request.getNickName(), request.getEmail());
 
     }
+    // 내 비밀번호 변경
+    public void changePassword(MemberPasswordChangeRequest request, Long memberId){
+        //멤버 조회
+        Member member = memberService.getMember(memberId);
+
+        //현재 비밀번호 확인
+        if(!member.getPassword().equals(request.getCurrentPassword())){
+            throw new IllegalStateException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        // 새 비밀번호 + 비밀번호 확인 일치 여부
+        if(!request.getNewPassword().equals(request.getNewPasswordConfirm())){
+            throw new IllegalStateException("새 비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+        }
+
+        // 기존 비밀번호와 동일한지 확인
+        if(member.getPassword().equals(request.getNewPassword())){
+            throw new IllegalStateException("기존 비밀번호와 동일한 비밀번호로는 변경할 수 없습니다.");
+        }
+
+        // 통과하면 비밀번호 변경 메서드 호출
+        member.changePassword(request.getNewPassword());
+
+    }
 
     // 내 주문 상세보기 -> Orders 필드 리팩토링떄 확장하고 받는사람 정보 등 추가하기
     public MyPageOrderDetailResponse findMyOrderDetail(Long orderId, Long memberId){
@@ -122,5 +146,5 @@ public class MyPageService {
                 .orElseThrow(()-> new IllegalStateException("해당하는 주문이 없거나 접근 권한이 없습니다."));
 
         return MyPageOrderDetailResponse.fromEntity(order);
-    }// --> 이것도 orderService의 findOrder와 통합가능할듯
+    }
 }

@@ -58,6 +58,4 @@ public class Cart {
         this.cartItems.add(cartItem); // Cart입장에서 장바구니목록(cartItems) 추가
         cartItem.setCart(this); // cartItem입장에서 자신이 속할 cart를 연결
     }
-
-    // getTotalQuantity(), getTotalPrice() 추후 추가 예정 - 리팩토링
 }

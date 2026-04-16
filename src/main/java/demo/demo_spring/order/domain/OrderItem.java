@@ -25,6 +25,7 @@ public class OrderItem {
     private Product product; // db -> product_id -> 원본 상품 참조용 FK
 
     private String productNameSnapshot; // 구매당시 상품명
+    private String imageUrlSnapshot; //구매당시 이미지
     private int quantity; // 주문수량
     private int orderPrice; // 주문 당시 가격(일반구매 or 핫딜구매)
 
@@ -43,6 +44,7 @@ public class OrderItem {
         }
 
         this.product = product; this.productNameSnapshot = product.getName();
+        this.imageUrlSnapshot = product.getImageUrl();
         this.quantity = quantity; this.orderPrice = orderPrice;
     }
 

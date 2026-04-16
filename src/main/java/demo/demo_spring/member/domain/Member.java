@@ -78,4 +78,12 @@ public class Member {
             }
         }
     }
+
+    // 마이페이지 비밀번호 변경
+    public void changePassword(String newPassword){
+        if(newPassword == null || newPassword.isBlank()){
+            throw new IllegalStateException("새 비밀번호를 입력해주세요.");
+        }
+        this.password = newPassword;
+    }
 }

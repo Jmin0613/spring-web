@@ -6,6 +6,7 @@ import demo.demo_spring.mypage.service.MyPageService;
 import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.wishlist.dto.WishlistListResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,7 +42,12 @@ public class MyPageController {
     @PatchMapping("/mypage/myinfo") // 내 정보 변경 - email, nickName
     public void updateProfile(@RequestBody MemberUpdateRequest request, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
-        mypageService.updateProfile(loginMember.getId(), request);
+        mypageService.updateProfile(request, loginMember.getId());
+    }
+    @PatchMapping("/mypage/password") // 내 비밀번호 변경
+    public void changePassword(@RequestBody @Valid MemberPasswordChangeRequest request, HttpSession session){
+        Member loginMember = (Member)session.getAttribute("loginMember");
+        mypageService.changePassword(request, loginMember.getId());
     }
 
     @GetMapping("/mypage/orders") // 내 주문기록 보기
