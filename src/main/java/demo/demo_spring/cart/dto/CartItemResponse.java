@@ -1,6 +1,5 @@
 package demo.demo_spring.cart.dto;
 
-import demo.demo_spring.cart.domain.Cart;
 import demo.demo_spring.cart.domain.CartItem;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
-public class CartItemListResponse {
+public class CartItemResponse {
     private Long cartItemId;
     private Long productId;
 
@@ -22,7 +21,7 @@ public class CartItemListResponse {
 
     private LocalDateTime createdAt;
 
-    private CartItemListResponse(CartItem cartItem){
+    private CartItemResponse(CartItem cartItem){
         this.cartItemId = cartItem.getId(); this.productId = cartItem.getProduct().getId();
         this.productName = cartItem.getProduct().getName(); this.imageUrl = cartItem.getProduct().getImageUrl();
         this.price = cartItem.getProduct().getPrice(); this.quantity = cartItem.getQuantity();
@@ -34,7 +33,7 @@ public class CartItemListResponse {
         return this.price * this.quantity;
     }
 
-    public static CartItemListResponse fromEntity(CartItem cartItem){
-        return new CartItemListResponse(cartItem);
+    public static CartItemResponse fromEntity(CartItem cartItem){
+        return new CartItemResponse(cartItem);
     }
 }

@@ -33,7 +33,6 @@ public class MyPageService {
         this.memberRepository = memberRepository;
     }
 
-    // 내 주문기록 보기 -> Order쪽 주문 조회, 주문 상세 조회를 마이페이지에서 보는걸로 통합하기. (리팩토링)
     public List<MyPageOrderListResponse> findMyOrders(Long memberId){
         // 멤버 조회
         memberService.getMember(memberId);
@@ -81,7 +80,7 @@ public class MyPageService {
 
     }
 
-    // 내 정보 변경 - 일단 name, email만 (이후 Member 도메인 리팩토링할떄 Nickname추가해서 유니크로 변경 만들어주기)
+    // 내 정보 변경 - nickName, email. 추후 비밀번호 변경 확장하기
     public void updateProfile(Long memberId, MemberUpdateRequest request){
         //멤버 조회
         Member member = memberService.getMember(memberId);

@@ -27,6 +27,7 @@ public class Cart {
     private Member member; // 회원당 장바구니 1개 -> unique제약
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt DESC ") // 조회에서 cart 자체에서 꺼내오기에 Cart엔티티에서 정렬 책임 가짐
     private List<CartItem> cartItems = new ArrayList<>(); //null안되게 바로 초기화
 
     @CreatedDate

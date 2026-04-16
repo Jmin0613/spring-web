@@ -1,15 +1,11 @@
 package demo.demo_spring.cart.controller;
 
-import demo.demo_spring.cart.dto.CartItemCreateRequest;
-import demo.demo_spring.cart.dto.CartItemListResponse;
-import demo.demo_spring.cart.dto.CartItemUpdateRequest;
+import demo.demo_spring.cart.dto.*;
 import demo.demo_spring.cart.service.CartService;
 import demo.demo_spring.member.domain.Member;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 public class CartController {
@@ -41,11 +37,24 @@ public class CartController {
         Member loginMember = (Member)session.getAttribute("loginMember");
         cartService.delete(cartItemId, loginMember.getId());
     }
+    // 내 장바구니 전체 삭제
+    @DeleteMapping("/cart-items")
+    public void deleteAll(HttpSession session){
+        Member loginMember = (Member)session.getAttribute("loginMember");
+        cartService.deleteAll(loginMember.getId());
+    }
 
     // 내 장바구니 조회
     @GetMapping("/cart-items")
-    public List<CartItemListResponse> findMyCartItems(HttpSession session){
+    public CartResponse findMyCartItems(HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
         return cartService.findCartItems(loginMember.getId());
+    }
+
+    // 내 장바구니 선택 구매
+    @PostMapping("/cart-items/buy")
+    public Long buyCart(@RequestBody @Valid CartBuyRequest request, HttpSession session){
+        Member loginMember = (Member) session.getAttribute("loginMember");
+        return cartService.buyCart(loginMember.getId(), request);
     }
 }

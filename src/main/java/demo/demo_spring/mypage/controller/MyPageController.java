@@ -3,6 +3,7 @@ package demo.demo_spring.mypage.controller;
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.mypage.dto.*;
 import demo.demo_spring.mypage.service.MyPageService;
+import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.wishlist.dto.WishlistListResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +13,11 @@ import java.util.List;
 @RestController
 public class MyPageController {
     private final MyPageService mypageService;
+    private final OrderService orderService;
 
-    public MyPageController(MyPageService mypageService) {
+    public MyPageController(MyPageService mypageService, OrderService orderService) {
         this.mypageService = mypageService;
+        this.orderService = orderService;
     }
 
     @GetMapping("/mypage/inquiries") // 내 문의 목록 보기
@@ -51,6 +54,12 @@ public class MyPageController {
     public MyPageOrderDetailResponse findMyOrderDetail(@PathVariable Long orderId, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
         return mypageService.findMyOrderDetail(orderId, loginMember.getId());
+    }
+
+    @PatchMapping("/mypage/orders/{orderId}/cancel") // 주문 취소
+    public void cancelOrder(@PathVariable Long orderId, HttpSession session){
+        Member loginMember = (Member)session.getAttribute("loginMember");
+        orderService.cancel(orderId, loginMember.getId());
     }
 
 }

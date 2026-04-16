@@ -36,7 +36,7 @@ public class AdminOrderController {
         adminOrderService.startDelivery(orderId);
 
     }
-    @PatchMapping("admin/orders/{orderId}/delivery/compelte")
+    @PatchMapping("/admin/orders/{orderId}/delivery/complete")
     public void AdminCompleteDelivery(@PathVariable Long orderId){
         adminOrderService.completeDelivery(orderId);
     }

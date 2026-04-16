@@ -91,12 +91,16 @@ public class Orders {
         if (this.orderStatus == OrderStatus.CANCELED){
             throw new IllegalStateException("이미 취소된 주문입니다.");
         }
+        if (this.deliveryStatus != DeliveryStatus.READY){
+            throw new IllegalStateException("배송 시작 이후에는 주문을 취소할 수 없습니다.");
+        }
 
         for (OrderItem orderItems : this.orderItems){ // 취소 재고 복구
             orderItems.orderCancel();
         }
 
         this.orderStatus = OrderStatus.CANCELED;
+        this.deliveryStatus = DeliveryStatus.CANCELED;
     }
 
     // 배송 상태 변경 메서드 - IN_DELIVERY

@@ -160,7 +160,7 @@ public class HotDealService {
         //4. 비관적 락 구매 메서드끝나고, 트랜잭션 커밋될떄 자물쇠 자동으로 풀림
 
         //5. 구매 완료 후 주문 생성
-        orderService.create(member, hotDeal.getProduct(), quantity, hotDeal.getHotDealPrice());
+        orderService.createSingle(member, hotDeal.getProduct(), quantity, hotDeal.getHotDealPrice());
 
     }
 }

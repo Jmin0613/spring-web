@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@Transactional // ------> 나중에 읽기 트랜잭션, 쓰기 트랜잭션 리팩토링 가능성 생각하기.
+@Transactional
 public class ProductInquiryService {
     private final ProductInquiryRepository productInquiryRepository;
     private final MemberService memberService;

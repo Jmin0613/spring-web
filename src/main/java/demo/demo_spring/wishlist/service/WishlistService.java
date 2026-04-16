@@ -50,7 +50,6 @@ public class WishlistService {
         memberService.getMember(memberId);
         productRepository.findById(productId)
                 .orElseThrow(()-> new IllegalStateException("찜 해제하시려는 상품이 없습니다."));
-        //---> 다른 곳도 안쓰는 거 리팩토링으로 정리해주기
 
         // 해제할 찜 조회
         Wishlist wishlist = wishlistRepository.findByMemberIdAndProductId(memberId, productId)

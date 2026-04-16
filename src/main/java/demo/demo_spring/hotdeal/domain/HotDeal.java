@@ -101,7 +101,6 @@ public class HotDeal {
             throw new IllegalStateException("핫딜 종료 시간은 시작 시간 이후여야 함");
         }
 
-        // 수정 반영 -> null이면 기존값 유지 -------------> 이거 isblank() 체크로 리팩토링하기
         if (hotDealPrice != null) this.hotDealPrice = hotDealPrice;
         if (startTime != null) this.startTime = startTime;
         if (endTime != null) this.endTime = endTime;

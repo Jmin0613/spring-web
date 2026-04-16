@@ -5,5 +5,5 @@ public enum DeliveryStatus {
     READY, // 배송 준비 중, 상품 준비 중
     IN_DELIVERY, // 배송 중
     DELIVERED, // 배송 완료
-
+    CANCELED // 주문 취소 -> 배송 취소
 }

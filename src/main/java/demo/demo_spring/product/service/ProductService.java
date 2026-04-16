@@ -85,8 +85,8 @@ public class ProductService {
         return ProductDetailResponse.fromEntity(product);
     }
 
-    // 사용자 상품 구매 + Pessimistic Lock
-    public void buy(Long id, Integer quantity, Long memberId){
+    // 사용자 단일 상품 즉시 구매 + Pessimistic Lock
+    public void buySingle(Long id, Integer quantity, Long memberId){
         Member member = memberService.getMember(memberId);
 
         // quantity를 Integer로 받아서 null 체크
@@ -106,7 +106,7 @@ public class ProductService {
 
         //4. 구매 완료 후 주문 생성
         // member -> 세션에서 꺼내오기
-        orderService.create(member, product, quantity, product.getPrice());
+        orderService.createSingle(member, product, quantity, product.getPrice());
 
         // 락 조회 : Service/Repository
         //재고 차감 규칙 : Entity
