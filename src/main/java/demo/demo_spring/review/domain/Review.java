@@ -95,6 +95,6 @@ public class Review {
             }
             this.rating = rating;
         }
-    } // -------------> 다른 PATCH Update 리팩토링 해주기
+    }
 
 }

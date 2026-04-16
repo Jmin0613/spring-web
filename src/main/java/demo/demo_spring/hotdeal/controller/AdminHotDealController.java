@@ -24,25 +24,25 @@ public class AdminHotDealController {
     }
 
     // 수정
-    @PatchMapping("/admin/hotdeals/{id}")
-    public void update(@PathVariable Long id, @RequestBody HotDealUpdateRequest request){
-        hotDealService.update(id, request);
+    @PatchMapping("/admin/hotdeals/{hotDealId}")
+    public void update(@PathVariable Long hotDealId, @RequestBody HotDealUpdateRequest request){
+        hotDealService.update(hotDealId, request);
     }
 
     // 긴급 중단
-    @PatchMapping("/admin/hotdeals/{id}/stop")
-    public void stop(@PathVariable Long id){
-        hotDealService.adminEmergencyStop(id);
+    @PatchMapping("/admin/hotdeals/{hotDealId}/stop")
+    public void stop(@PathVariable Long hotDealId){
+        hotDealService.adminEmergencyStop(hotDealId);
     }
 
     // 중단 재개
-    @PatchMapping("/admin/hotdeals/{id}/resume")
-    public void resume(@PathVariable Long id){ hotDealService.adminResume(id);}
+    @PatchMapping("/admin/hotdeals/{hotDealId}/resume")
+    public void resume(@PathVariable Long hotDealId){ hotDealService.adminResume(hotDealId);}
 
     // 삭제
-    @DeleteMapping("/admin/hotdeals/{id}")
-    public void delete(@PathVariable Long id){
-        hotDealService.delete(id);
+    @DeleteMapping("/admin/hotdeals/{hotDealId}")
+    public void delete(@PathVariable Long hotDealId){
+        hotDealService.delete(hotDealId);
     }
 
     // 전체 조회
@@ -52,8 +52,8 @@ public class AdminHotDealController {
     }
 
     // 단건 조회
-    @GetMapping("/admin/hotdeals/{id}")
-    public AdminHotDealDetailResponse adminFindHotDeal(@PathVariable Long id){
-        return hotDealService.adminFindHotDeal(id);
+    @GetMapping("/admin/hotdeals/{hotDealId}")
+    public AdminHotDealDetailResponse adminFindHotDeal(@PathVariable Long hotDealId){
+        return hotDealService.adminFindHotDeal(hotDealId);
     }
 }

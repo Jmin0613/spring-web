@@ -1,5 +1,6 @@
 package demo.demo_spring.mypage.dto;
 
+import demo.demo_spring.order.domain.DeliveryStatus;
 import demo.demo_spring.order.domain.OrderStatus;
 import demo.demo_spring.order.domain.Orders;
 import lombok.Getter;
@@ -11,13 +12,15 @@ import java.util.List;
 public class MyPageOrderDetailResponse {
     private Long orderId;
     private LocalDateTime orderDate;
-    private OrderStatus status;
+    private OrderStatus orderStatus;
+    private DeliveryStatus deliveryStatus;
     private int totalPrice;
     private List<MyPageOrderItemResponse> orderItems; // DTO 재사용
 
     private MyPageOrderDetailResponse(Orders order){
         this.orderId = order.getId(); this.orderDate = order.getOrderDate();
-        this.status = order.getStatus(); this.totalPrice = order.getTotalPrice();
+        this.orderStatus = order.getOrderStatus(); this.deliveryStatus = order.getDeliveryStatus();
+        this.totalPrice = order.getTotalPrice();
 
         this.orderItems = order.getOrderItems()
                 .stream()

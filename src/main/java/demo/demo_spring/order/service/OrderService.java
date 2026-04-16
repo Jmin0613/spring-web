@@ -4,8 +4,8 @@ import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.order.domain.OrderItem;
 import demo.demo_spring.order.domain.Orders;
-import demo.demo_spring.order.dto.OrderDetailResponse;
-import demo.demo_spring.order.dto.OrderListResponse;
+import demo.demo_spring.order.admin.dto.AdminOrderDetailResponse;
+import demo.demo_spring.order.admin.dto.AdminOrderListResponse;
 import demo.demo_spring.order.repository.OrderRepository;
 import demo.demo_spring.product.domain.Product;
 import org.springframework.stereotype.Service;
@@ -15,13 +15,12 @@ import java.util.List;
 
 @Service
 @Transactional
-public class OrderService {
-    // 구매가 성공한 뒤 주문을 길고하는 서비스
+public class  OrderService {
+    // 구매가 성공한 뒤 주문을 생성하는 서비스
 
-    //Repository 주입 + DI
     private final OrderRepository orderRepository;
 
-    public OrderService(OrderRepository orderRepository, MemberService memberService){
+    public OrderService(OrderRepository orderRepository){
         this.orderRepository = orderRepository;
     }
 
@@ -39,18 +38,5 @@ public class OrderService {
         return order.getId();
     }
 
-    // 사용자 내 주문 조회
-    public List<OrderListResponse> findMyOrders(Long memberId){
-        return orderRepository.findAllByMemberIdOrderByOrderDateDesc(memberId)
-                .stream().map(OrderListResponse::fromEntity)
-                .toList();
-    }
-    // 사용자 내 주문 상세 조회
-    public OrderDetailResponse findOrder(Long orderId, Long memberId){
-        Orders order = orderRepository.findByIdAndMemberId(orderId, memberId)
-                .orElseThrow(()-> new IllegalStateException("해당하는 주문이 없습니다."));
-        return OrderDetailResponse.fromEntity(order);
-    }
-
-    // 주문 취소
+    // 주문 취소 -> 리팩토링
 }

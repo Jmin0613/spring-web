@@ -9,7 +9,6 @@ import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.repository.ProductRepository;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

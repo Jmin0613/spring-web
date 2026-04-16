@@ -17,12 +17,6 @@ public class MyPageController {
         this.mypageService = mypageService;
     }
 
-    @GetMapping("/mypage/orders") // 내 주문기록 보기
-    public List<MyPageOrderListResponse> findMyOrders(HttpSession session){
-        Member loginMember = (Member)session.getAttribute("loginMember"); // 로그인세션 꺼내는 것도 공통화 염두해두기 (리팩토링)
-        return mypageService.findMyOrders(loginMember.getId());
-    }
-
     @GetMapping("/mypage/inquiries") // 내 문의 목록 보기
     public List<MyPageInquiryListResponse> findMyInquiries(HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
@@ -41,10 +35,16 @@ public class MyPageController {
         return mypageService.findMyWishlist(loginMember.getId());
     }
 
-    @PatchMapping("/mypage/myinfo") // 내 정보 변경 - 일단 name, email 먼저
+    @PatchMapping("/mypage/myinfo") // 내 정보 변경 - email, nickName
     public void updateProfile(@RequestBody MemberUpdateRequest request, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
         mypageService.updateProfile(loginMember.getId(), request);
+    }
+
+    @GetMapping("/mypage/orders") // 내 주문기록 보기
+    public List<MyPageOrderListResponse> findMyOrders(HttpSession session){
+        Member loginMember = (Member)session.getAttribute("loginMember"); // 로그인세션 꺼내는 것도 공통화 염두해두기 (리팩토링)
+        return mypageService.findMyOrders(loginMember.getId());
     }
 
     @GetMapping("/mypage/orders/{orderId}") // 내 주문 상세보기

@@ -34,8 +34,8 @@ public class ProductInquiryService {
 
     // 회원 문의 작성
     public Long create(Long productId, Long memberId, ProductInquiryCreateRequest request){
-        Member member = memberService.getMember(memberId); //서비스 로직 재사용하는거 나중에 레포지토리로 스타일 통일해주기
-        Product product = productRepository.findById(productId) // 리팩토링 예정
+        Member member = memberService.getMember(memberId);
+        Product product = productRepository.findById(productId)
                 .orElseThrow(()-> new IllegalStateException("문의하려는 상품이 없습니다."));
 
         ProductInquiry productInquiry

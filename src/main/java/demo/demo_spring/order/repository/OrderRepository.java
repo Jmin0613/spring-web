@@ -15,4 +15,7 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     // 특정회원의 특정주문을 가져오기
     Optional<Orders> findByIdAndMemberId(Long orderId, Long memberId);
 
+    List<Orders> findAllByOrderByOrderDateDesc();
+
+
 }

@@ -21,9 +21,9 @@ public class NoticeController {
     public List<NoticeListResponse> findAllNotice(){return noticeService.findAllNotice();}
 
     // 글보기 -> 상세보기
-    @GetMapping("/notices/{id}")
-    public NoticeDetailResponse findNotice(@PathVariable Long id){
-        return noticeService.findNotice(id);
+    @GetMapping("/notices/{noticeId}")
+    public NoticeDetailResponse findNotice(@PathVariable Long noticeId){
+        return noticeService.findNotice(noticeId);
     }
 
 }

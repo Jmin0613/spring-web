@@ -27,16 +27,16 @@ public class HotDealController {
     }
 
     // 단건 조회
-    @GetMapping("/hotdeals/{id}")
-    public HotDealDetailResponse findById(@PathVariable Long id){
-        return hotDealService.findHotDeal(id);
+    @GetMapping("/hotdeals/{hotDealId}")
+    public HotDealDetailResponse findById(@PathVariable Long hotDealId){
+        return hotDealService.findHotDeal(hotDealId);
     }
 
     // 핫딜 구매
-    @PostMapping("/hotdeals/{id}/buy")
-    public String buy(@PathVariable Long id, @RequestBody @Valid HotDealBuyRequest request, HttpSession session){
+    @PostMapping("/hotdeals/{hotDealId}/buy")
+    public String buy(@PathVariable Long hotDealId, @RequestBody @Valid HotDealBuyRequest request, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
-        hotDealService.buy(id, request.getQuantity(), loginMember.getId());
+        hotDealService.buy(hotDealId, request.getQuantity(), loginMember.getId());
         return "구매 성공";
     }
 }

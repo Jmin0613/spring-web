@@ -24,23 +24,23 @@ public class AdminNoticeController {
     }
 
     // 수정
-    @PatchMapping("/admin/notices/{id}")
-    public void update(@PathVariable Long id, @RequestBody NoticeUpdateRequest request){
-        noticeService.updateNotice(id, request);
+    @PatchMapping("/admin/notices/{noticeId}")
+    public void update(@PathVariable Long noticeId, @RequestBody NoticeUpdateRequest request){
+        noticeService.updateNotice(noticeId, request);
     }
 
     // 삭제
-    @DeleteMapping("/admin/notices/{id}")
-    public void delete(@PathVariable Long id){noticeService.deleteNotice(id);}
+    @DeleteMapping("/admin/notices/{noticeId}")
+    public void delete(@PathVariable Long noticeId){noticeService.deleteNotice(noticeId);}
 
     // 목록
     @GetMapping("/admin/notices")
     public List<NoticeListResponse> findAllNotice(){return noticeService.findAllNotice();}
 
     // 글보기 -> 상세보기
-    @GetMapping("/admin/notices/{id}")
-    public NoticeDetailResponse findNotice(@PathVariable Long id){
-        return noticeService.findNotice(id);
+    @GetMapping("/admin/notices/{noticeId}")
+    public NoticeDetailResponse findNotice(@PathVariable Long noticeId){
+        return noticeService.findNotice(noticeId);
     }
 
 }

@@ -1,5 +1,6 @@
 package demo.demo_spring.mypage.dto;
 
+import demo.demo_spring.order.domain.DeliveryStatus;
 import demo.demo_spring.order.domain.OrderStatus;
 import demo.demo_spring.order.domain.Orders;
 import lombok.Getter;
@@ -13,12 +14,13 @@ public class MyPageOrderListResponse {
 
     private Long orderId;
     private LocalDateTime orderDate;
-    private OrderStatus status;
+    private OrderStatus orderStatus;
+    private DeliveryStatus deliveryStatus;
     private List<MyPageOrderItemResponse> orderItems; //order의 orderItem 카드들 리스트
 
     private MyPageOrderListResponse(Orders order){
         this.orderId = order.getId(); this.orderDate = order.getOrderDate();
-        this.status = order.getStatus();
+        this.orderStatus = order.getOrderStatus(); this.deliveryStatus = order.getDeliveryStatus();
         this.orderItems = order.getOrderItems()
                 .stream()
                 .map(MyPageOrderItemResponse::fromEntity)

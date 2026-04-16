@@ -35,7 +35,9 @@ public class Orders {
     private LocalDateTime orderDate;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private OrderStatus orderStatus;
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus deliveryStatus;
 
     private Orders(Member member){
         // null 체크
@@ -43,7 +45,8 @@ public class Orders {
             throw new IllegalStateException("구매자 정보가 누락되었습니다.");
         }
         this.member = member;
-        this.status = OrderStatus.ORDERED;
+        this.orderStatus = OrderStatus.ORDERED;
+        this.deliveryStatus = DeliveryStatus.READY;
     }
 
     // 주문서 생성 메서드
@@ -85,7 +88,7 @@ public class Orders {
 
     // 주문 취소 메서드
     public void cancel(){
-        if (this.status == OrderStatus.CANCELED){
+        if (this.orderStatus == OrderStatus.CANCELED){
             throw new IllegalStateException("이미 취소된 주문입니다.");
         }
 
@@ -93,6 +96,28 @@ public class Orders {
             orderItems.orderCancel();
         }
 
-        this.status = OrderStatus.CANCELED;
+        this.orderStatus = OrderStatus.CANCELED;
     }
+
+    // 배송 상태 변경 메서드 - IN_DELIVERY
+    public void startDelivery(){
+        if(this.orderStatus == OrderStatus.CANCELED){
+            throw new IllegalStateException("취소된 주문은 배송 처리할 수 없습니다,");
+        }
+        if(this.deliveryStatus != DeliveryStatus.READY){
+            throw new IllegalStateException("배송 준비 상태에서만 배송 시작이 가능합니다.");
+        }
+        this.deliveryStatus = DeliveryStatus.IN_DELIVERY;
+    }
+    // 배송 상태 변경 메서드 - DELIVERED
+    public void completeDelivery(){
+        if(this.orderStatus == OrderStatus.CANCELED){
+            throw new IllegalStateException("취소된 주문은 배송 완료 처리할 수 없습니다.");
+        }
+        if(this.deliveryStatus != DeliveryStatus.IN_DELIVERY){
+            throw new IllegalStateException("배송 중인 상태에서만 배송 완료 처리가 가능합니다.");
+        }
+        this.deliveryStatus = DeliveryStatus.DELIVERED;
+    }
+    // READY도 확장해주기
 }
