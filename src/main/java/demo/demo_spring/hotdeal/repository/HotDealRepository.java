@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +29,12 @@ public interface HotDealRepository extends JpaRepository<HotDeal, Long> {
     //메서드 인자로 들어온 Long id 값을 쿼리문의 :id 부분에 쏙 집어넣으라
     // 없을수도 있으니 Optional<Product>
 
-    //스케쥴러 핫딜 조회 조건 추가
+    // HotDealStatusScheduler 핫딜 조회 조건 추가
     //@Query쓸만큼 복잡하지 않아서 spring data jpa
     List<HotDeal> findByStatusIn(List<HotDealStatus> statuses);
+
+    // HotDealAlertScheduler 조회
+    List<HotDeal> findAllByStatusAndStartTimeBetween(HotDealStatus status,
+                                                     LocalDateTime from,
+                                                     LocalDateTime to);
 }

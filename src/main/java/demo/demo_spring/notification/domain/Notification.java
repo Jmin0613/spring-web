@@ -51,8 +51,8 @@ public class Notification {
     public static Notification createInquiryAnswerNotification(Member member, String inquiryTitle, Long productId, Long inquiryId){
         Notification notification =  new Notification(member, NotificationType.INQUIRY_ANSWER);
 
-        if(productId == null){ throw new IllegalStateException("알림 대상 상품이 비어있습니다."); }
-        if(inquiryId == null){ throw new IllegalStateException("알림 대상 문의가 비어있습니다."); }
+        if(productId == null){ throw new IllegalStateException("알림 대상 상품이 없습니다."); }
+        if(inquiryId == null){ throw new IllegalStateException("알림 대상 문의가 없습니다."); }
         if(inquiryTitle == null || inquiryTitle.isBlank()){
             throw new IllegalStateException("알림 대상 문의 제목이 비어있습니다.");
         }
@@ -66,11 +66,12 @@ public class Notification {
     }
 
     // 핫딜 시작 알림
-    public static Notification createHotDealStartNotification(Member member, Long hotDealId, String hotDealName){
+    public static Notification createHotDealPreStartNotification(Member member, Long hotDealId, String hotDealName){
         Notification notification =  new Notification(member, NotificationType.HOTDEAL_START);
-        if(hotDealId == null){ throw new IllegalStateException("알림 대상 핫딜 상품이 비어있습니다."); }
+        if(hotDealId == null){ throw new IllegalStateException("알림 대상 핫딜 상품이 없습니다."); }
+
         notification.title = "핫딜 상품 \"%s\"이 곧 시작합니다.".formatted(hotDealName);
-        notification.content = "\"%s\"이 곧 판매를 시작합니다. 클릭하여 상세 페이지로 이동하여 주세요."
+        notification.content = "\"%s\"이 10분 뒤 판매를 시작합니다. 클릭하여 상세 페이지로 이동하여 주세요."
                 .formatted(hotDealName);
         notification.productId = hotDealId;
 

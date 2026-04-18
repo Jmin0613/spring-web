@@ -13,6 +13,7 @@ import java.util.List;
 @Component
 @Transactional
 public class HotDealStatusScheduler {
+    // 핫딜 상태 변경 스케쥴러
 
     private final HotDealRepository hotDealRepository;
 

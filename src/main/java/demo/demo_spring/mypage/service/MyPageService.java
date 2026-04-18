@@ -136,7 +136,7 @@ public class MyPageService {
 
     }
 
-    // 내 주문 상세보기 -> Orders 필드 리팩토링떄 확장하고 받는사람 정보 등 추가하기
+    // 내 주문 상세보기
     public MyPageOrderDetailResponse findMyOrderDetail(Long orderId, Long memberId){
         // 멤버 조회
         memberService.getMember(memberId);

@@ -34,7 +34,7 @@ public class HotDealListResponse {
         this.startTime = hotDeal.getStartTime(); this.endTime = hotDeal.getEndTime();
         this.status = hotDeal.getStatus();
         this.discountRate = hotDeal.calculateDiscountRate();
-        this.productId = getProductId();
+        this.productId = hotDeal.getProduct().getId();
     }
 
     // Entity ->DTO 변환 메서드

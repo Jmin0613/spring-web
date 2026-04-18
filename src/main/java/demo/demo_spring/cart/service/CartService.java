@@ -106,7 +106,7 @@ public class CartService {
     // 장바구니 전체 삭제
     public void deleteAll(Long memberId){
         // 로그인 member 조회
-        System.out.println("멤버 조회");
+        // System.out.println("멤버 조회");
         memberService.getMember(memberId);
 
         // 해당 member의 카트 꺼내오기
