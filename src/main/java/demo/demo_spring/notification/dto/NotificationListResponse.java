@@ -1,6 +1,7 @@
 package demo.demo_spring.notification.dto;
 
 import demo.demo_spring.notification.domain.Notification;
+import demo.demo_spring.notification.domain.NotificationTargetType;
 import demo.demo_spring.notification.domain.NotificationType;
 import lombok.Getter;
 
@@ -9,23 +10,29 @@ import java.time.LocalDateTime;
 @Getter
 public class NotificationListResponse {
     private Long notificationId;
-    private NotificationType type;
 
     private String title;
     private String content;
 
     private boolean isRead;
-    private Long productId;
-    private Long inquiryId;
+
+    private NotificationType type;
+    private NotificationTargetType targetType;
+
+    private Long targetId;
+    private Long relatedId;
+
     private LocalDateTime createdAt;
 
 
 
     private NotificationListResponse(Notification notification){
-        this.notificationId = notification.getId(); this.type = notification.getType();
+        this.notificationId = notification.getId();
         this.title = notification.getTitle(); this.content = notification.getContent();
-        this.isRead = notification.isRead(); this.createdAt = notification.getCreatedAt();
-        this.productId = notification.getProductId(); this.inquiryId = notification.getInquiryId();
+        this.isRead = notification.isRead();
+        this.type = notification.getType(); this.targetType = notification.getTargetType();
+        this.targetId = notification.getTargetId(); this.relatedId = notification.getRelatedTargetId();
+        this.createdAt = notification.getCreatedAt();
     }
 
     public static NotificationListResponse fromEntity(Notification notification){

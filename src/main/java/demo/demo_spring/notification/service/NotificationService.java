@@ -39,7 +39,7 @@ public class NotificationService {
 
         // 저장
         Notification notification =
-                Notification.createInquiryAnswerNotification(member, inquiryTitle, productId, inquiryId);
+                Notification.createInquiryAnswerNotification(member, inquiryTitle, inquiryId, productId);
 
         Notification savedNotification = notificationRepository.save(notification);
         // return savedNotification.getId();
