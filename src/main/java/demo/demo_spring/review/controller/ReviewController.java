@@ -51,7 +51,7 @@ public class ReviewController {
 
     // 리뷰 추천/취소 -> Toggle
     @PostMapping("/products/{productId}/reviews/{reviewId}/like")
-    public ReviewLikeToggleResponse like(@PathVariable Long productId, @PathVariable Long reviewId, HttpSession session){
+    public ReviewLikeToggleResponse likeToggle(@PathVariable Long productId, @PathVariable Long reviewId, HttpSession session){
         Member loginMember = (Member) session.getAttribute("loginMember");
         return reviewService.likeToggle(productId, reviewId, loginMember.getId());
     }

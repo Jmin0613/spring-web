@@ -16,12 +16,14 @@ public class ProductDetailResponse {
     private String category;
 
     private ProductStatus status;
+    private int wishCount;
 
     //Product 생성자 -> fromEntity()가 내부에서 호출할 생성자
     private ProductDetailResponse(Product product){
         this.id = product.getId(); this.name = product.getName(); this.description = product.getDescription();
         this.price = product.getPrice(); this.category=product.getCategory();
         this.imageUrl=product.getImageUrl(); this.status = product.getStatus();
+        this.wishCount = product.getWishCount();
     }
 
     //엔티티 -> DTO

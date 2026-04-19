@@ -7,14 +7,13 @@ import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.notification.domain.HotDealAlertSubscription;
 import demo.demo_spring.notification.domain.Notification;
 import demo.demo_spring.notification.dto.NotificationListResponse;
+import demo.demo_spring.notification.repository.HotDealAlertSubscriptionRepository;
 import demo.demo_spring.notification.repository.NotificationRepository;
-import demo.demo_spring.wishlist.repository.HotDealAlertSubscriptionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static demo.demo_spring.hotdeal.domain.HotDealStatus.READY;
 

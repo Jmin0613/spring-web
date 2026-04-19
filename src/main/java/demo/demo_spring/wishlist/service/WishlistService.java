@@ -6,11 +6,13 @@ import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.repository.ProductRepository;
 import demo.demo_spring.wishlist.domain.Wishlist;
 import demo.demo_spring.wishlist.dto.WishlistListResponse;
+import demo.demo_spring.wishlist.dto.WishlistToggleResponse;
 import demo.demo_spring.wishlist.repository.WishlistRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -26,37 +28,25 @@ public class WishlistService {
         this.productRepository = productRepository;
     }
 
-    // 찜 추가
-    public Long create(Long productId, Long memberId){
-        // 멤버, 상품 조회
+    // 찜하기 Toggle
+    public WishlistToggleResponse toggle(Long productId, Long memberId){
+        // 멤저, 상품 조회
         Member member = memberService.getMember(memberId);
         Product product = productRepository.findById(productId)
-                .orElseThrow(()-> new IllegalStateException("찜 하시려는 상품이 없습니다."));
+                .orElseThrow(()-> new IllegalStateException("찜하시려는 상품이 없습니다."));
 
-        // 중복 찜 검사
-        if(wishlistRepository.existsByMemberIdAndProductId(memberId, productId)){
-            throw new IllegalStateException("이미 찜 하셨습니다.");
+        // 현재 찜 상태 확인, 이미 찜 했는지 조회
+        Optional<Wishlist> wishlist = wishlistRepository.findByMemberIdAndProductId(memberId, productId);
+
+        if(wishlist.isPresent()){ //이미 찜했으면
+            wishlistRepository.delete(wishlist.get());
+            product.decreaseWishCount();
+            return new WishlistToggleResponse(productId, false, product.getWishCount());
+        }else { //없으면
+            wishlistRepository.save(Wishlist.createWishlist(member, product));
+            product.increaseWishCount();
+            return new WishlistToggleResponse(productId, true, product.getWishCount());
         }
-
-        // 찜추가 메서드 + 저장
-        Wishlist wishlist = Wishlist.createWishlist(member, product);
-        Wishlist savedWishlist = wishlistRepository.save(wishlist);
-        return savedWishlist.getId();
-    }
-
-    // 찜 해제
-    public void delete(Long productId, Long memberId){
-        // 멤버, 상품 조회
-        memberService.getMember(memberId);
-        productRepository.findById(productId)
-                .orElseThrow(()-> new IllegalStateException("찜 해제하시려는 상품이 없습니다."));
-
-        // 해제할 찜 조회
-        Wishlist wishlist = wishlistRepository.findByMemberIdAndProductId(memberId, productId)
-                .orElseThrow(()-> new IllegalStateException("해제할 찜이 없습니다."));
-
-        // 삭제
-        wishlistRepository.delete(wishlist);
     }
 
     // 찜 목록 조회

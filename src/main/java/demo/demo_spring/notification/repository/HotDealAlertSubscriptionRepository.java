@@ -1,4 +1,4 @@
-package demo.demo_spring.wishlist.repository;
+package demo.demo_spring.notification.repository;
 
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.notification.domain.HotDealAlertSubscription;
@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface HotDealAlertSubscriptionRepository extends JpaRepository <HotDealAlertSubscription, Long> {
+public interface HotDealAlertSubscriptionRepository extends JpaRepository<HotDealAlertSubscription, Long> {
     // 핫딜 시작 알림 신청자 전부 조회
     List<HotDealAlertSubscription> findAllByHotDealId(Long hotDealId);
 
@@ -21,4 +21,5 @@ public interface HotDealAlertSubscriptionRepository extends JpaRepository <HotDe
     void deleteByMemberIdAndHotDealId(Long memberId, Long hotDealId);
 
     Long member(Member member);
+
 }

@@ -35,6 +35,9 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
+    @Column(nullable = false)
+    private int wishCount; // 찜하기 수
+
     private Product (String name, String description, String imageUrl,
                     int price, int stock, String category, ProductStatus status){
         // 핵심 불변조건만 체크
@@ -53,6 +56,7 @@ public class Product {
 
         this.name = name; this.description = description; this.imageUrl = imageUrl;
         this.price = price; this.stock = stock; this.category = category; this.status = status;
+        this.wishCount = 0;
     }
 
     public static Product createProduct(String name, String description, String imageUrl,
@@ -74,6 +78,18 @@ public class Product {
         if(stock!=null) this.stock=stock;
         if(category!= null && !category.isBlank()) this.category=category;
         if(status!=null) this.status=status;
+    }
+
+    // 찜하기 수 증가
+    public void increaseWishCount(){
+        this.wishCount++;
+    }
+    // 찜하기 수 감소
+    public void decreaseWishCount(){
+        if(this.wishCount<=0){
+            throw new IllegalStateException("찜 수는 0보다 작을 수 없습니다.");
+        }
+        this.wishCount--;
     }
 
     // 상품 구매 시, 재고 차감용 메서드
