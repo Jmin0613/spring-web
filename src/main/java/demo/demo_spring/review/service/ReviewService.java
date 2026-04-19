@@ -7,9 +7,12 @@ import demo.demo_spring.order.repository.OrderItemRepository;
 import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.repository.ProductRepository;
 import demo.demo_spring.review.domain.Review;
+import demo.demo_spring.review.domain.ReviewLike;
 import demo.demo_spring.review.dto.ReviewCreateRequest;
+import demo.demo_spring.review.dto.ReviewLikeToggleResponse;
 import demo.demo_spring.review.dto.ReviewListResponse;
 import demo.demo_spring.review.dto.ReviewUpdateRequest;
+import demo.demo_spring.review.repository.ReviewLikeRepository;
 import demo.demo_spring.review.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -25,14 +29,16 @@ public class ReviewService {
     private final ProductRepository productRepository;
     private final MemberService memberService;
     private final OrderItemRepository orderItemRepository;
+    private final ReviewLikeRepository reviewLikeRepository;
 
 
     public ReviewService(ReviewRepository reviewRepository, ProductRepository productRepository,
-                         MemberService memberService, OrderItemRepository orderItemRepository){
+                         MemberService memberService, OrderItemRepository orderItemRepository, ReviewLikeRepository reviewLikeRepository){
         this.reviewRepository = reviewRepository;
         this.productRepository = productRepository;
         this.memberService = memberService;
         this.orderItemRepository = orderItemRepository;
+        this.reviewLikeRepository = reviewLikeRepository;
     }
 
     // 리뷰 작성
@@ -119,6 +125,33 @@ public class ReviewService {
                 .stream()
                 .map(ReviewListResponse::fromEntity)
                 .toList();
+    }
+
+    // 리뷰 추천
+    public ReviewLikeToggleResponse likeToggle(Long productId, Long reviewId, Long memberId){
+        // 멤버 조회
+        Member member = memberService.getMember(memberId);
+        // 리뷰 존재 여부 확인
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(()-> new IllegalStateException("추천하시려는 리뷰가 없습니다."));
+
+        // 해당 상품 리뷰가 맞는지, productId와 review 관계 검증
+        validateReviewBelongToProduct(productId, review);
+
+        // 현재 추천 상태 확인, 이미 추천했는지 조회
+        Optional<ReviewLike> reviewLike = reviewLikeRepository.findByMemberIdAndReviewId(memberId, reviewId);
+
+        if(reviewLike.isPresent()){ // 이미 추천했으면(있으면) delete + likeCount 감소 + liked = false 반환
+            reviewLikeRepository.delete(reviewLike.get());
+            review.decreaseLikeCount();
+            return new ReviewLikeToggleResponse(reviewId, false, review.getLikeCount());
+
+        } else{ // 없으면 save + likeCount 증가 + liked = true 반환
+            reviewLikeRepository.save(ReviewLike.create(member, review));
+            review.increaseLikeCount();
+            return new ReviewLikeToggleResponse(reviewId, true, review.getLikeCount());
+        }
+
     }
 
     // 주문항목이 로그인 회원것인지 확인하는 메서드

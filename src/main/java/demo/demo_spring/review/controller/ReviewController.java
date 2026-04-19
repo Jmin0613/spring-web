@@ -2,6 +2,7 @@ package demo.demo_spring.review.controller;
 
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.review.dto.ReviewCreateRequest;
+import demo.demo_spring.review.dto.ReviewLikeToggleResponse;
 import demo.demo_spring.review.dto.ReviewListResponse;
 import demo.demo_spring.review.dto.ReviewUpdateRequest;
 import demo.demo_spring.review.service.ReviewService;
@@ -20,8 +21,8 @@ public class ReviewController {
 
     // 리뷰글 작성
     @PostMapping("/products/{productId}/reviews")
-    public Long create(@PathVariable Long productId, @RequestBody @Valid ReviewCreateRequest request,
-                       HttpSession session){
+    public Long like(@PathVariable Long productId, @RequestBody @Valid ReviewCreateRequest request,
+                     HttpSession session){
         Member loginMember = (Member) session.getAttribute("loginMember");
         return reviewService.create(productId, loginMember.getId(), request);
     }
@@ -46,5 +47,12 @@ public class ReviewController {
     @GetMapping("/products/{productId}/reviews")
     public List<ReviewListResponse> findAllReviews(@PathVariable Long productId){
         return reviewService.findAllReview(productId);
+    }
+
+    // 리뷰 추천/취소 -> Toggle
+    @PostMapping("/products/{productId}/reviews/{reviewId}/like")
+    public ReviewLikeToggleResponse like(@PathVariable Long productId, @PathVariable Long reviewId, HttpSession session){
+        Member loginMember = (Member) session.getAttribute("loginMember");
+        return reviewService.likeToggle(productId, reviewId, loginMember.getId());
     }
 }

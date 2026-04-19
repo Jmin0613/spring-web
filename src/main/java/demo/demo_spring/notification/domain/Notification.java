@@ -24,7 +24,8 @@ public class Notification {
     private Member member; //알림 받는 Member
 
     @Enumerated(EnumType.STRING)
-    private NotificationType type; // 알람 종류 구분
+    private NotificationType type; // 알람 종류 구분.
+    // 알림이 발생한 비즈니스 이벤트를 표현
     // -> 지금은 문의 알람뿐이지만, 추후 선택한 핫딜 시작 알림 등 확장 예정 (리팩토링)
 
     private String title; // 회원에게 보여줄 알림 문구 (제목)
@@ -36,9 +37,12 @@ public class Notification {
 
     //추후 프론트엔드 확장을 위한 식별값. 이거 받아서 상세페이지로 이동시키기.
     @Enumerated(EnumType.STRING)
-    private NotificationTargetType targetType; // HOTDEAL, PRODUCT_INQUIRY, NONE
+    private NotificationTargetType targetType; // HOTDEAL, PRODUCT_INQUIRY, NONE.
+    // 알림 클릭시 어떤 종류의 리소스로 이동할지
     private Long targetId; // hotDealId, inquiryId
     private Long relatedTargetId; //PRODUCT_INQUIRY의 경우, productId를 저장
+    // targetId -> 알림의 주 대상 식별자
+    // relatedId -> 상세 페이지 이동이나 추가 문맥 제공을 위해 필요한 연관 식별자
 
     private Notification(Member member,
                          NotificationType type, NotificationTargetType targetType,
@@ -64,7 +68,7 @@ public class Notification {
     public static Notification createInquiryAnswerNotification(Member member, String inquiryTitle, Long inquiryId, Long productId){
         Notification notification =
                 new Notification(member,
-                        NotificationType.PRODUCT_INQUIRY_ANSWER, NotificationTargetType.PRODUCT_INQUIRY,
+                        NotificationType.PRODUCT_INQUIRY_ANSWERED, NotificationTargetType.PRODUCT_INQUIRY,
                         inquiryId, productId);
 
         notification.title = "\"%s\"에 관리자 답변이 달렸습니다.".formatted(inquiryTitle);

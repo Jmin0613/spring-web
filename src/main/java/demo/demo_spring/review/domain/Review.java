@@ -39,6 +39,10 @@ public class Review {
     private String title;
     private String content;
 
+    @Column(nullable = false) // null 불가 + 기본값 0
+    private int likeCount; //추천 수 저장
+    // 추천/취소할 때마다 likeCount 증감 관리해줘야 함.
+
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate
@@ -63,6 +67,7 @@ public class Review {
         this.member = member; this.product = product; this.orderItem = orderItem;
         this.productNameSnapshot = orderItem.getProductNameSnapshot();
         this.rating = rating; this.title = title; this.content = content;
+        this.likeCount = 0; //int 기본값 0이지만, 의도를 표현.
     }
 
     // 리뷰 등록/생성 메서드
@@ -97,4 +102,15 @@ public class Review {
         }
     }
 
+    // 리뷰 추천수 증가
+    public void increaseLikeCount(){
+        this.likeCount++;
+    }
+    // 리뷰 추천수 감소
+    public void decreaseLikeCount(){
+        if(this.likeCount<=0){
+            throw new IllegalStateException("추천 수는 0보다 작을 수 없습니다.");
+        }
+        this.likeCount--;
+    }
 }
