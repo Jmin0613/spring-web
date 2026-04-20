@@ -164,11 +164,18 @@ public class HotDeal {
         } else if (now.isBefore(this.startTime)) { //준비
             this.status = HotDealStatus.READY;
         } else if (now.isAfter(this.endTime) || now.isEqual(this.endTime)) { //종료
-            returnRemainingStockToProduct(); //남은 재고 반환 후 상태변경
             this.status = HotDealStatus.END;
         } else { //그 외
             this.status = HotDealStatus.ON_SALE;
         }
+    }
+
+    // 핫딜 종료 후 Redis 재고 반영
+    public void syncHotDealStock(int remainingStock){
+        if (remainingStock < 0){
+            throw new IllegalStateException("남은 핫딜 재고는 0보다 작을 수 없습니다.");
+        }
+        this.hotDealStock = remainingStock;
     }
 
     // 남은 핫딜 재고 반환 메서드

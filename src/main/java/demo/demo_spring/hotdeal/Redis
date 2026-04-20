@@ -1,0 +1,35 @@
+<HotDeal Buy Redis>
+
+무엇을 Redis에서 처리하고, 무엇을 DB가 최종 책임질까?
+실시간 재고 차감 판단 -> Redis
+최종 주문 저장 / 영속 데이터 관리 -> DB
+Redis가 DB를 완전히 대체하는 게 아니라,
+핫딜 재고 경재 구만만 Redis로 앞단 처리하는 구조.
+
+현 비관적 락 코드에서 redis로 바꿀 위치?
+현재 흐름 :
+    1. 회원 조회
+    2. 수량 null 체크
+    3. 비관적 락으로 hotDeal 조회
+    4. 판매 상태 확인
+    5. DB 재고 확인
+    6. DB 재고 차감
+    7. 주문 생성
+여기서 redis로 바뀌는 부분은 3~6의 재고 처리 부분.
+비관적 락을 이용해서, DB에서 락을 걸고, DB 재고를 읽은 후 재고를 차감했다면,
+redis를 이용하면, DB에서 핫딜 정보 조회는 하되 락 없이 조회,
+redis에서 재고 확인 + 차감, 성공하면 주문 생성, 실패하면 재고 부족 예외, 주문 저장 실패 시 redis 재고 복귀
+
+
+지금 구조 :
+    findByIdWithPessimisticLock(id)
+    hotDeal.getHotDealStock() 확인
+    hotDeal.buy(quantity)
+
+Redis 구조 :
+    findById(id)로 조회
+    redisStockService.decreaseStock(hotDealId, quantity) 호출
+    성공 시 주문 생성
+    실패 시 예외
+    DB 실패 시 redisStockService.increaseStock(hotDealId, quantity) 복구
+-> 즉 핫딜 상태 확인은 DB, 재고 경쟁은 Redis야.

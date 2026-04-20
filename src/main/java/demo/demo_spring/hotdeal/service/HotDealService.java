@@ -27,13 +27,15 @@ public class HotDealService {
     private final ProductRepository productRepository;
     private final OrderService orderService;
     private final MemberService memberService;
+    private final HotDealRedisStockService hotDealRedisStockService;
 
     public HotDealService(HotDealRepository hotDealrepository,
-                          ProductRepository productRepository, OrderService orderService, MemberService memberService){
+                          ProductRepository productRepository, OrderService orderService, MemberService memberService, HotDealRedisStockService hotDealRedisStockService){
         this.hotDealRepository = hotDealrepository;
         this.productRepository = productRepository;
         this.orderService = orderService;
         this.memberService = memberService;
+        this.hotDealRedisStockService = hotDealRedisStockService;
     }
 
     // 핫딜 등록
@@ -139,31 +141,37 @@ public class HotDealService {
 
     // 사용자 핫딜 구매 + Pessimistic Lock
     public void buy(Long id, Integer quantity, Long memberId, DeliveryInfoRequest deliveryInfoRequest){
+        // 회원 조회
         Member member = memberService.getMember(memberId);
 
-        // quantity를 Integer로 받아서 null 체크
+        // 수량 체크
         if(quantity == null){
             throw new IllegalStateException("구매 수량이 누락되었습니다.");
         }
 
-        //1. 비관적 락을 이용해 id를 넣어 해당 핫딜 상품 가져오기
-        HotDeal hotDeal = hotDealRepository.findByIdWithPessimisticLock(id)
+        // hoDeal 일반 조회
+        HotDeal hotDeal = hotDealRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("해당하는 핫딜이 없습니다.")); //없으면 예외 던지기
+        // 판매 상태 확인
         if(hotDeal.getStatus() != HotDealStatus.ON_SALE){
             throw new IllegalStateException("현재 판매 중인 핫딜이 아닙니다.");
         }
 
-        //2. 재고 수량 확인
-        if(hotDeal.getHotDealStock() < 1){
-            throw new IllegalStateException("재고가 모두 소진되었습니다."); //재고 없으면 예외 던지기
+        // Redis 재고 차감 시도
+        boolean success = hotDealRedisStockService.decreaseStock(id, quantity);
+        if(!success){
+            throw new IllegalStateException("판매 재고가 부족합니다.");
         }
-        //3. 재고가 있을시, -1 감소
-        hotDeal.buy(quantity);
-        //4. 비관적 락 구매 메서드끝나고, 트랜잭션 커밋될떄 자물쇠 자동으로 풀림
 
-        //5. 구매 완료 후 주문 생성
-        DeliveryInfo deliveryInfo = toDeliveryInfo(deliveryInfoRequest);
-        orderService.createSingle(member, hotDeal.getProduct(), quantity, hotDeal.getHotDealPrice(), deliveryInfo);
+        // Redis 재고 차감 성공 후, 주문 생성
+        try{
+            DeliveryInfo deliveryInfo = toDeliveryInfo(deliveryInfoRequest);
+            orderService.createSingle(member, hotDeal.getProduct(), quantity, hotDeal.getHotDealPrice(), deliveryInfo);
+
+        } catch (Exception e){ // 주문 생성 실패시, Redis 재고 복구
+            hotDealRedisStockService.increaseStock(id, quantity);
+            throw e;
+        }
 
     }
     // 배송 정보
@@ -171,5 +179,47 @@ public class HotDealService {
         return new DeliveryInfo(
                 request.getReceiverName(), request.getPhoneNumber(), request.getAddress(), request.getDeliveryMemo()
         );
+    }
+
+    // 상태 변경 처리 + Redis 적재/삭제 처리 (스케쥴러에서 대상찾고, 서비스에서 처리)
+    public void refreshHotDealStatus(HotDeal hotDeal, LocalDateTime now){
+        // 변경 전 상태 저장
+        HotDealStatus beforeStatus = hotDeal.getStatus();
+
+        // hotDeal.refreshStatus(now) 호출
+        hotDeal.refreshStatus(now);
+
+        // 상태 변경 확인
+        HotDealStatus afterStatus = hotDeal.getStatus();
+
+        // READY -> ON_SALE이면 판매시작. redis setStock() 재고 적재
+        if(beforeStatus == HotDealStatus.READY && afterStatus == HotDealStatus.ON_SALE){
+            hotDealRedisStockService.setStock(hotDeal.getId(), hotDeal.getHotDealStock());
+        }
+
+        // ON_SALE -> STOPPED이면 일시중지.
+        // ON_SALE -> END이면 완전 종료. redis deleteStock() 재고 삭제
+        if(beforeStatus == HotDealStatus.ON_SALE && afterStatus == END){
+            // Redis에서 남은 재고 수량 읽어오기
+            int remainingStock = hotDealRedisStockService.getStock(hotDeal.getId());
+            // HotDeal 재고에 반영
+            hotDeal.syncHotDealStock(remainingStock);
+            // 원 상품에 HotDeal 재고 반환
+            hotDeal.returnRemainingStockToProduct();
+            // Redis key 삭제
+            hotDealRedisStockService.deleteStock(hotDeal.getId());
+        }
+
+//        System.out.println("beforeStatus = " + beforeStatus);
+//        System.out.println("afterStatus = " + afterStatus);
+//        System.out.println("hotDealId = " + hotDeal.getId());
+//
+//        if (beforeStatus == HotDealStatus.READY && afterStatus == HotDealStatus.ON_SALE) {
+//            System.out.println("Redis setStock 실행");
+//            hotDealRedisStockService.setStock(hotDeal.getId(), hotDeal.getHotDealStock());
+//        }
+//
+//        System.out.println("현재 DB status = " + hotDeal.getStatus());
+
     }
 }
