@@ -3,7 +3,7 @@ package demo.demo_spring.notification.scheduler;
 import demo.demo_spring.hotdeal.domain.HotDeal;
 import demo.demo_spring.hotdeal.domain.HotDealStatus;
 import demo.demo_spring.hotdeal.repository.HotDealRepository;
-import demo.demo_spring.notification.service.NotificationService;
+import demo.demo_spring.notification.producer.HotDealAlertMessageProducer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +20,12 @@ public class HotDealAlertScheduler {
     // HotDeal 기준으로 조회 진행
 
     private final HotDealRepository hotDealRepository;
-    private final NotificationService notificationService;
-    public HotDealAlertScheduler(HotDealRepository hotDealRepository, NotificationService notificationService){
+    private final HotDealAlertMessageProducer hotDealAlertMessageProducer;
+
+    public HotDealAlertScheduler(HotDealRepository hotDealRepository,
+                                 HotDealAlertMessageProducer hotDealAlertMessageProducer){
         this.hotDealRepository = hotDealRepository;
-        this.notificationService = notificationService;
+        this.hotDealAlertMessageProducer = hotDealAlertMessageProducer;
     }
 
     @Scheduled(fixedRate = 60000) // 60초마다 실행
@@ -39,12 +41,9 @@ public class HotDealAlertScheduler {
         // 시작 10분전이 된 HotDeal 찾기
         List<HotDeal> hotDeals = hotDealRepository.findAllByStatusAndStartTimeBetween(HotDealStatus.READY, from, to);
 
-        // System.out.println("알림 대상 핫딜 개수 = " + hotDeals.size());
-
-        // 해당 HotDeal을 notificationService에 넘기기
-        for(HotDeal hotDeal : hotDeals){
-//            System.out.println("알림 대상 hotDealId = " + hotDeal.getId());
-            notificationService.createHotDealPreStartNotification(hotDeal); // 어떤 HotDeal에 대해
+        // 해당 HotDealId를 Producer에 넘기기
+        for (HotDeal hotDeal : hotDeals){
+            hotDealAlertMessageProducer.publishPreStartAlert(hotDeal.getId());
         }
 
     }

@@ -44,13 +44,16 @@ public class NotificationService {
         // return savedNotification.getId();
     }
 
-    // 핫딜 시작 알림 생성 -> 핫딜 시작 시 전체 신청자 처리용 서비스 메서드
-    public void createHotDealPreStartNotification(HotDeal hotDeal){
-        // 해당 핫딜의 신청 목록 조회
-        List<HotDealAlertSubscription> hotDealAlerts = hotDealAlertSubscriptionRepository.findAllByHotDealId(hotDeal.getId());
+    // 핫딜 시작 알림 생성 및 발송
+    public void createHotDealPreStartNotification(Long hotDealId){
+        // 핫딜 존재 여부 체크
+        HotDeal hotDeal = hotDealRepository.findById(hotDealId)
+                .orElseThrow(()-> new IllegalStateException("해당하는 핫딜 상품이 없습니다."));
 
-        // System.out.println("신청자 수 = " + hotDealAlerts.size());
-
+        // 해당 핫딜 신청 목록 조회
+        List<HotDealAlertSubscription> hotDealAlerts =
+                hotDealAlertSubscriptionRepository.findAllByHotDealId(hotDealId);
+        // 비어있으면 return
         if (hotDealAlerts.isEmpty()) {
             return;
         }
