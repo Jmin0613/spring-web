@@ -26,6 +26,47 @@ type ProductDetail = {
     status: string
 }
 
+type ReviewSortType = 'BEST' | 'LATEST'
+
+type ReviewSummary = {
+    averageRating: number
+    totalCount: number
+    fiveStarCount: number
+    fourStarCount: number
+    threeStarCount: number
+    twoStarCount: number
+    oneStarCount: number
+}
+
+type ProductReviewItem = {
+    reviewId: number
+    writerNickName?: string
+    rating: number
+    title: string
+    content: string
+    createdAt: string
+    likeCount?: number
+    productNameSnapshot?: string
+    quantity?: number
+}
+
+type ReviewPageResponse = {
+    summary: ReviewSummary
+    reviews: ProductReviewItem[]
+    page: number
+    size: number
+    totalElements: number
+    totalPages: number
+    hasNext: boolean
+    hasPrevious: boolean
+}
+
+type ReviewLikeToggleResponse = {
+    reviewId: number
+    liked: boolean
+    likeCount: number
+}
+
 type ProductInquiryListItem = {
     id: number
     title: string
@@ -85,6 +126,53 @@ function getEmoji(name: string) {
     if (name.includes('노트북')) return '💻'
     return '🛍️'
 }
+
+function formatReviewDate(dateTime: string) {
+    return dateTime.slice(0, 10).replaceAll('-', '.')
+}
+
+function renderStars(rating: number) {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating)
+}
+
+function getRatingPercent(count: number, total: number) {
+    if (total === 0) return 0
+    return Math.round((count / total) * 100)
+}
+
+function getReviewLikeLabel(likeCount: number) {
+    if (likeCount <= 0) {
+        return '도움이 돼요'
+    }
+
+    return `${likeCount}명에게 도움이 됐어요`
+}
+
+function ReviewRatingRow({
+                             label,
+                             percent,
+                         }: {
+    label: string
+    percent: number
+}) {
+    return (
+        <div style={reviewRatingRowStyle}>
+            <span style={reviewRatingLabelStyle}>{label}</span>
+
+            <div style={reviewBarTrackStyle}>
+                <div
+                    style={{
+                        ...reviewBarFillStyle,
+                        width: `${percent}%`,
+                    }}
+                />
+            </div>
+
+            <span style={reviewRatingPercentStyle}>{percent}%</span>
+        </div>
+    )
+}
+
 
 function getWriterLabel(inquiry: ProductInquiryListItem | ProductInquiryDetailItem) {
     return inquiry.writerNickName ?? '알 수 없음'
@@ -181,6 +269,17 @@ export default function ProductDetailPage() {
 
     const [activeTab, setActiveTab] = useState<'detail' | 'review' | 'inquiry'>('detail')
 
+    const [reviewSort, setReviewSort] = useState<ReviewSortType>('BEST')
+    const [reviewRatingFilter, setReviewRatingFilter] = useState<number | 'ALL'>('ALL')
+    const [reviewPage, setReviewPage] = useState(0)
+
+    const [reviewPageData, setReviewPageData] = useState<ReviewPageResponse | null>(null)
+    const [reviewsLoading, setReviewsLoading] = useState(false)
+    const [reviewsError, setReviewsError] = useState('')
+
+    const [likedReviewMap, setLikedReviewMap] = useState<Record<number, boolean>>({})
+    const [reviewLikeLoadingMap, setReviewLikeLoadingMap] = useState<Record<number, boolean>>({})
+
     const [inquiries, setInquiries] = useState<ProductInquiryListItem[]>([])
     const [inquiriesLoading, setInquiriesLoading] = useState(true)
     const [inquiriesError, setInquiriesError] = useState('')
@@ -221,6 +320,39 @@ export default function ProductDetailPage() {
         }
     }
 
+    async function loadReviews() {
+        if (!id) {
+            setReviewsError('상품 정보가 올바르지 않습니다.')
+            return
+        }
+
+        try {
+            setReviewsLoading(true)
+            setReviewsError('')
+
+            const params: Record<string, string | number> = {
+                sort: reviewSort,
+                page: reviewPage,
+                size: 10,
+            }
+
+            if (reviewRatingFilter !== 'ALL') {
+                params.rating = reviewRatingFilter
+            }
+
+            const response = await axios.get<ReviewPageResponse>(
+                `${API_BASE_URL}/products/${id}/reviews`,
+                { params },
+            )
+
+            setReviewPageData(response.data)
+        } catch (e) {
+            setReviewsError('상품후기를 불러오지 못했습니다.')
+        } finally {
+            setReviewsLoading(false)
+        }
+    }
+
     async function loadInquiries() {
         if (!id) {
             setInquiriesError('상품 정보가 올바르지 않습니다.')
@@ -256,6 +388,14 @@ export default function ProductDetailPage() {
     }, [id])
 
     useEffect(() => {
+        loadReviews()
+    }, [id, reviewSort, reviewRatingFilter, reviewPage])
+
+    useEffect(() => {
+        setReviewPage(0)
+    }, [reviewSort, reviewRatingFilter])
+
+    useEffect(() => {
         loadInquiries()
     }, [id])
 
@@ -264,6 +404,19 @@ export default function ProductDetailPage() {
     }, [])
 
     const currentMemberLabel = getCurrentMemberLabel(currentMember)
+
+    const reviewSummary = reviewPageData?.summary ?? null
+    const reviewItems = reviewPageData?.reviews ?? []
+    const reviewTotalPages = reviewPageData?.totalPages ?? 0
+    const reviewHasNext = reviewPageData?.hasNext ?? false
+    const reviewHasPrevious = reviewPageData?.hasPrevious ?? false
+
+    const totalReviewCount = reviewSummary?.totalCount ?? 0
+    const fiveStarPercent = reviewSummary ? getRatingPercent(reviewSummary.fiveStarCount, totalReviewCount) : 0
+    const fourStarPercent = reviewSummary ? getRatingPercent(reviewSummary.fourStarCount, totalReviewCount) : 0
+    const threeStarPercent = reviewSummary ? getRatingPercent(reviewSummary.threeStarCount, totalReviewCount) : 0
+    const twoStarPercent = reviewSummary ? getRatingPercent(reviewSummary.twoStarCount, totalReviewCount) : 0
+    const oneStarPercent = reviewSummary ? getRatingPercent(reviewSummary.oneStarCount, totalReviewCount) : 0
 
     function isMyInquiry(inquiry: ProductInquiryListItem) {
         if (currentMember?.id && inquiry.writerId) {
@@ -300,6 +453,58 @@ export default function ProductDetailPage() {
         (currentPage - 1) * PAGE_SIZE,
         currentPage * PAGE_SIZE,
     )
+
+    async function handleToggleReviewLike(reviewId: number) {
+        if (!id) return
+
+        try {
+            setReviewLikeLoadingMap((prev) => ({
+                ...prev,
+                [reviewId]: true,
+            }))
+
+            const response = await axios.post<ReviewLikeToggleResponse>(
+                `${API_BASE_URL}/products/${id}/reviews/${reviewId}/like`,
+                {},
+                { withCredentials: true },
+            )
+
+            const { liked, likeCount } = response.data
+
+            setLikedReviewMap((prev) => ({
+                ...prev,
+                [reviewId]: liked,
+            }))
+
+            setReviewPageData((prev) => {
+                if (!prev) return prev
+
+                return {
+                    ...prev,
+                    reviews: prev.reviews.map((review) =>
+                        review.reviewId === reviewId
+                            ? {
+                                ...review,
+                                likeCount,
+                            }
+                            : review,
+                    ),
+                }
+            })
+        } catch (e) {
+            if (axios.isAxiosError(e) && [401, 403].includes(e.response?.status ?? 0)) {
+                alert('리뷰 추천은 로그인 후 이용해주세요.')
+                return
+            }
+
+            alert('리뷰 추천 처리에 실패했습니다.')
+        } finally {
+            setReviewLikeLoadingMap((prev) => ({
+                ...prev,
+                [reviewId]: false,
+            }))
+        }
+    }
 
     async function handleToggleInquiry(inquiry: ProductInquiryListItem) {
         if (!id) return
@@ -514,7 +719,160 @@ export default function ProductDetailPage() {
                     )}
 
                     {activeTab === 'review' && (
-                        <div style={stateBoxStyle}>상품후기 영역은 다음 단계에서 붙일 예정입니다.</div>
+                        <div style={detailContentWrapStyle}>
+                            <div style={detailTextBoxStyle}>
+                                <h2 style={detailSectionTitleStyle}>상품 리뷰</h2>
+
+                                {reviewsLoading ? (
+                                    <div style={stateBoxStyle}>상품후기를 불러오는 중입니다...</div>
+                                ) : reviewsError ? (
+                                    <div style={stateBoxStyle}>{reviewsError}</div>
+                                ) : !reviewSummary ? (
+                                    <div style={stateBoxStyle}>리뷰 정보를 불러오지 못했습니다.</div>
+                                ) : (
+                                    <div style={reviewSectionWrapStyle}>
+                                        <div style={reviewSummaryBoxStyle}>
+                                            <div style={reviewAverageRowStyle}>
+                                                <div style={reviewAverageStarsStyle}>
+                                                    {renderStars(Math.round(reviewSummary.averageRating))}
+                                                </div>
+                                                <div style={reviewAverageScoreStyle}>
+                                                    {reviewSummary.averageRating.toFixed(1)}
+                                                </div>
+                                            </div>
+
+                                            <div style={reviewTotalCountStyle}>
+                                                총 {reviewSummary.totalCount.toLocaleString('ko-KR')}개
+                                            </div>
+
+                                            <div style={reviewRatingRowsStyle}>
+                                                <ReviewRatingRow label="최고" percent={fiveStarPercent} />
+                                                <ReviewRatingRow label="좋음" percent={fourStarPercent} />
+                                                <ReviewRatingRow label="보통" percent={threeStarPercent} />
+                                                <ReviewRatingRow label="별로" percent={twoStarPercent} />
+                                                <ReviewRatingRow label="나쁨" percent={oneStarPercent} />
+                                            </div>
+                                        </div>
+
+                                        <div style={reviewListAreaStyle}>
+                                            <div style={reviewTopControlRowStyle}>
+                                                <div style={reviewSortButtonGroupStyle}>
+                                                    <button
+                                                        style={reviewSort === 'BEST' ? activeSortButtonStyle : sortButtonStyle}
+                                                        onClick={() => setReviewSort('BEST')}
+                                                    >
+                                                        베스트순
+                                                    </button>
+
+                                                    <button
+                                                        style={reviewSort === 'LATEST' ? activeSortButtonStyle : sortButtonStyle}
+                                                        onClick={() => setReviewSort('LATEST')}
+                                                    >
+                                                        최신순
+                                                    </button>
+                                                </div>
+
+                                                <select
+                                                    value={reviewRatingFilter === 'ALL' ? 'ALL' : String(reviewRatingFilter)}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value
+                                                        setReviewRatingFilter(value === 'ALL' ? 'ALL' : Number(value))
+                                                    }}
+                                                    style={reviewFilterSelectStyle}
+                                                >
+                                                    <option value="ALL">모든 별점</option>
+                                                    <option value="5">최고</option>
+                                                    <option value="4">좋음</option>
+                                                    <option value="3">보통</option>
+                                                    <option value="2">별로</option>
+                                                    <option value="1">나쁨</option>
+                                                </select>
+                                            </div>
+
+                                            {reviewItems.length === 0 ? (
+                                                <div style={stateBoxStyle}>등록된 상품후기가 없습니다.</div>
+                                            ) : (
+                                                <>
+                                                    <div style={reviewCardListStyle}>
+                                                        {reviewItems.map((review) => (
+                                                            <div key={review.reviewId} style={reviewCardStyle}>
+                                                                <div style={reviewTopMetaBlockStyle}>
+                                                                    <div style={reviewWriterStyle}>
+                                                                        {review.writerNickName ?? '알 수 없음'}
+                                                                    </div>
+
+                                                                    <div style={reviewMetaInlineRowStyle}>
+                                                                        <span style={reviewStarsStyle}>{renderStars(review.rating)}</span>
+                                                                        <span style={reviewDateStyle}>{formatReviewDate(review.createdAt)}</span>
+
+                                                                        {(review.productNameSnapshot || review.quantity) && (
+                                                                            <span style={reviewPurchaseInfoStyle}>
+                                                                                {review.productNameSnapshot ?? ''}
+                                                                                {review.quantity ? `, ${review.quantity}개` : ''}
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+
+                                                                <div style={reviewTitleStyle}>{review.title}</div>
+
+                                                                <div style={reviewContentStyle}>{review.content}</div>
+
+                                                                <div style={reviewHelpRowStyle}>
+                                                                    <button
+                                                                        style={
+                                                                            likedReviewMap[review.reviewId]
+                                                                                ? activeReviewHelpButtonStyle
+                                                                                : reviewHelpButtonStyle
+                                                                        }
+                                                                        onClick={() => handleToggleReviewLike(review.reviewId)}
+                                                                        disabled={!!reviewLikeLoadingMap[review.reviewId]}
+                                                                    >
+                                                                        {reviewLikeLoadingMap[review.reviewId]
+                                                                            ? '처리 중...'
+                                                                            : getReviewLikeLabel(review.likeCount ?? 0)}
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+                                                    {reviewTotalPages > 1 && (
+                                                        <div style={paginationWrapStyle}>
+                                                            <button
+                                                                style={paginationArrowButtonStyle}
+                                                                onClick={() => setReviewPage((prev) => Math.max(0, prev - 1))}
+                                                                disabled={!reviewHasPrevious}
+                                                            >
+                                                                {'<'}
+                                                            </button>
+
+                                                            {Array.from({ length: reviewTotalPages }, (_, index) => index).map((pageNumber) => (
+                                                                <button
+                                                                    key={pageNumber}
+                                                                    style={pageNumber === reviewPage ? activePageButtonStyle : pageButtonStyle}
+                                                                    onClick={() => setReviewPage(pageNumber)}
+                                                                >
+                                                                    {pageNumber + 1}
+                                                                </button>
+                                                            ))}
+
+                                                            <button
+                                                                style={paginationArrowButtonStyle}
+                                                                onClick={() => setReviewPage((prev) => Math.min(reviewTotalPages - 1, prev + 1))}
+                                                                disabled={!reviewHasNext}
+                                                            >
+                                                                {'>'}
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     )}
 
                     {activeTab === 'inquiry' && (
@@ -1400,4 +1758,253 @@ const stateBoxStyle = {
     color: '#6b7280',
     backgroundColor: '#ffffff',
     fontSize: '16px',
+} as const
+
+const reviewSectionWrapStyle = {
+    display: 'grid',
+    gridTemplateColumns: '280px 1fr',
+    gap: '28px',
+    alignItems: 'start',
+} as const
+
+const reviewSummaryBoxStyle = {
+    border: '1px solid #ececec',
+    borderRadius: '18px',
+    padding: '20px',
+    backgroundColor: '#ffffff',
+} as const
+
+const reviewAverageRowStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    marginBottom: '10px',
+} as const
+
+const reviewAverageStarsStyle = {
+    color: '#f59e0b',
+    fontSize: '22px',
+    fontWeight: 700,
+} as const
+
+const reviewAverageScoreStyle = {
+    fontSize: '34px',
+    fontWeight: 900,
+    color: '#111827',
+} as const
+
+const reviewTotalCountStyle = {
+    color: '#6b7280',
+    fontSize: '14px',
+    fontWeight: 700,
+    marginBottom: '20px',
+} as const
+
+const reviewRatingRowsStyle = {
+    display: 'grid',
+    gap: '10px',
+} as const
+
+const reviewRatingRowStyle = {
+    display: 'grid',
+    gridTemplateColumns: '40px 1fr 46px',
+    alignItems: 'center',
+    gap: '10px',
+} as const
+
+const reviewRatingLabelStyle = {
+    color: '#374151',
+    fontSize: '13px',
+    fontWeight: 700,
+} as const
+
+const reviewBarTrackStyle = {
+    width: '100%',
+    height: '8px',
+    borderRadius: '999px',
+    backgroundColor: '#e5e7eb',
+    overflow: 'hidden',
+} as const
+
+const reviewBarFillStyle = {
+    height: '100%',
+    borderRadius: '999px',
+    backgroundColor: '#f59e0b',
+} as const
+
+const reviewRatingPercentStyle = {
+    color: '#374151',
+    fontSize: '13px',
+    fontWeight: 700,
+    textAlign: 'right',
+} as const
+
+const reviewListAreaStyle = {
+    display: 'grid',
+    gap: '18px',
+} as const
+
+const reviewTopControlRowStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '12px',
+    flexWrap: 'wrap',
+} as const
+
+const reviewSortButtonGroupStyle = {
+    display: 'flex',
+    gap: '8px',
+    flexWrap: 'wrap',
+} as const
+
+const sortButtonStyle = {
+    minWidth: '92px',
+    height: '38px',
+    borderRadius: '10px',
+    border: '1px solid #d1d5db',
+    backgroundColor: '#ffffff',
+    color: '#374151',
+    fontSize: '14px',
+    fontWeight: 700,
+    cursor: 'pointer',
+    padding: '0 14px',
+} as const
+
+const activeSortButtonStyle = {
+    minWidth: '92px',
+    height: '38px',
+    borderRadius: '10px',
+    border: '1px solid #2563eb',
+    backgroundColor: '#eff6ff',
+    color: '#2563eb',
+    fontSize: '14px',
+    fontWeight: 800,
+    cursor: 'pointer',
+    padding: '0 14px',
+} as const
+
+const reviewFilterSelectStyle = {
+    minWidth: '140px',
+    height: '40px',
+    borderRadius: '10px',
+    border: '1px solid #d1d5db',
+    backgroundColor: '#ffffff',
+    color: '#111827',
+    fontSize: '14px',
+    padding: '0 12px',
+} as const
+
+const reviewCardListStyle = {
+    display: 'grid',
+    gap: '16px',
+} as const
+
+const reviewCardStyle = {
+    borderTop: '1px solid #ececec',
+    paddingTop: '18px',
+    paddingBottom: '12px',
+    display: 'grid',
+    gap: '10px',
+    textAlign: 'left',
+    justifyItems: 'start',
+} as const
+
+const reviewWriterStyle = {
+    color: '#111827',
+    fontSize: '16px',
+    fontWeight: 800,
+    textAlign: 'left',
+} as const
+
+const reviewStarsStyle = {
+    color: '#f59e0b',
+    fontSize: '15px',
+    fontWeight: 700,
+} as const
+
+const reviewDateStyle = {
+    color: '#9ca3af',
+    fontSize: '14px',
+} as const
+
+const reviewPurchaseInfoStyle = {
+    color: '#9ca3af',
+    fontSize: '14px',
+    textAlign: 'left',
+} as const
+
+const reviewTitleStyle = {
+    color: '#111827',
+    fontSize: '18px',
+    fontWeight: 800,
+    marginTop: '2px',
+    textAlign: 'left',
+} as const
+
+const reviewContentStyle = {
+    color: '#374151',
+    fontSize: '15px',
+    lineHeight: 1.8,
+    whiteSpace: 'pre-wrap',
+    textAlign: 'left',
+} as const
+
+const reviewHelpRowStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    flexWrap: 'wrap',
+    marginTop: '4px',
+    justifyContent: 'flex-start',
+} as const
+
+const reviewHelpButtonStyle = {
+    height: '36px',
+    borderRadius: '8px',
+    border: '1px solid #bfdbfe',
+    backgroundColor: '#ffffff',
+    color: '#2563eb',
+    fontSize: '13px',
+    fontWeight: 700,
+    padding: '0 12px',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    whiteSpace: 'nowrap',
+} as const
+
+const activeReviewHelpButtonStyle = {
+    height: '36px',
+    borderRadius: '8px',
+    border: '1px solid #2563eb',
+    backgroundColor: '#2563eb',
+    color: '#ffffff',
+    fontSize: '13px',
+    fontWeight: 700,
+    padding: '0 12px',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    whiteSpace: 'nowrap',
+} as const
+
+const reviewTopMetaBlockStyle = {
+    display: 'grid',
+    gap: '6px',
+    width: '100%',
+    textAlign: 'left',
+    justifyItems: 'start',
+} as const
+
+const reviewMetaInlineRowStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    flexWrap: 'wrap',
+    width: '100%',
 } as const
