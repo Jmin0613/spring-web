@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 public class ProductInquiryListResponse {
     private Long id;
     private String title;
-    private String writerName; //작성자 이름
+    private String writerNickName; //작성자 닉네임
     private InquiryStatus status;
     private LocalDateTime createdAt; // 작성일
 
     private ProductInquiryListResponse(ProductInquiry productInquiry){
         this.id = productInquiry.getId();
         this.title = productInquiry.getTitle();
-        this.writerName = productInquiry.getMember().getName();
+        this.writerNickName = productInquiry.getMember().getNickName();
         this.status = productInquiry.getStatus();
         this.createdAt = productInquiry.getCreatedAt();
     }

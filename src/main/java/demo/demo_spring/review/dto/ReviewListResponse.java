@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 public class ReviewListResponse {
     private Long reviewId;
-    private String writerName;
+    private String writerNickName;
 
     private Integer rating;
     private String title;
@@ -18,7 +18,7 @@ public class ReviewListResponse {
 
     private ReviewListResponse(Review review){
         this.reviewId = review.getId();
-        this.writerName = review.getMember().getName();
+        this.writerNickName = review.getMember().getNickName();
         this.rating = review.getRating();
         this.title = review.getTitle();
         this.content = review.getContent();
