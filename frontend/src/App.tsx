@@ -28,7 +28,11 @@ type ProductApiItem = {
 }
 
 const API_BASE_URL = 'http://localhost:8080'
-const topMenus = ['베스트', '공지', '전체핫딜']
+const topMenus = [
+    { label: '베스트', to: '/?menu=best' },
+    { label: '공지', to: '/notices' },
+    { label: '전체핫딜', to: '/?menu=hotdeal' },
+]
 const categories = ['전체', '식품', '생활', '가전', '뷰티·패션', '여행·쿠폰']
 
 function formatPrice(price: number) {
@@ -216,17 +220,13 @@ function HomePage() {
                             </Link>
 
                             {topMenus.map((menu) => (
-                                <a
-                                    key={menu}
-                                    href="#"
-                                    style={{
-                                        textDecoration: 'none',
-                                        color: '#374151',
-                                        fontWeight: 600,
-                                    }}
+                                <Link
+                                    key={menu.label}
+                                    to={menu.to}
+                                    style={navLinkStyle}
                                 >
-                                    {menu}
-                                </a>
+                                    {menu.label}
+                                </Link>
                             ))}
                         </nav>
                     </div>
@@ -282,17 +282,6 @@ function HomePage() {
                             오늘의 추천 딜
                         </h1>
                     </div>
-
-                    <Link
-                        to="/notices"
-                        style={{
-                            textDecoration: 'none',
-                            color: '#6b7280',
-                            fontWeight: 600,
-                        }}
-                    >
-                        공지사항 보러가기 →
-                    </Link>
                 </section>
 
                 <section
@@ -583,6 +572,13 @@ const stateBoxStyle = {
     textAlign: 'center',
     color: '#6b7280',
     backgroundColor: '#ffffff',
+} as const
+
+const navLinkStyle = {
+    textDecoration: 'none',
+    color: '#111827',
+    fontSize: '16px',
+    fontWeight: 700,
 } as const
 
 export default function App() {

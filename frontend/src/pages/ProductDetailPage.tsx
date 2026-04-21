@@ -13,8 +13,10 @@ import { useEffect, useMemo, useState } from 'react'
 
 import axios from 'axios'
 
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 // 페이지 이동(라우팅) 담당하는 별도의 라이브러리 도구들
+
+import SiteHeader from '../components/SiteHeader'
 
 type ProductDetail = {
     id: number
@@ -267,7 +269,26 @@ export default function ProductDetailPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
-    const [activeTab, setActiveTab] = useState<'detail' | 'review' | 'inquiry'>('detail')
+    type ProductDetailTab = 'detail' | 'review' | 'inquiry'
+
+    const [searchParams, setSearchParams] = useSearchParams()
+
+    const tabParam = searchParams.get('tab')
+
+    const activeTab: ProductDetailTab =
+        tabParam === 'review' || tabParam === 'inquiry' ? tabParam : 'detail'
+
+    function handleTabChange(tab: ProductDetailTab) {
+        const nextSearchParams = new URLSearchParams(searchParams)
+
+        if (tab === 'detail') {
+            nextSearchParams.delete('tab')
+        } else {
+            nextSearchParams.set('tab', tab)
+        }
+
+        setSearchParams(nextSearchParams)
+    }
 
     const [reviewSort, setReviewSort] = useState<ReviewSortType>('BEST')
     const [reviewRatingFilter, setReviewRatingFilter] = useState<number | 'ALL'>('ALL')
@@ -476,6 +497,7 @@ export default function ProductDetailPage() {
                 [reviewId]: liked,
             }))
 
+            // 1) 일단 현재 화면의 추천 수는 바로 반영
             setReviewPageData((prev) => {
                 if (!prev) return prev
 
@@ -491,6 +513,11 @@ export default function ProductDetailPage() {
                     ),
                 }
             })
+
+            // 2) 베스트순이면 서버 기준으로 다시 불러와서 재정렬
+            if (reviewSort === 'BEST') {
+                await loadReviews()
+            }
         } catch (e) {
             if (axios.isAxiosError(e) && [401, 403].includes(e.response?.status ?? 0)) {
                 alert('리뷰 추천은 로그인 후 이용해주세요.')
@@ -598,6 +625,7 @@ export default function ProductDetailPage() {
     if (loading) {
         return (
             <div style={pageStyle}>
+                <SiteHeader />
                 <div style={containerStyle}>
                     <PageState text="상품 상세를 불러오는 중입니다..." />
                 </div>
@@ -608,6 +636,7 @@ export default function ProductDetailPage() {
     if (error) {
         return (
             <div style={pageStyle}>
+                <SiteHeader />
                 <div style={containerStyle}>
                     <PageState text={error} />
                 </div>
@@ -618,6 +647,7 @@ export default function ProductDetailPage() {
     if (!detail) {
         return (
             <div style={pageStyle}>
+                <SiteHeader />
                 <div style={containerStyle}>
                     <PageState text="상품 정보를 찾을 수 없습니다." />
                 </div>
@@ -627,6 +657,7 @@ export default function ProductDetailPage() {
 
     return (
         <div style={pageStyle}>
+            <SiteHeader />
             <div style={containerStyle}>
                 <div style={breadcrumbStyle}>
                     <Link to="/" style={breadcrumbLinkStyle}>
@@ -647,14 +678,27 @@ export default function ProductDetailPage() {
                     <div style={heroInfoStyle}>
                         <div style={statusBadgeStyle}>{getStatusLabel(detail.status)}</div>
 
-                        <h1 style={titleStyle}># {detail.name}</h1>
+                        <h1 style={titleStyle}>{detail.name}</h1>
 
                         <p style={shortDescriptionStyle}>{detail.description}</p>
 
                         <div style={priceBoxStyle}>
+                            {reviewSummary && reviewSummary.totalCount > 0 && (
+                                <div style={heroRatingRowStyle}>
+                                    <span style={heroRatingStarsStyle}>
+                                        {renderStars(Math.round(reviewSummary.averageRating))}
+                                    </span>
+                                    <span style={heroRatingScoreStyle}>
+                                        {reviewSummary.averageRating.toFixed(1)}
+                                    </span>
+                                    <span style={heroRatingCountStyle}>
+                                        총 {reviewSummary.totalCount.toLocaleString('ko-KR')}개
+                                    </span>
+                                </div>
+                            )}
+
                             <div style={saleOnlyLabelStyle}>판매가</div>
                             <div style={salePriceStyle}>{formatPrice(detail.price)}</div>
-                            <div style={categoryTextStyle}>카테고리 · {detail.category}</div>
                         </div>
 
                         <div style={optionBoxStyle}>
@@ -675,21 +719,21 @@ export default function ProductDetailPage() {
                     <div style={tabHeaderStyle}>
                         <button
                             style={activeTab === 'detail' ? activeTabStyle : tabStyle}
-                            onClick={() => setActiveTab('detail')}
+                            onClick={() => handleTabChange('detail')}
                         >
                             상세정보
                         </button>
 
                         <button
                             style={activeTab === 'review' ? activeTabStyle : tabStyle}
-                            onClick={() => setActiveTab('review')}
+                            onClick={() => handleTabChange('review')}
                         >
                             상품후기
                         </button>
 
                         <button
                             style={activeTab === 'inquiry' ? activeTabStyle : tabStyle}
-                            onClick={() => setActiveTab('inquiry')}
+                            onClick={() => handleTabChange('inquiry')}
                         >
                             상품문의
                         </button>
@@ -1130,12 +1174,6 @@ export default function ProductDetailPage() {
                         </div>
                     )}
                 </div>
-
-                <div style={bottomButtonWrapStyle}>
-                    <Link to="/" style={backButtonStyle}>
-                        목록으로
-                    </Link>
-                </div>
             </div>
         </div>
     )
@@ -1148,13 +1186,13 @@ function PageState({ text }: { text: string }) {
 const pageStyle = {
     minHeight: '100vh',
     backgroundColor: '#ffffff',
-    padding: '40px 24px 96px',
     color: '#111827',
 } as const
 
 const containerStyle = {
     maxWidth: '1200px',
     margin: '0 auto',
+    padding: '32px 24px 96px',
 } as const
 
 const breadcrumbStyle = {
@@ -1218,7 +1256,8 @@ const heroEmojiStyle = {
 const heroInfoStyle = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '18px',
+    gap: '16px',
+    alignItems: 'stretch',
 } as const
 
 const statusBadgeStyle = {
@@ -1233,59 +1272,63 @@ const statusBadgeStyle = {
 
 const titleStyle = {
     margin: 0,
-    fontSize: '38px',
+    fontSize: '46px',
     fontWeight: 900,
-    lineHeight: 1.32,
+    lineHeight: 1.18,
     letterSpacing: '-0.04em',
     wordBreak: 'keep-all',
+    textAlign: 'left',
 } as const
 
 const shortDescriptionStyle = {
     margin: 0,
-    color: '#6b7280',
-    fontSize: '17px',
-    lineHeight: 1.7,
+    color: '#9ca3af',
+    fontSize: '18px',
+    lineHeight: 1.6,
+    textAlign: 'left',
 } as const
 
 const priceBoxStyle = {
-    border: '1px solid #ececec',
+    width: '100%',
+    border: 'none',
     borderRadius: '22px',
-    padding: '24px',
-    backgroundColor: '#ffffff',
+    padding: '20px 24px',
+    backgroundColor: '#f9fafb',
+    boxSizing: 'border-box',
+    textAlign: 'left',
 } as const
 
 const saleOnlyLabelStyle = {
     color: '#6b7280',
-    fontSize: '15px',
+    fontSize: '14px',
     fontWeight: 700,
+    marginBottom: '6px',
+    textAlign: 'left',
 } as const
 
 const salePriceStyle = {
-    marginTop: '8px',
     color: '#111827',
-    fontSize: '40px',
+    fontSize: '44px',
     fontWeight: 900,
     letterSpacing: '-0.03em',
-} as const
-
-const categoryTextStyle = {
-    marginTop: '14px',
-    color: '#1d4ed8',
-    fontSize: '15px',
-    fontWeight: 700,
+    lineHeight: 1.1,
+    textAlign: 'left',
 } as const
 
 const optionBoxStyle = {
+    width: '100%',
     border: '1px solid #ececec',
     borderRadius: '20px',
     padding: '22px 24px',
     backgroundColor: '#ffffff',
+    boxSizing: 'border-box',
 } as const
 
 const optionTitleStyle = {
     fontSize: '16px',
     fontWeight: 800,
     marginBottom: '12px',
+    textAlign: 'left',
 } as const
 
 const optionPlaceholderStyle = {
@@ -1294,12 +1337,15 @@ const optionPlaceholderStyle = {
     padding: '18px 16px',
     color: '#6b7280',
     fontSize: '15px',
+    textAlign: 'center',
 } as const
 
 const buttonRowStyle = {
+    width: '100%',
     display: 'grid',
     gridTemplateColumns: '1fr 1fr 1.2fr 1.4fr',
     gap: '12px',
+    boxSizing: 'border-box',
 } as const
 
 const ghostButtonStyle = {
@@ -1730,26 +1776,6 @@ const activePageButtonStyle = {
     cursor: 'pointer',
 } as const
 
-const bottomButtonWrapStyle = {
-    display: 'flex',
-    justifyContent: 'center',
-    marginTop: '36px',
-} as const
-
-const backButtonStyle = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: '140px',
-    height: '50px',
-    borderRadius: '14px',
-    border: '1px solid #d1d5db',
-    textDecoration: 'none',
-    color: '#111827',
-    fontWeight: 700,
-    backgroundColor: '#ffffff',
-} as const
-
 const stateBoxStyle = {
     border: '1px solid #ececec',
     borderRadius: '24px',
@@ -2007,4 +2033,32 @@ const reviewMetaInlineRowStyle = {
     gap: '10px',
     flexWrap: 'wrap',
     width: '100%',
+} as const
+
+const heroRatingRowStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    marginBottom: '14px',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+} as const
+
+const heroRatingStarsStyle = {
+    color: '#f59e0b',
+    fontSize: '24px',
+    fontWeight: 700,
+    lineHeight: 1,
+} as const
+
+const heroRatingScoreStyle = {
+    color: '#111827',
+    fontSize: '18px',
+    fontWeight: 800,
+} as const
+
+const heroRatingCountStyle = {
+    color: '#6b7280',
+    fontSize: '14px',
+    fontWeight: 700,
 } as const
