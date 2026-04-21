@@ -17,20 +17,30 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 // 페이지 이동(라우팅) 담당하는 별도의 라이브러리 도구들
 
 import SiteHeader from '../components/SiteHeader'
+//다른곳에 만들어둔 상단바 컴포넌트 가져오기
 
-type ProductDetail = {
+// 프론트엔드에서 이렇게 type을 명시적으로 만드는 이유는 개발자의 실수를 컴퓨터가 실시간으로 잡아내기 위해.
+// 코드 짤때 오타나거나 틀릴때 바로 알려주는 자동 검사기 역할
+// 역할 : 오타 방지, 데이터 유무 확인(?이용), 프론트엔드와 백엔드 사이의 약속
+
+type ProductDetail = { //상품 상세정보
     id: number
     category: string
-    imageUrl: string | null
+    imageUrl: string | null //imageUrl 있을수도 있고 없을수도 있고. 현재 개발중이라 이미지를 안넣고 진행.
     name: string
     description: string
     price: number
     status: string
 }
 
-type ReviewSortType = 'BEST' | 'LATEST'
+type WriterLabelTarget = ProductInquiryListItem | ProductInquiryDetailItem | ProductReviewItem
 
-type ReviewSummary = {
+type ReviewSortType = 'BEST' | 'LATEST' // 리뷰 정렬 방식은 오직 이 두가지 중 하나만 허용하겠다는 의미
+// type -> 새로운 타입을 만들겠다는 키워드
+// ReviewSortType이라는 새로운 데이터 타입을 정의하는 것
+// java의 Enum과 완벽히 대응
+
+type ReviewSummary = { //리뷰 통계 요약
     averageRating: number
     totalCount: number
     fiveStarCount: number
@@ -40,7 +50,7 @@ type ReviewSummary = {
     oneStarCount: number
 }
 
-type ProductReviewItem = {
+type ProductReviewItem = { //리뷰 상품 정보
     reviewId: number
     writerNickName?: string
     rating: number
@@ -52,7 +62,7 @@ type ProductReviewItem = {
     quantity?: number
 }
 
-type ReviewPageResponse = {
+type ReviewPageResponse = { // 리뷰 페이지
     summary: ReviewSummary
     reviews: ProductReviewItem[]
     page: number
@@ -63,23 +73,23 @@ type ReviewPageResponse = {
     hasPrevious: boolean
 }
 
-type ReviewLikeToggleResponse = {
+type ReviewLikeToggleResponse = { // 리뷰 추천 toggle
     reviewId: number
     liked: boolean
     likeCount: number
 }
 
-type ProductInquiryListItem = {
+type ProductInquiryListItem = { // 문의 게시글
     id: number
     title: string
     writerNickName?: string
     writerId?: number
-    status: 'WAITING' | 'ANSWERED'
+    status: 'WAITING' | 'ANSWERED' // 정해진 문자열만 쓰기 (Enum)
     createdAt: string
     secret?: boolean
 }
 
-type ProductInquiryDetailItem = {
+type ProductInquiryDetailItem = { // 문의 상세보기
     inquiryId: number
     productId: number
     productNameSnapshot: string
@@ -93,17 +103,22 @@ type ProductInquiryDetailItem = {
     writerNickName?: string
 }
 
-type MemberInfo = {
+type MemberInfo = { // 로그인 멤버 정보
     id: number
     nickname?: string
     name?: string
 }
 
-const API_BASE_URL = 'http://localhost:8080'
-const PAGE_SIZE = 10
+type ProductDetailTab = 'detail' | 'review' | 'inquiry' //상품 상세페이지 탭은 이 세가지만 사용하겠다.
 
+const API_BASE_URL = 'http://localhost:8080' // 서버 주소. 프론트엔드가 데이터를 달라고 요청을 보낼 백엔드 서버의 기본 주소임.
+const PAGE_SIZE = 10 // 페이지 크기. 한 페이지당 개수.
+
+// function -> 함수 선언 키워드
 function formatPrice(price: number) {
+    // Template Literal Types : 백틱(`)을 사용하여 문자열 리터럴의 조합을 기반으로 새로운 문자열 타입을 동적으로 생성하는 기능.
     return `${price.toLocaleString('ko-KR')}원`
+    // toLocalString : 숫자나 날짜 데이터를 해당 나라의 언어와 관습(Locale)에 맞춰서 문자열로 바꿔줌.
 }
 
 function getStatusLabel(status: string) {
@@ -119,9 +134,29 @@ function getInquiryStatusLabel(status: 'WAITING' | 'ANSWERED') {
 
 function formatInquiryDate(dateTime: string) {
     return dateTime.slice(0, 10).replaceAll('-', '.')
+    // 자바에서의 String.substring(), replace()와 같음
+    // 서버에서 보내준 길고 복잡한 날짜 데이터를 년.월.일만 남기고 예쁘게 잘라버림.
+
+    //slice(0, 10) -> 자르기
+    // 문자열 0번쨰부터 10번째 직전까지(즉, 9번째까지)만 자름.
+    // 2026-04-22T01:59:07 -> 2026-04-22
+    // String.substring(0, 10)과 같음.
+
+    //replaceAll('-', '.') -> 바꾸기
+    // 문자열에 포함된 모든 대시(-)를 마침표(.)로 한꺼번에 바꿈
+    // 2026-04-22 -> 2026.04.22
+    // 자바의 String.replace("-", ".")와 같음.
+    // replace는 가장 처음 발견된 하나만 바꿈. 그치만 replaceAll은 일치하는 모든 항목을 바꿈.
+
+    //이렇게 하는 이유 :
+    // 보통 서버(db)는 데이터를 2026-04-22T01:59:07.123Z같이 ISO 8601 형식으로 보냄.
+    // 하지만 사용자 화면에서 이걸 다 보여줄 필요 없음.
 }
 
 function getEmoji(name: string) {
+    // 아직 테스트 서버라서 이미지 데이터가 없음. 테스트 편의성을 위해 플레이스홀더로 대체.
+    // Placeholder : 자리를 미리 차지하고 있는 데이터
+
     if (name.includes('강아지')) return '🐶'
     if (name.includes('고양이')) return '🐱'
     if (name.includes('비타민')) return '💊'
@@ -134,79 +169,100 @@ function formatReviewDate(dateTime: string) {
 }
 
 function renderStars(rating: number) {
-    return '★'.repeat(rating) + '☆'.repeat(5 - rating)
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating) // 별점 데이터(rating)를 별모양으로 바꿔서 시각화
 }
 
 function getRatingPercent(count: number, total: number) {
     if (total === 0) return 0
     return Math.round((count / total) * 100)
+    //Math.round -> 반올림
 }
 
-function getReviewLikeLabel(likeCount: number) {
+function getReviewLikeLabel(likeCount: number) { // 리뷰 추천버튼에 들어가는 텍스트
+    //추천수 == 0
     if (likeCount <= 0) {
         return '도움이 돼요'
     }
 
+    // 추천수 1이상
     return `${likeCount}명에게 도움이 됐어요`
 }
 
-function ReviewRatingRow({
-                             label,
-                             percent,
-                         }: {
-    label: string
-    percent: number
-}) {
-    return (
-        <div style={reviewRatingRowStyle}>
-            <span style={reviewRatingLabelStyle}>{label}</span>
+// 리뷰 목록을 추천순(베스트순)으로 정렬
+function sortReviewsByBest(reviews: ProductReviewItem[]) {
+    // 바깥쪽 return : 함수의 결과물(정렬된 새 배열)을 반환
+    //          역할 : 리뷰 배열을 가져와서 정렬된 결과물을 줌
+    //          리턴값 : 최종적으로 정렬이 끝난 배열 전체
 
-            <div style={reviewBarTrackStyle}>
-                <div
-                    style={{
-                        ...reviewBarFillStyle,
-                        width: `${percent}%`,
-                    }}
-                />
-            </div>
+    // 안쪽 return : sort()가 내부적으로 a, b를 비교할때 사용하는 비교함수의 결과물을 반환
+    //          역할 : sort()가 A랑 B 중에 누가 더 위인지 판단
+    //          리턴값 : sort()에게 알려줄 숫자 하나 (likeDiff)
 
-            <span style={reviewRatingPercentStyle}>{percent}%</span>
-        </div>
-    )
+    return [...reviews].sort((a, b) => {
+        // ... -> 스프레드Spread 연산자. 배열이나 객체를 펼침.
+        // sort((a, b) => { ... }) -> 리턴하는 값이 음수면 알아서 a,b의 자리를 바꿈.
+        // 배열.sort((a, b) => 비교결과)
+
+        // likeDiff -> 두 리뷰의 추천수 차이 계산한 결과값을 담음.
+        const likeDiff = (b.likeCount ?? 0) - (a.likeCount ?? 0)
+        // 추천수가 많은 리뷰가 위로 올라가게 함 -> 내림차순 정렬
+        // ?? 0 -> 추천수가 null이거나 undefined일 경우 0으로 취급하여 계산 오류 방지
+
+        // 자바스크립트/타입스크립트 정렬 로직의 Short-circuit(단락) 방식
+        if (likeDiff !== 0) {
+            return likeDiff
+        }
+
+        // 추천수가 둘 다 0인 경우
+        // 이럴때는 생성날짜 비교하여 최신리뷰가 위로 오게 정렬
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    })
 }
 
-
-function getWriterLabel(inquiry: ProductInquiryListItem | ProductInquiryDetailItem) {
-    return inquiry.writerNickName ?? '알 수 없음'
+// 화면에 보여줄 작성자 닉네임
+function getWriterLabel(target: WriterLabelTarget) {
+    return target.writerNickName ?? '알 수 없음'
 }
 
+// 현재 로그인한 사용자의 화면에 표시할 닉네임을 결정
 function getCurrentMemberLabel(member: MemberInfo | null) {
-    if (!member) return ''
-    return member.nickname ?? member.name ?? ''
+    if (!member) return '' // 로그인 안해서 member 정보 없을때, 빈 문자열 반환
+    return member.nickname ?? member.name ?? '' // nickName을 사용하겠지만, 혹시 모르니 name과 빈 문자열을 넣어둠.
 }
 
 function isSecretInquiry(inquiry: ProductInquiryListItem) {
     return inquiry.secret === true
 }
 
+// 문의 작성 에러 메세지
 function getInquirySubmitErrorMessage(error: unknown) {
+    // error : unknown -> 에러가 발생햇는데, 정확히 어떤 형태인지 아직 모르는 경우
+    // any 보다 안전함. 타이을 확인하기 전까지는 함부로 속성을 쓸수없게 막기때운 -> 타입 가드(Type Guard)를 강제
+
     if (axios.isAxiosError(error)) {
-        const status = error.response?.status
-        const responseData = error.response?.data
+        // unknown타입 에러가 혹시 Axios(HTTP 통신 라이브러리)에서 발생한 에러인지 확인
+        // 통과하는 수간, error를 AxiosError타입으로 간주하여 response, status같은 속성 사용 가능해짐.
+
+        // error.response로 ResponseEntity 내용이 통째로 담겨옴.
+        const status = error.response?.status // HTTP 상태 코드 (404, 500 등등)
+        const responseData = error.response?.data // 서버가 보낸 실제 에러 본문
 
         if (status === 401 || status === 403) {
+            // 401 -> Unauthorized. 누구세요? 비로그인 상태 또는 인증 만료.
+            // 403 -> Forbidden. 권한없음. 로그인은 했지만 접근 권한 X
             return '문의 작성은 로그인 후 이용해주세요.'
         }
 
-        if (typeof responseData === 'string' && responseData.trim()) {
+        if (typeof responseData === 'string' && responseData.trim()) { //trim() -> 문자열 양 끝의 공백 제거
+            // typeof 변수/값 -> 변수/값 해당 타입의 이름을 문자열로 반환
             return responseData
         }
 
         if (
-            responseData &&
-            typeof responseData === 'object' &&
-            'message' in responseData &&
-            typeof responseData.message === 'string'
+            responseData && // 1. 데이터가 존재하는지(null아님) -> if(responseData != null)
+            typeof responseData === 'object' && // 2. 타입이 객체object 형태인지
+            'message' in responseData && // 3. 객체 안에 message라는 키가 들어있는지
+            typeof responseData.message === 'string' //4. 그 message는 문자열인지
         ) {
             return responseData.message
         }
@@ -242,6 +298,9 @@ function getInquiryDetailErrorMessage(error: unknown) {
 }
 
 function getInquiryListErrorMessage(error: unknown) {
+    // 여기서는 401, 403 체크 X -> API성격이 다름.
+    // 로그인 안해도 접근 가능하기 때문.
+
     if (axios.isAxiosError(error)) {
         const responseData = error.response?.data
 
@@ -262,33 +321,67 @@ function getInquiryListErrorMessage(error: unknown) {
     return '상품문의를 불러오지 못했습니다.'
 }
 
+// 별점(rating)별 비율 바(bar)
+// 별점 바 한 줄 그리는 재사용 조각
+function ReviewRatingRow({ label, percent, } : { label: string; percent: number }) {
+                        // { 1. Props }       { 2. 타입 정의 }
+    return (
+        // <div> : Block-level 요소. body 문서 안에서 각 영역의 세션을 구분하고 정의함.
+        // <span> : Inline 요소. 일반적으로 텍스트 색, 크기, 좌우간격을 조절하는데 사용함.
+        // 바깥 박스 : 전체 바(track)
+        // 안쪽 박스 : 채워진 부분(fill)
+        // 객체 스타일을 복붙해서 가져온 다음, 일부만 덮어쓰기위해 ...스타일 사용
+
+        // reviewRatingRowStyle이라는 스타일 객체 적용
+        <div style={reviewRatingRowStyle}>
+            <span style={reviewRatingLabelStyle}>{label}</span>
+
+            <div style={reviewBarTrackStyle}>
+                <div
+                    style={{
+                        ...reviewBarFillStyle,
+                        width: `${percent}%`,
+                    }}
+                />
+            </div>
+
+            <span style={reviewRatingPercentStyle}>{percent}%</span>
+        </div>
+    )
+}
+
+// 데이터 로딩 중이거나, 에러 발생했을 때, 검색 결과 없을 때같이
+// 특정한 상황(State)을 사용자에게 알리는 메세지 박스 부품
+function PageState({ text }: { text: string }) {
+    return <div style={stateBoxStyle}>{text}</div>
+}
+
 export default function ProductDetailPage() {
+    // {} -> 객체 구조 분해. 이름이 중요할 때.
+    // 객체 안에 있는 여러 데이터 중, 원하는 '이름'의 필드만 쏙 골라오기.
+
+    // [] -> 배열 구조 분해. 순서 중요할 때.
+    // 첫 번째는 현재값, 두 번째는 값을 바꾸는 함수라는 순서가 약속되어 있음. [값, 함수]
+
     const { id } = useParams()
+    // 함수가 객체를 던져줄 때, 그 안의 id 필드만 변수로 만듦.
+    const [searchParams, setSearchParams] = useSearchParams()
+    // useSearchParams() -> 리랙트 라우터가 제공하는 커스텀 훅. URL 쿼리스트링을 다룸.
+
+    // 함수가 배열을 던져줄 때, 순서대로 변수에 담음.
+    // searchParams -> 현재 URL의 쿼리스트링 값들을 읽는 객체
+    // setSearchParams -> URL의 쿼리스트링 값을 바꾸는 함수
 
     const [detail, setDetail] = useState<ProductDetail | null>(null)
+    // useState<a||b> -> a객체일수도 b객체일수도 (java의 Optional<T>)
+    // use<...>(c) -> c는 초기값
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
-    type ProductDetailTab = 'detail' | 'review' | 'inquiry'
-
-    const [searchParams, setSearchParams] = useSearchParams()
-
     const tabParam = searchParams.get('tab')
-
+    // 주소창의 ?tab=... 에서 tab값을 꺼내어 tabParam에 넣기
     const activeTab: ProductDetailTab =
-        tabParam === 'review' || tabParam === 'inquiry' ? tabParam : 'detail'
-
-    function handleTabChange(tab: ProductDetailTab) {
-        const nextSearchParams = new URLSearchParams(searchParams)
-
-        if (tab === 'detail') {
-            nextSearchParams.delete('tab')
-        } else {
-            nextSearchParams.set('tab', tab)
-        }
-
-        setSearchParams(nextSearchParams)
-    }
+        tabParam === 'review' || tabParam === 'inquiry' ? tabParam : 'detail' // 조건 ? 참일때 값 : 거짓이때 값
 
     const [reviewSort, setReviewSort] = useState<ReviewSortType>('BEST')
     const [reviewRatingFilter, setReviewRatingFilter] = useState<number | 'ALL'>('ALL')
@@ -323,6 +416,18 @@ export default function ProductDetailPage() {
     })
     const [inquirySubmitLoading, setInquirySubmitLoading] = useState(false)
     const [inquirySubmitError, setInquirySubmitError] = useState('')
+
+    function handleTabChange(tab: ProductDetailTab) {
+        const nextSearchParams = new URLSearchParams(searchParams)
+
+        if (tab === 'detail') {
+            nextSearchParams.delete('tab')
+        } else {
+            nextSearchParams.set('tab', tab)
+        }
+
+        setSearchParams(nextSearchParams)
+    }
 
     async function loadProductDetail() {
         if (!id) {
@@ -404,25 +509,47 @@ export default function ProductDetailPage() {
         }
     }
 
+    //useEffect -> 특정 이벤트(상태변경)가 발생했을 때 자동으로 실행되는 트리거 또는 후속 처리기
+    /* 
+        useEffect(() => {
+        실행할코드
+        }, [감시할값들])
+     */
     useEffect(() => {
-        loadProductDetail()
+        void loadProductDetail()
     }, [id])
+    // 페이지가 처음 열리거나 id가 바뀌면 loadProductDetail() 실행
 
     useEffect(() => {
-        loadReviews()
+        void loadReviews()
     }, [id, reviewSort, reviewRatingFilter, reviewPage])
+    // 처음 페이지 열릴때 + id 바뀔때 + 정렬 바뀔때 + 별점 필터 바뀔때 + 페이지 번호 바뀔 때 loadReviews()실행
 
     useEffect(() => {
         setReviewPage(0)
     }, [reviewSort, reviewRatingFilter])
+    // 정렬 바뀔때 + 별점 필터 바뀔때 reviewPage를 0으로 바꾼다.
 
     useEffect(() => {
-        loadInquiries()
+        void loadInquiries()
     }, [id])
+    // 처음 페이지 열릴때 + id 바뀔때 loadInquiries()
 
     useEffect(() => {
-        loadMyInfo()
+        void loadMyInfo()
     }, [])
+    // 처음 한 번만 실행
+    // []는 감시할 값이 없다는 뜻. 처음 마운트될 때만 실행.
+
+    /*
+    실행 순서 :
+        1. 컴포넌트가 처음 렌더링 됨
+        2. useEffect들이 한 번씩 실행됨
+        3. 상품 상세 불러오고, 리뷰 불러오고, 문의 불러오고, 내 정보 불러오고한 결과가 state에 저장됨
+        4. 화면이 다시 그려짐
+
+    즉, useEffect는 화면 렌더 후에 필요한 부가 작업(API 호출 같은 것)을 자동 실행하는 곳임.
+     */
 
     const currentMemberLabel = getCurrentMemberLabel(currentMember)
 
@@ -441,6 +568,7 @@ export default function ProductDetailPage() {
 
     function isMyInquiry(inquiry: ProductInquiryListItem) {
         if (currentMember?.id && inquiry.writerId) {
+            // currentMember?.id -> 로그인 정보가 있으면 id가져오고, 없으면 에러 대신 null취급
             return inquiry.writerId === currentMember.id
         }
 
@@ -485,9 +613,26 @@ export default function ProductDetailPage() {
             }))
 
             const response = await axios.post<ReviewLikeToggleResponse>(
-                `${API_BASE_URL}/products/${id}/reviews/${reviewId}/like`,
-                {},
-                { withCredentials: true },
+                // await -> 비동기 동작. await안붙으면 응답 안기다리고 다음 코드로 넘어감.
+                // axios.post -> HTTP POST 요청
+
+                // axios.post(주소, 보낼데이터, 설정옵션)
+                // 주소(어디로 요청할지) + 보낼데이터(서버에 보낼 body데이터) + 설정옵션(요청방식의 세부설정)
+                `${API_BASE_URL}/products/${id}/reviews/${reviewId}/like`, // 서버의 어떤 API 호출할지 결정하는 URL 주소
+                {}, //Request Body(데이터).
+                // 비어있는 이유 -> 토글은 특정 데이터를 새로 생성하기보다, "해당 경로로 요청이 왔다"는 사실이 중요하기 때문.
+                // 백엔드 매핑 : @RequestBody로 받을 객체가 현재는 비어있는 상태임을 의미.
+                { withCredentials: true }, //Config Options 설정 -> 요청에 대한 세부설정(Configuration)임.
+                // 이 요청을 보낼 때 브라우저에 저장된 쿠키나 인증헤더를 자동으로 포함해서 보내라는 의미.
+                // 이거 없으면 서버는 누가 좋아요를 눌럿는지 알 수 없음.(세션/쿠키 확인 불가)
+
+                //브라우저는 보통 로그인 정보를 쿠키로 들고있음. 이 쿠키는 브라우저 사용자가 누구인지 서버가 알아보는데 사용됨.
+                // 그런데 프론트가 백엔드로 요청을 보낼때, 쿠키를 자동으로 항상 같이 보내는 건 아님.
+                // 특히 프론트 주소와 백엔드 주소가 다르면 더 중요해짐.
+                // 그래서 withCredentials: true를 써서 "이 요청에는 쿠키도 같이 보내줘"라고 명시하는 것임.
+                // 리뷰 추천은 보통 누가 눌렀는지를 알아야 함.
+                // 로그인한 사용자인가/이 사용자가 이미 추천했나/추천 취소인가 새 추천인가 등등 알려면 서버가 요청 보낸 사용자를 알아야하고
+                // 그걸 보통 세션 쿠키로 확인함.
             )
 
             const { liked, likeCount } = response.data
@@ -497,26 +642,33 @@ export default function ProductDetailPage() {
                 [reviewId]: liked,
             }))
 
-            // 1) 일단 현재 화면의 추천 수는 바로 반영
             setReviewPageData((prev) => {
                 if (!prev) return prev
 
+                const updatedReviews = prev.reviews.map((review) =>
+                    review.reviewId === reviewId
+                        ? {
+                            ...review,
+                            likeCount,
+                        }
+                        : review,
+                )
+
                 return {
                     ...prev,
-                    reviews: prev.reviews.map((review) =>
-                        review.reviewId === reviewId
-                            ? {
-                                ...review,
-                                likeCount,
-                            }
-                            : review,
-                    ),
+                    reviews:
+                        reviewSort === 'BEST'
+                            ? sortReviewsByBest(updatedReviews)
+                            : updatedReviews,
                 }
             })
 
-            // 2) 베스트순이면 서버 기준으로 다시 불러와서 재정렬
             if (reviewSort === 'BEST') {
-                await loadReviews()
+                if (reviewPage !== 0) {
+                    setReviewPage(0)
+                } else {
+                    await loadReviews()
+                }
             }
         } catch (e) {
             if (axios.isAxiosError(e) && [401, 403].includes(e.response?.status ?? 0)) {
@@ -685,15 +837,15 @@ export default function ProductDetailPage() {
                         <div style={priceBoxStyle}>
                             {reviewSummary && reviewSummary.totalCount > 0 && (
                                 <div style={heroRatingRowStyle}>
-                                    <span style={heroRatingStarsStyle}>
-                                        {renderStars(Math.round(reviewSummary.averageRating))}
-                                    </span>
+                  <span style={heroRatingStarsStyle}>
+                    {renderStars(Math.round(reviewSummary.averageRating))}
+                  </span>
                                     <span style={heroRatingScoreStyle}>
-                                        {reviewSummary.averageRating.toFixed(1)}
-                                    </span>
+                    {reviewSummary.averageRating.toFixed(1)}
+                  </span>
                                     <span style={heroRatingCountStyle}>
-                                        총 {reviewSummary.totalCount.toLocaleString('ko-KR')}개
-                                    </span>
+                    총 {reviewSummary.totalCount.toLocaleString('ko-KR')}개
+                  </span>
                                 </div>
                             )}
 
@@ -842,18 +994,22 @@ export default function ProductDetailPage() {
                                                             <div key={review.reviewId} style={reviewCardStyle}>
                                                                 <div style={reviewTopMetaBlockStyle}>
                                                                     <div style={reviewWriterStyle}>
-                                                                        {review.writerNickName ?? '알 수 없음'}
+                                                                        {getWriterLabel(review)}
                                                                     </div>
 
                                                                     <div style={reviewMetaInlineRowStyle}>
-                                                                        <span style={reviewStarsStyle}>{renderStars(review.rating)}</span>
-                                                                        <span style={reviewDateStyle}>{formatReviewDate(review.createdAt)}</span>
+                                    <span style={reviewStarsStyle}>
+                                      {renderStars(review.rating)}
+                                    </span>
+                                                                        <span style={reviewDateStyle}>
+                                      {formatReviewDate(review.createdAt)}
+                                    </span>
 
                                                                         {(review.productNameSnapshot || review.quantity) && (
                                                                             <span style={reviewPurchaseInfoStyle}>
-                                                                                {review.productNameSnapshot ?? ''}
+                                        {review.productNameSnapshot ?? ''}
                                                                                 {review.quantity ? `, ${review.quantity}개` : ''}
-                                                                            </span>
+                                      </span>
                                                                         )}
                                                                     </div>
                                                                 </div>
@@ -891,19 +1047,27 @@ export default function ProductDetailPage() {
                                                                 {'<'}
                                                             </button>
 
-                                                            {Array.from({ length: reviewTotalPages }, (_, index) => index).map((pageNumber) => (
-                                                                <button
-                                                                    key={pageNumber}
-                                                                    style={pageNumber === reviewPage ? activePageButtonStyle : pageButtonStyle}
-                                                                    onClick={() => setReviewPage(pageNumber)}
-                                                                >
-                                                                    {pageNumber + 1}
-                                                                </button>
-                                                            ))}
+                                                            {Array.from({ length: reviewTotalPages }, (_, index) => index).map(
+                                                                (pageNumber) => (
+                                                                    <button
+                                                                        key={pageNumber}
+                                                                        style={
+                                                                            pageNumber === reviewPage
+                                                                                ? activePageButtonStyle
+                                                                                : pageButtonStyle
+                                                                        }
+                                                                        onClick={() => setReviewPage(pageNumber)}
+                                                                    >
+                                                                        {pageNumber + 1}
+                                                                    </button>
+                                                                ),
+                                                            )}
 
                                                             <button
                                                                 style={paginationArrowButtonStyle}
-                                                                onClick={() => setReviewPage((prev) => Math.min(reviewTotalPages - 1, prev + 1))}
+                                                                onClick={() =>
+                                                                    setReviewPage((prev) => Math.min(reviewTotalPages - 1, prev + 1))
+                                                                }
                                                                 disabled={!reviewHasNext}
                                                             >
                                                                 {'>'}
@@ -1149,15 +1313,17 @@ export default function ProductDetailPage() {
                                                     {'<'}
                                                 </button>
 
-                                                {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
-                                                    <button
-                                                        key={page}
-                                                        style={page === currentPage ? activePageButtonStyle : pageButtonStyle}
-                                                        onClick={() => setCurrentPage(page)}
-                                                    >
-                                                        {page}
-                                                    </button>
-                                                ))}
+                                                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                                                    (page) => (
+                                                        <button
+                                                            key={page}
+                                                            style={page === currentPage ? activePageButtonStyle : pageButtonStyle}
+                                                            onClick={() => setCurrentPage(page)}
+                                                        >
+                                                            {page}
+                                                        </button>
+                                                    ),
+                                                )}
 
                                                 <button
                                                     style={paginationArrowButtonStyle}
@@ -1179,9 +1345,7 @@ export default function ProductDetailPage() {
     )
 }
 
-function PageState({ text }: { text: string }) {
-    return <div style={stateBoxStyle}>{text}</div>
-}
+// 인라인 스타일(Inline Styles) 정의
 
 const pageStyle = {
     minHeight: '100vh',
