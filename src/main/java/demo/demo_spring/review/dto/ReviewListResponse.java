@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 
 @Getter
 public class ReviewListResponse {
+    // 리뷰 1개 카드 데이터
+
     private Long reviewId;
     private String writerNickName;
 
@@ -16,6 +18,10 @@ public class ReviewListResponse {
 
     private LocalDateTime createdAt;
 
+    private int likeCount;
+    private String productNameSnapshot;
+    private int quantity;
+
     private ReviewListResponse(Review review){
         this.reviewId = review.getId();
         this.writerNickName = review.getMember().getNickName();
@@ -23,6 +29,9 @@ public class ReviewListResponse {
         this.title = review.getTitle();
         this.content = review.getContent();
         this.createdAt = review.getCreatedAt();
+        this.likeCount = review.getLikeCount();
+        this.productNameSnapshot = review.getProductNameSnapshot();
+        this.quantity = review.getOrderItem().getQuantity();
     }
 
     public static ReviewListResponse fromEntity(Review review){

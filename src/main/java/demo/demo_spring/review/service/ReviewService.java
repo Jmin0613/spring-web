@@ -8,16 +8,18 @@ import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.repository.ProductRepository;
 import demo.demo_spring.review.domain.Review;
 import demo.demo_spring.review.domain.ReviewLike;
-import demo.demo_spring.review.dto.ReviewCreateRequest;
-import demo.demo_spring.review.dto.ReviewLikeToggleResponse;
-import demo.demo_spring.review.dto.ReviewListResponse;
-import demo.demo_spring.review.dto.ReviewUpdateRequest;
+import demo.demo_spring.review.domain.ReviewSortType;
+import demo.demo_spring.review.dto.*;
 import demo.demo_spring.review.repository.ReviewLikeRepository;
 import demo.demo_spring.review.repository.ReviewRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -117,14 +119,30 @@ public class ReviewService {
     }
 
     // 리뷰 조회 목록
-    public List<ReviewListResponse> findAllReview(Long productId){
-        productRepository.findById(productId)
-                .orElseThrow(()-> new IllegalStateException("리뷰 목록을 조회하려는 상품이 없습니다."));
+    public ReviewPageResponse findAllReview(Long productId, ReviewSortType sort,
+                                            Integer rating, int page, int size){
+        // 요청한 정렬/별점/페이지 조건이 유효한지 검사
+        validateReviewSearchCondition(rating, page, size);
 
-        return reviewRepository.findAllByProductIdOrderByCreatedAtDesc(productId)
+        // 통과하면 페이지 번호, 크기를 바탕으로 DB 조회 조건 객체 생성
+        Pageable pageable = PageRequest.of(page, size);
+
+        // 조건 객체(정령방식, 별점필터)에 맞는 리뷰 페이지 조회
+        Page<Review> reviewPage = getReviewPage(productId, sort, rating, pageable);
+
+        // 현재페이지에 들어있는 Review 목록 꺼내서
+        // ReviewListResponse목록으로 변환
+        List<ReviewListResponse> reviews = reviewPage.getContent()
+                // reviewPage.getContent() -> 현재 페이지에 해당하는 리뷰 목록만 꺼냄
                 .stream()
                 .map(ReviewListResponse::fromEntity)
                 .toList();
+
+        // productId로 해당 리뷰 통계 생성
+        ReviewSummaryResponse summary = findReviewSummary(productId);
+
+        // "리뷰 통계 + 현재 페이지 리뷰 목록 + 페이지 정보"
+        return ReviewPageResponse.of(summary, reviews, reviewPage); // 묶어서 응답DTO 생성 후 반환
     }
 
     // 리뷰 추천
@@ -174,5 +192,77 @@ public class ReviewService {
         if(!memberId.equals(review.getMember().getId())){
             throw new IllegalStateException("리뷰 작성자 본인이 아닙니다.");
         }
+    }
+
+    // 별점, 페이지 유효성 검사 메서드
+    private void validateReviewSearchCondition(Integer rating, int page, int size){
+        if(rating != null && (rating < 1 || rating > 5)){
+            throw new IllegalStateException("별점 필터는 1~5점 사이만 가능합니다.");
+        }
+        if(page < 0){
+            throw new IllegalStateException("페이지 번호는 0 이상이어야 합니다.");
+        }
+        if(size < 1){
+            throw new IllegalStateException("페이지 크기는 1 이상이어야 합니다.");
+        }
+        if(size > 50){
+            throw new IllegalStateException("페이지 크기는 50 이하만 가능합니다.");
+        }
+    }
+
+    // 요청받은 정렬방식+별점필터 조건에 맞는 리뷰 페이지 조회하는 메서드
+    private Page<Review> getReviewPage(Long productId, ReviewSortType sort,
+                                       Integer rating, Pageable pageable){
+        // 최신순
+        if (sort == ReviewSortType.LATEST) {
+            if (rating == null) { // 별점필터 X -> 전체 별점
+                return reviewRepository.findByProductIdOrderByCreatedAtDesc(productId, pageable);
+            }
+
+            // 별점필터 O
+            return reviewRepository.findByProductIdAndRatingOrderByCreatedAtDesc(
+                    productId, rating, pageable
+            );
+        }
+
+        // 추천순 sort == ReviewSortType.BEST
+        if (rating == null) { // 별점필터 X -> 전체 별점
+            return reviewRepository.findByProductIdOrderByLikeCountDescCreatedAtDesc(
+                    productId, pageable
+            );
+        }
+        // 별점필터 O
+        return reviewRepository.findByProductIdAndRatingOrderByLikeCountDescCreatedAtDesc(
+                productId, rating, pageable
+        );
+    }
+
+    // 리뷰 통계 계산 메서드
+    public ReviewSummaryResponse findReviewSummary(Long productId) {
+        // 해당 상품의 총 리뷰 수
+        Long totalCount = reviewRepository.countByProductId(productId);
+
+        // 평균 별점
+        Double averageRating = reviewRepository.findAverageRatingByProductId(productId);
+        if (averageRating == null) { // 별점 없을 경우
+            averageRating = 0.0;
+        } else{ // 별점있다면 소수점 1자리까지 반올림
+            averageRating = BigDecimal.valueOf(averageRating)
+                    .setScale(1, RoundingMode.HALF_UP)
+                    .doubleValue();
+        }
+
+        // 각 별점 별 리뷰 수
+        Long fiveStarCount = reviewRepository.countByProductIdAndRating(productId, 5);
+        Long fourStarCount = reviewRepository.countByProductIdAndRating(productId, 4);
+        Long threeStarCount = reviewRepository.countByProductIdAndRating(productId, 3);
+        Long twoStarCount = reviewRepository.countByProductIdAndRating(productId, 2);
+        Long oneStarCount = reviewRepository.countByProductIdAndRating(productId, 1);
+
+        return ReviewSummaryResponse.of(
+                averageRating, totalCount,
+                fiveStarCount, fourStarCount, threeStarCount,
+                twoStarCount, oneStarCount
+        );
     }
 }

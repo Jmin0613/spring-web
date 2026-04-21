@@ -1,10 +1,8 @@
 package demo.demo_spring.review.controller;
 
 import demo.demo_spring.member.domain.Member;
-import demo.demo_spring.review.dto.ReviewCreateRequest;
-import demo.demo_spring.review.dto.ReviewLikeToggleResponse;
-import demo.demo_spring.review.dto.ReviewListResponse;
-import demo.demo_spring.review.dto.ReviewUpdateRequest;
+import demo.demo_spring.review.domain.ReviewSortType;
+import demo.demo_spring.review.dto.*;
 import demo.demo_spring.review.service.ReviewService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -43,10 +41,21 @@ public class ReviewController {
         reviewService.delete(productId, reviewId, loginMember.getId());
     }
 
-    // 리뷰 전체 조회
+    // 리뷰 조회
     @GetMapping("/products/{productId}/reviews")
-    public List<ReviewListResponse> findAllReviews(@PathVariable Long productId){
-        return reviewService.findAllReview(productId);
+    public ReviewPageResponse findAllReview(@PathVariable long productId,
+                                            @RequestParam(defaultValue = "BEST") ReviewSortType sort,
+                                            @RequestParam(required = false) Integer rating,
+                                            // required = false -> rating 파라미터가 있어도 된고 없어도 된다. (없으면 전체 별점)
+                                            @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size){
+        return reviewService.findAllReview(productId, sort, rating, page, size);
+    }
+
+    // 리뷰 통계
+    @GetMapping("/products/{productId}/reviews/summary")
+    public ReviewSummaryResponse findReviewSummary(@PathVariable Long productId) {
+        return reviewService.findReviewSummary(productId);
     }
 
     // 리뷰 추천/취소 -> Toggle

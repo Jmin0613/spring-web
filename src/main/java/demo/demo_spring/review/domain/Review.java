@@ -38,6 +38,7 @@ public class Review {
     private Integer rating;
     private String title;
     private String content;
+    private int quantity;
 
     @Column(nullable = false) // null 불가 + 기본값 0
     private int likeCount; //추천 수 저장
@@ -68,6 +69,7 @@ public class Review {
         this.productNameSnapshot = orderItem.getProductNameSnapshot();
         this.rating = rating; this.title = title; this.content = content;
         this.likeCount = 0; //int 기본값 0이지만, 의도를 표현.
+        this.quantity = orderItem.getQuantity();
     }
 
     // 리뷰 등록/생성 메서드

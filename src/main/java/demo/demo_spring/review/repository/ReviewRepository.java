@@ -1,22 +1,45 @@
 package demo.demo_spring.review.repository;
 
 import demo.demo_spring.review.domain.Review;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-
-    // 해당 상품 리뷰 전체 조회
-    List<Review> findAllByProductIdOrderByCreatedAtDesc(Long productId);
-    // find all + By Product_id + Order By Created At Desc
-    // 모두 찾아라 + Product id를 기준으로 검색
-    // createdAt 기준으로 내림차순 정렬
-    // 특정 상품(ProductId)에 달린 리뷰들을 createAt 최신순으로 전부 조회
 
     // 리뷰 이미 존재하는지 중복 체크 -> OrderItem 엔티티의 Id로 체크
     boolean existsByOrderItemId(Long orderItemId);
 
     // memberId로 특정 회원이 작성한 리뷰 찾기 (마이페이지)
     List<Review> findAllByMemberIdOrderByCreatedAtDesc(Long memberId);
+
+    /* 리뷰 조회 */
+    // 최신순 + 전체 별점
+    Page<Review> findByProductIdOrderByCreatedAtDesc(Long productId, Pageable pageable);
+    // 최신순 + 특정 별점
+    Page<Review> findByProductIdAndRatingOrderByCreatedAtDesc(Long productId, Integer rating, Pageable pageable);
+
+    // 추천순 + 전체 별점
+    Page<Review> findByProductIdOrderByLikeCountDescCreatedAtDesc(Long productId, Pageable pageable);
+    // 추천순 + 특정 별점
+    Page<Review> findByProductIdAndRatingOrderByLikeCountDescCreatedAtDesc(
+            Long productId,
+            Integer rating,
+            Pageable pageable
+    );
+
+    // 해당 상품의 전체 리뷰 수
+    Long countByProductId(Long productId);
+
+    // 해당 상품에서 특정 별점 리뷰 수
+    Long countByProductIdAndRating(Long productId, Integer rating); //재사용하기 위해 rating넣어 만듦.
+
+    // 해당 상품의 평균 별점
+    @Query("select avg(r.rating) from Review r where r.product.id = :productId")
+    Double findAverageRatingByProductId(Long productId);
+
+
 }
