@@ -363,59 +363,91 @@ export default function ProductDetailPage() {
     // [] -> 배열 구조 분해. 순서 중요할 때.
     // 첫 번째는 현재값, 두 번째는 값을 바꾸는 함수라는 순서가 약속되어 있음. [값, 함수]
 
-    const { id } = useParams()
-    // 함수가 객체를 던져줄 때, 그 안의 id 필드만 변수로 만듦.
-    const [searchParams, setSearchParams] = useSearchParams()
-    // useSearchParams() -> 리랙트 라우터가 제공하는 커스텀 훅. URL 쿼리스트링을 다룸.
-
-    // 함수가 배열을 던져줄 때, 순서대로 변수에 담음.
-    // searchParams -> 현재 URL의 쿼리스트링 값들을 읽는 객체
-    // setSearchParams -> URL의 쿼리스트링 값을 바꾸는 함수
-
-    const [detail, setDetail] = useState<ProductDetail | null>(null)
     // useState<a||b> -> a객체일수도 b객체일수도 (java의 Optional<T>)
     // use<...>(c) -> c는 초기값
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState('')
 
+    /* 주소 및 url 파라미터 관리 */
+    const { id } = useParams()
+    // url에서 상품 id 가져옴
+    const [searchParams, setSearchParams] = useSearchParams()
+    // url 뒤의 쿼리 스트링(?tab=review)을 읽거나 수정하 때 사용
+
+    /* 상품 상세 정보 상태 */
+    const [detail, setDetail] = useState<ProductDetail | null>(null)
+    // 서버에서 받아온 상품의 상세 데이터를 저장함.
+    const [loading, setLoading] = useState(true)
+    // 상품 정보를 불러오는 중인지 알려줌. 기본값 true는 불러오는 중이란 의미.
+    const [error, setError] = useState('')
+    // 상품 정보를 불러오다 실패했을 때 에러 메세지를 담음
+
+    /* 탭tab(상세설명/리뷰/문의) 전화 로직 */
     const tabParam = searchParams.get('tab')
     // 주소창의 ?tab=... 에서 tab값을 꺼내어 tabParam에 넣기
     const activeTab: ProductDetailTab =
         tabParam === 'review' || tabParam === 'inquiry' ? tabParam : 'detail' // 조건 ? 참일때 값 : 거짓이때 값
+    // 탭 값이 review이나 inquiry면 그 값을 쓰고, 아니면 기본값으로 detail을 선택.
 
+    /* 리뷰(후기) 관리 상태 */
     const [reviewSort, setReviewSort] = useState<ReviewSortType>('BEST')
+    // 리뷰 정렬 기준. 기본은 BEST(추천순)으로 설정
     const [reviewRatingFilter, setReviewRatingFilter] = useState<number | 'ALL'>('ALL')
+    // 별점 필터. 특정 점수(1~5)만 볼지, 전체(ALL)볼지 결정. 기본은 전체(ALL).
     const [reviewPage, setReviewPage] = useState(0)
+    // 리뷰 페이지 번호로 관리 (0페이지부터 시작)
 
     const [reviewPageData, setReviewPageData] = useState<ReviewPageResponse | null>(null)
+    // 서버에서 받아온 현재 페이지의 리뷰목록과 페이지 정보 전체를 담음.
     const [reviewsLoading, setReviewsLoading] = useState(false)
+    // 리뷰 데이터를 새로 고쳐 쓰는 중인지 나타냄.
     const [reviewsError, setReviewsError] = useState('')
+    // 리뷰를 불러오지 못했을 때 사용할 에러 메세지.
 
+    /* 리뷰 추천(도움이 돼요) 기능 */
     const [likedReviewMap, setLikedReviewMap] = useState<Record<number, boolean>>({})
+    // 어떤 리뷰에 추천 눌렀는지 저장. {ReviewId : true}
     const [reviewLikeLoadingMap, setReviewLikeLoadingMap] = useState<Record<number, boolean>>({})
+    // 추천 버튼 눌렀을 때, 서버 응답을 기다리는 중인지 리뷰별로 관리.
 
+    /* 문의 목록 관리 */
     const [inquiries, setInquiries] = useState<ProductInquiryListItem[]>([])
+    // 문의 목록 데이터를 받는 배열.
     const [inquiriesLoading, setInquiriesLoading] = useState(true)
+    // 문의 목록을 불러오는 중인지 관리.
     const [inquiriesError, setInquiriesError] = useState('')
+    // 문의 목록 불러오지 못했을 때 사용할 에러 메세지.
 
+    /* 문의사항 상세 내용 */
     const [openInquiryId, setOpenInquiryId] = useState<number | null>(null)
+    // 현재 버튼 클릭해서 내용이 펼쳐져 있는 문의글의 id를 기억
     const [inquiryDetailMap, setInquiryDetailMap] = useState<Record<number, ProductInquiryDetailItem>>({})
+    // 한 번 읽은 문의 상세 내용을 id별로 저장해둬서 다시 읽을 때 속도 높임.
     const [inquiryDetailLoadingId, setInquiryDetailLoadingId] = useState<number | null>(null)
+    // 특정 문의 상세 내용을 서버에서 가져오는 중인지 해당 id를 기록
     const [inquiryDetailErrorMap, setInquiryDetailErrorMap] = useState<Record<number, string>>({})
+    // 특정 문의 상세 불러오지 못했을 때, 어디서 에서 에러났는지 저장
 
+    /* 사용자 및 화면 모드 */
     const [currentMember, setCurrentMember] = useState<MemberInfo | null>(null)
+    // 지금 이 페이지를 보고 있는 "내 정보". 로그인 여부 확인용.
 
     const [viewMode, setViewMode] = useState<'all' | 'mine'>('all')
+    // 문의를 전체볼지, 내가 쓴 것만 볼지 결정
     const [currentPage, setCurrentPage] = useState(1)
+    // 문의 목록 현재 페이지 번호
 
+    /* 문의 작성 폼(글쓰기) */
     const [showInquiryForm, setShowInquiryForm] = useState(false)
+    // 문의 작성 창(입력창)을 보여줄지 말지 결정하는 스위치
     const [inquiryForm, setInquiryForm] = useState({
+        // 사용자가 입력 중인 제목, 내용, 비밀글 여부를 실시간으로 저장하는 객체
         title: '',
         content: '',
         secret: false,
     })
     const [inquirySubmitLoading, setInquirySubmitLoading] = useState(false)
+    // 등록 버튼 클릭 후, 서버에 저장중인지 관리(중복 클릭 방지)
     const [inquirySubmitError, setInquirySubmitError] = useState('')
+    // 등록 실패 시, 사용자에게 보여줄 에러메세지.
 
     function handleTabChange(tab: ProductDetailTab) {
         const nextSearchParams = new URLSearchParams(searchParams)
@@ -1346,6 +1378,8 @@ export default function ProductDetailPage() {
 }
 
 // 인라인 스타일(Inline Styles) 정의
+// 현재 수정이 많고 상태 변화가 많아서 그냥 tsx 안에두고 수정
+// 추후 .css로 빼서 다른 것들과 스타일링 방식 통일해주기.
 
 const pageStyle = {
     minHeight: '100vh',

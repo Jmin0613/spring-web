@@ -1,14 +1,32 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Link, Route, Routes } from 'react-router-dom'
+import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import NoticeListPage from './pages/NoticeListPage'
 import NoticeDetailPage from './pages/NoticeDetailPage'
 import HotDealDetailPage from './pages/HotDealDetailPage'
 import ProductDetailPage from './pages/ProductDetailPage'
+import LoginPage from './pages/LoginPage'
+import MyPage from './pages/MyPage'
+
+// 최상위 루트 컴포넌트
+/*
+App.tsx에서 하는 일
+    1. 라우팅 설정
+    2. 공통 레이아웃 연결
+    3. 페이지 분기
+main.tsx가 앱을 시작시키는 파일이라면, App.tsx는 시작된 앱의 제일 큰 화면 뼈대
+ */
+
+type MemberInfo = {
+    id: number
+    nickname?: string
+    name?: string
+}
 
 type HotDealApiItem = {
     hotDealId: number
-    procutName: string
+    productId?: number
+    productName?: string
     originalPrice: number
     hotDealPrice: number
     discountRate: number
@@ -39,6 +57,10 @@ function formatPrice(price: number) {
     return `${price.toLocaleString('ko-KR')}원`
 }
 
+function getHotDealName(item: HotDealApiItem) {
+    return item.productName ?? item.productName ?? '이름 없는 핫딜'
+}
+
 function getHotDealBadge(status: string) {
     if (status === 'ON_SALE') {
         return '진행중'
@@ -51,7 +73,11 @@ function getHotDealBadge(status: string) {
     return status
 }
 
-function getHotDealEmoji(name: string) {
+function getHotDealEmoji(name?: string) {
+    if (!name) {
+        return '🎁'
+    }
+
     if (name.includes('강아지')) {
         return '🐶'
     }
@@ -87,20 +113,24 @@ function getProductBadge(category: string) {
     return '인기 상품'
 }
 
-function getProductEmoji(name: string, category: string) {
-    if (name.includes('강아지')) {
+function getProductEmoji(name?: string, category?: string) {
+    if (!name && !category) {
+        return '🎁'
+    }
+
+    if (name?.includes('강아지')) {
         return '🐶'
     }
 
-    if (name.includes('고양이')) {
+    if (name?.includes('고양이')) {
         return '🐱'
     }
 
-    if (name.includes('노트북')) {
+    if (name?.includes('노트북')) {
         return '💻'
     }
 
-    if (name.includes('비타민')) {
+    if (name?.includes('비타민')) {
         return '🍊'
     }
 
@@ -124,6 +154,9 @@ function getProductSubText(status: string, category: string) {
 }
 
 function HomePage() {
+    const location = useLocation()
+    const [loginMember, setLoginMember] = useState<MemberInfo | null>(null)
+
     const [hotDeals, setHotDeals] = useState<HotDealApiItem[]>([])
     const [hotDealsLoading, setHotDealsLoading] = useState(true)
     const [hotDealsError, setHotDealsError] = useState('')
@@ -131,6 +164,21 @@ function HomePage() {
     const [products, setProducts] = useState<ProductApiItem[]>([])
     const [productsLoading, setProductsLoading] = useState(true)
     const [productsError, setProductsError] = useState('')
+
+    useEffect(() => {
+        async function loadMyInfo() {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/members/myinfo`, {
+                    withCredentials: true,
+                })
+                setLoginMember(response.data)
+            } catch (error) {
+                setLoginMember(null)
+            }
+        }
+
+        void loadMyInfo()
+    }, [])
 
     useEffect(() => {
         async function loadHotDeals() {
@@ -241,9 +289,26 @@ function HomePage() {
                         <button type="button" style={iconButtonStyle}>
                             🚚
                         </button>
-                        <button type="button" style={loginButtonStyle}>
-                            로그인
-                        </button>
+
+                        {loginMember ? (
+                            <Link to="/mypage" style={mypageIconButtonStyle} aria-label="마이페이지">
+                                👤
+                            </Link>
+                        ) : (
+                            <Link
+                                to="/login"
+                                state={{
+                                    from: {
+                                        pathname: location.pathname,
+                                        search: location.search,
+                                        hash: location.hash,
+                                    },
+                                }}
+                                style={loginButtonStyle}
+                            >
+                                로그인
+                            </Link>
+                        )}
                     </div>
                 </div>
             </header>
@@ -336,54 +401,58 @@ function HomePage() {
                             marginBottom: '52px',
                         }}
                     >
-                        {hotDeals.map((item) => (
-                            <Link
-                                key={item.hotDealId}
-                                to={`/hotdeals/${item.hotDealId}`}
-                                style={{ textDecoration: 'none', color: 'inherit' }}
-                            >
-                                <article style={hotDealCardStyle}>
-                                    <div style={cardImageStyle}>
-                                        <span style={cardBadgeStyle}>{getHotDealBadge(item.status)}</span>
-                                        <span style={{ fontSize: '56px' }}>{getHotDealEmoji(item.procutName)}</span>
-                                    </div>
+                        {hotDeals.map((item) => {
+                            const hotDealName = getHotDealName(item)
 
-                                    <div style={{ padding: '18px 18px 20px' }}>
-                                        <h3
-                                            style={{
-                                                margin: '0 0 12px',
-                                                fontSize: '17px',
-                                                fontWeight: 700,
-                                                lineHeight: 1.5,
-                                                minHeight: '52px',
-                                            }}
-                                        >
-                                            {item.procutName}
-                                        </h3>
-
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ color: '#dc2626', fontSize: '18px', fontWeight: 900 }}>
-                        {item.discountRate}%
-                      </span>
-                                            <span style={{ fontSize: '24px', fontWeight: 900 }}>
-                        {formatPrice(item.hotDealPrice)}
-                      </span>
+                            return (
+                                <Link
+                                    key={item.hotDealId}
+                                    to={`/hotdeals/${item.hotDealId}`}
+                                    style={{ textDecoration: 'none', color: 'inherit' }}
+                                >
+                                    <article style={hotDealCardStyle}>
+                                        <div style={cardImageStyle}>
+                                            <span style={cardBadgeStyle}>{getHotDealBadge(item.status)}</span>
+                                            <span style={{ fontSize: '56px' }}>{getHotDealEmoji(hotDealName)}</span>
                                         </div>
 
-                                        <p
-                                            style={{
-                                                margin: '6px 0 0',
-                                                color: '#9ca3af',
-                                                textDecoration: 'line-through',
-                                                fontSize: '14px',
-                                            }}
-                                        >
-                                            {formatPrice(item.originalPrice)}
-                                        </p>
-                                    </div>
-                                </article>
-                            </Link>
-                        ))}
+                                        <div style={{ padding: '18px 18px 20px' }}>
+                                            <h3
+                                                style={{
+                                                    margin: '0 0 12px',
+                                                    fontSize: '17px',
+                                                    fontWeight: 700,
+                                                    lineHeight: 1.5,
+                                                    minHeight: '52px',
+                                                }}
+                                            >
+                                                {hotDealName}
+                                            </h3>
+
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span style={{ color: '#dc2626', fontSize: '18px', fontWeight: 900 }}>
+                                                    {item.discountRate}%
+                                                </span>
+                                                <span style={{ fontSize: '24px', fontWeight: 900 }}>
+                                                    {formatPrice(item.hotDealPrice)}
+                                                </span>
+                                            </div>
+
+                                            <p
+                                                style={{
+                                                    margin: '6px 0 0',
+                                                    color: '#9ca3af',
+                                                    textDecoration: 'line-through',
+                                                    fontSize: '14px',
+                                                }}
+                                            >
+                                                {formatPrice(item.originalPrice)}
+                                            </p>
+                                        </div>
+                                    </article>
+                                </Link>
+                            )
+                        })}
                     </section>
                 )}
 
@@ -581,14 +650,32 @@ const navLinkStyle = {
     fontWeight: 700,
 } as const
 
+const mypageIconButtonStyle = {
+    width: '46px',
+    height: '46px',
+    border: '1px solid #e5e7eb',
+    backgroundColor: '#ffffff',
+    color: '#111827',
+    borderRadius: '999px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '22px',
+    cursor: 'pointer',
+    textDecoration: 'none',
+} as const
+
+// 라우트
 export default function App() {
     return (
         <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route path="/notices" element={<NoticeListPage />} />
             <Route path="/notices/:id" element={<NoticeDetailPage />} />
             <Route path="/hotdeals/:id" element={<HotDealDetailPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
+            <Route path="/mypage" element={<MyPage />} />
         </Routes>
     )
 }

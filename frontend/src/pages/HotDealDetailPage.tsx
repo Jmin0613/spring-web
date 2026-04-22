@@ -11,7 +11,7 @@ type HotDealDetail = {
     hotDealStock: number
     imageUrl: string | null
     originalPrice: number
-    procutName: string
+    productName: string
     productId: number | null
     startTime: string
     status: string
@@ -133,14 +133,14 @@ export default function HotDealDetailPage() {
                     <div style={heroImageWrapStyle}>
                         <div style={heroImageStyle}>
                             <div style={heroImageBadgeStyle}>대표 이미지</div>
-                            <div style={{ fontSize: '140px' }}>{getEmoji(detail.procutName)}</div>
+                            <div style={{ fontSize: '140px' }}>{getEmoji(detail.productName)}</div>
                         </div>
                     </div>
 
                     <div style={heroInfoStyle}>
                         <div style={statusBadgeStyle}>{getStatusLabel(detail.status)}</div>
 
-                        <h1 style={titleStyle}>{detail.procutName}</h1>
+                        <h1 style={titleStyle}>{detail.productName}</h1>
                         <p style={shortDescriptionStyle}>{detail.description}</p>
 
                         <div style={priceBoxStyle}>

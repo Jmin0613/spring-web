@@ -1,3 +1,9 @@
+/* 전역 스타일 :
+  body 기본 글꼴, margin0, 기본 배경색 등등
+  "앱 전체에 공통으로 적용할 것들"을 넣는 경우가 많음.
+
+즉, 페이지 하나 전용이 아니라, 프로젝트 전체 기본 설정용 css */
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -25,8 +31,11 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
+  /* @media : 브라우저용 if문 또는 조건부 렌더링 설정.
+  접속한 기기의 환경(화면 너비, 해상도 등등)에 따라 스타일을 다르게 적용하라고 멸령하는 분기점 */
+
+  @media (max-width: 1024px) { /* 만약 브라우저 가로 너비가 1024px 이하(max-width)라면 */
+    font-size: 16px; /* 이 설정을 적용해라 */
   }
 }
 

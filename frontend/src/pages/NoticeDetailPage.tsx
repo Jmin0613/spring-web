@@ -20,13 +20,18 @@ function formatDate(dateString: string) {
 
 export default function NoticeDetailPage() {
     const { id } = useParams()
+    // url에서 공지 id 가져옴
     const [notice, setNotice] = useState<NoticeDetail | null>(null)
+    // 서버에서 받아온 실제 공지 상세 데이터를 담음
     const [loading, setLoading] = useState(true)
+    // 현재 데이터인 공지 상세 데이터를 가져오는 중(true)인지, 아니면 완료(false)되었는지 나타냄
     const [error, setError] = useState('')
+    // 데이터를 가져오다가 문제가 생겼을 때의 메세지를 담음
 
+    // 공지 상세 불러오기
     useEffect(() => {
         async function loadNoticeDetail() {
-            if (!id) {
+            if (!id) { //확인하려는 공지id가 없다면
                 setError('잘못된 접근입니다.')
                 setLoading(false)
                 return
@@ -45,13 +50,14 @@ export default function NoticeDetailPage() {
         loadNoticeDetail()
     }, [id])
 
+    // 공지 수정일을 화면에 표시
     const updatedDateText = useMemo(() => {
-        if (!notice?.updatedAt) {
+        if (!notice?.updatedAt) { //공지notice 데이터가 없거나, 있더라도 수정날짜가 비어있는 경우
             return '-'
         }
 
-        return formatDate(notice.updatedAt)
-    }, [notice])
+        return formatDate(notice.updatedAt) //데이터 있다면, formatDate실행
+    }, [notice]) //공지데이터가 들어올때 (공지글 쓸때)
 
     if (loading) {
         return (

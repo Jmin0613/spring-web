@@ -13,7 +13,7 @@ public class AdminHotDealDetailResponse {
     private Long hotDealId;
     private Long productId;
 
-    private String procutName;
+    private String productName;
     private String description;
     private String imageUrl;
 
@@ -33,7 +33,7 @@ public class AdminHotDealDetailResponse {
     // HotDeal 생성자 -> fromEntity()가 내부에서 호출할 생성자
     private AdminHotDealDetailResponse(HotDeal hotDeal){
         this.hotDealId = hotDeal.getId(); this.productId = hotDeal.getProduct().getId();
-        this.procutName = hotDeal.getProduct().getName();
+        this.productName = hotDeal.getProduct().getName();
         this.description = hotDeal.getProduct().getDescription();
         this.imageUrl = hotDeal.getProduct().getImageUrl();
         this.originalPrice = hotDeal.getOriginalPrice(); this.hotDealPrice = hotDeal.getHotDealPrice();

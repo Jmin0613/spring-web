@@ -14,7 +14,7 @@ public class AdminHotDealListResponse {
     private Long productId;
     // 운영/관리 용도이니, productId 추가
     // 어떤 상품에 붙은 핫딜인지 식별, 나중에 상품 상세/수정 연결 용이, db나 운영 관점에서 추적 쉬움
-    private String procutName;
+    private String productName;
 
     private int originalPrice;
     private int hotDealPrice;
@@ -29,7 +29,7 @@ public class AdminHotDealListResponse {
     // hotDeal 생성자 -> fromEntity()가 내부에서 호출할 생성자
     private AdminHotDealListResponse(HotDeal hotDeal){
         this.hotDealId = hotDeal.getId(); this.productId = hotDeal.getProduct().getId();
-        this.procutName = hotDeal.getProduct().getName();
+        this.productName = hotDeal.getProduct().getName();
         this.originalPrice = hotDeal.getOriginalPrice(); this.hotDealPrice = hotDeal.getHotDealPrice();
         this.hotDealStock = hotDeal.getHotDealStock();
         this.startTime = hotDeal.getStartTime(); this.endTime = hotDeal.getEndTime();

@@ -13,7 +13,7 @@ public class HotDealDetailResponse {
     private Long hotDealId; //핫딜 고유 id
     private Long productId; //원본 상품 고유 id
 
-    private String procutName;
+    private String productName;
     private String imageUrl; //대표 이미지
     private String description;
 
@@ -31,7 +31,7 @@ public class HotDealDetailResponse {
         this.hotDealId = hotDeal.getId();
         this.productId = hotDeal.getProduct().getId();
         // 응답DTO는 연관관계를 따라가서 필요한 값 꺼내올 수 있음.
-        this.procutName = hotDeal.getProduct().getName(); this.imageUrl = hotDeal.getProduct().getImageUrl();
+        this.productName = hotDeal.getProduct().getName(); this.imageUrl = hotDeal.getProduct().getImageUrl();
         this.originalPrice = hotDeal.getProduct().getPrice(); this.hotDealPrice = hotDeal.getHotDealPrice();
         this.startTime = hotDeal.getStartTime(); this.endTime = hotDeal.getEndTime();
         this.status = hotDeal.getStatus();

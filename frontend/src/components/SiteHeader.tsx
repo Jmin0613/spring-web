@@ -1,4 +1,8 @@
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import { Link, useLocation } from 'react-router-dom'
+
+const API_BASE_URL = 'http://localhost:8080'
 
 const topMenus = [
     { label: '베스트', to: '/?menu=best' },
@@ -6,7 +10,31 @@ const topMenus = [
     { label: '전체핫딜', to: '/?menu=hotdeal' },
 ]
 
+type MemberInfo = {
+    id: number
+    nickname?: string
+    name?: string
+}
+
 export default function SiteHeader() {
+    const location = useLocation()
+    const [loginMember, setLoginMember] = useState<MemberInfo | null>(null)
+
+    useEffect(() => {
+        async function loadMyInfo() {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/members/myinfo`, {
+                    withCredentials: true,
+                })
+                setLoginMember(response.data)
+            } catch (error) {
+                setLoginMember(null)
+            }
+        }
+
+        void loadMyInfo()
+    }, [])
+
     return (
         <header style={headerStyle}>
             <div style={headerInnerStyle}>
@@ -40,7 +68,25 @@ export default function SiteHeader() {
                         🚚
                     </button>
 
-                    <button style={loginButtonStyle}>로그인</button>
+                    {loginMember ? (
+                        <Link to="/mypage" style={mypageIconButtonStyle} aria-label="마이페이지">
+                            👤
+                        </Link>
+                    ) : (
+                        <Link
+                            to="/login"
+                            state={{
+                                from: {
+                                    pathname: location.pathname,
+                                    search: location.search,
+                                    hash: location.hash,
+                                },
+                            }}
+                            style={loginButtonStyle}
+                        >
+                            로그인
+                        </Link>
+                    )}
                 </div>
             </div>
         </header>
@@ -130,4 +176,20 @@ const loginButtonStyle = {
     padding: '12px 18px',
     fontWeight: 700,
     cursor: 'pointer',
+    textDecoration: 'none',
+} as const
+
+const mypageIconButtonStyle = {
+    width: '46px',
+    height: '46px',
+    border: '1px solid #e5e7eb',
+    backgroundColor: '#ffffff',
+    color: '#111827',
+    borderRadius: '999px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '22px',
+    cursor: 'pointer',
+    textDecoration: 'none',
 } as const
