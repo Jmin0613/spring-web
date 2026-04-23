@@ -11,7 +11,7 @@ public class ProductInquiryDetailResponse {
     private Long inquiryId;
     private Long productId;
     private String productNameSnapshot; //구매 당시 상품 이름
-    private String riterNickName; //작성자 닉네임
+    private String riternickName; //작성자 닉네임
 
     private String title;
     private String content;
@@ -27,7 +27,7 @@ public class ProductInquiryDetailResponse {
         this.inquiryId = productInquiry.getId(); this.productId =productInquiry.getProduct().getId();
         this.productNameSnapshot = productInquiry.getProductNameSnapshot();
         this.title = productInquiry.getTitle(); this.content = productInquiry.getContent();
-        this.riterNickName = productInquiry.getMember().getNickName(); this.status = productInquiry.getStatus();
+        this.riternickName = productInquiry.getMember().getNickName(); this.status = productInquiry.getStatus();
         this.createdAt =productInquiry.getCreatedAt(); this.updatedAt =productInquiry.getUpdatedAt();
         this.answerContent= productInquiry.getAnswerContent(); this.answeredAt = productInquiry.getAnsweredAt();
     }

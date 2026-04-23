@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { fetchNoticeDetail } from '../api/noticeApi'
 import type { NoticeDetail } from '../types/notice'
 import './NoticeDetailPage.css'
+import SiteHeader from "../components/SiteHeader.tsx";
 
 function formatDate(dateString: string) {
     const date = new Date(dateString)
@@ -62,6 +63,7 @@ export default function NoticeDetailPage() {
     if (loading) {
         return (
             <div className="notice-detail-page">
+                <SiteHeader />
                 <div className="notice-detail-container">
                     <p className="notice-detail-state-text">공지 상세를 불러오는 중입니다...</p>
                 </div>
@@ -72,6 +74,7 @@ export default function NoticeDetailPage() {
     if (error) {
         return (
             <div className="notice-detail-page">
+                <SiteHeader />
                 <div className="notice-detail-container">
                     <p className="notice-detail-state-text">{error}</p>
                 </div>
@@ -82,6 +85,7 @@ export default function NoticeDetailPage() {
     if (!notice) {
         return (
             <div className="notice-detail-page">
+                <SiteHeader />
                 <div className="notice-detail-container">
                     <p className="notice-detail-state-text">공지 정보를 찾을 수 없습니다.</p>
                 </div>
@@ -91,9 +95,9 @@ export default function NoticeDetailPage() {
 
     return (
         <div className="notice-detail-page">
+            <SiteHeader />
             <div className="notice-detail-container">
                 <header className="notice-detail-header">
-                    <p className="notice-detail-badge">NOTICE</p>
                     <h1 className="notice-detail-title">{notice.title}</h1>
 
                     <div className="notice-detail-meta">

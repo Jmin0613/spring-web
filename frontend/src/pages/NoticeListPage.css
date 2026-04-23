@@ -1,12 +1,13 @@
 .notice-page {
     min-height: 100vh;
     background-color: #ffffff;
-    padding: 72px 20px 120px;
 }
 
 .notice-container {
     max-width: 960px;
     margin: 0 auto;
+    padding: 32px 24px 80px;
+    box-sizing: border-box;
 }
 
 .notice-header {
@@ -46,12 +47,14 @@
     justify-content: space-between;
     align-items: center;
     gap: 16px;
+    flex-wrap: wrap;
     margin-bottom: 18px;
 }
 
 .notice-count {
     color: #4b5563;
     font-size: 15px;
+    flex-shrink: 0;
 }
 
 .notice-count strong {
@@ -62,10 +65,13 @@
 .notice-search-box {
     width: 320px;
     max-width: 100%;
+    min-width: 0;
+    flex: 0 1 320px;
 }
 
 .notice-search-input {
     width: 100%;
+    max-width: 100%;
     height: 46px;
     padding: 0 16px;
     border: 1px solid #e5e7eb;
@@ -74,6 +80,7 @@
     color: #111827;
     font-size: 14px;
     outline: none;
+    box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -190,8 +197,8 @@
 }
 
 @media (max-width: 768px) {
-    .notice-page {
-        padding: 48px 16px 80px;
+    .notice-container {
+        padding: 24px 16px 64px;
     }
 
     .notice-title {
@@ -199,12 +206,13 @@
     }
 
     .notice-toolbar {
-        flex-direction: column;
         align-items: stretch;
     }
 
     .notice-search-box {
-        width: 100%;
+        width: 320px;
+        max-width: 100%;
+        flex: 1 1 320px;
     }
 
     .notice-list-head {

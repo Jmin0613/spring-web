@@ -1,7 +1,5 @@
 package demo.demo_spring.global.validatationPatterns;
 
-import java.util.regex.Pattern;
-
 public final class PasswordValidator {
 
     private PasswordValidator() {

@@ -1,0 +1,287 @@
+.signup-page {
+    min-height: 100vh;
+    background-color: #f8f8f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 16px;
+    box-sizing: border-box;
+}
+
+.signup-card {
+    width: 100%;
+    max-width: 520px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 40px 36px 32px;
+    box-sizing: border-box;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+}
+
+.signup-card__header {
+    margin-bottom: 28px;
+}
+
+.signup-card__title {
+    margin: 0;
+    color: #111827;
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+}
+
+.signup-card__description {
+    margin: 10px 0 0;
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.signup-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.signup-form__label-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.signup-form__label {
+    color: #111827;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.signup-form__message {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.signup-form__message--error {
+    color: #ef4444;
+}
+
+.signup-form__message--success {
+    color: #10b981;
+}
+
+.signup-form__inline-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.signup-form__input {
+    width: 100%;
+    height: 48px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 0 14px;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: #111827;
+    background-color: #ffffff;
+    outline: none;
+}
+
+.signup-form__input:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14);
+}
+
+.signup-form__input--with-button {
+    flex: 1;
+}
+
+.signup-form__check-button {
+    flex-shrink: 0;
+    width: 96px;
+    height: 42px;
+    border: none;
+    border-radius: 8px;
+    background-color: #1fb6e9;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.signup-form__check-button:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+
+.signup-form__email-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.signup-form__email-input {
+    flex: 1;
+}
+
+.signup-form__email-at {
+    color: #6b7280;
+    font-size: 16px;
+    font-weight: 700;
+    padding-bottom: 12px;
+}
+
+.signup-form__submit-error {
+    margin: 0;
+    color: #ef4444;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.signup-form__button-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.signup-form__submit-button,
+.signup-form__cancel-button {
+    min-width: 128px;
+    height: 46px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.signup-form__submit-button {
+    border: none;
+    background-color: #19b4e8;
+    color: #ffffff;
+}
+
+.signup-form__submit-button:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+
+.signup-form__cancel-button {
+    border: none;
+    background-color: #f1c40f;
+    color: #ffffff;
+}
+
+.signup-form__bottom-link-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.signup-form__bottom-link-text {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.signup-form__bottom-link {
+    color: #111827;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+@media (max-width: 640px) {
+    .signup-card {
+        padding: 32px 20px 28px;
+    }
+
+    .signup-card__title {
+        font-size: 32px;
+    }
+
+    .signup-form__inline-row,
+    .signup-form__email-row,
+    .signup-form__button-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .signup-form__check-button,
+    .signup-form__submit-button,
+    .signup-form__cancel-button {
+        width: 100%;
+    }
+
+    .signup-form__email-at {
+        padding-bottom: 0;
+        align-self: center;
+    }
+}
+
+.signup-form__input {
+    width: 100%;
+    height: 48px;
+    border: none;
+    border-bottom: 1px solid #d1d5db;
+    background-color: #ffffff;
+    padding: 0 14px 0 0;
+    font-size: 15px;
+    color: #111827;
+    box-sizing: border-box;
+    outline: none;
+    border-radius: 0;
+}
+
+.signup-form__input:focus {
+    border-bottom-color: #84cc16;
+    box-shadow: none;
+}
+
+.signup-form__input::placeholder {
+    color: #9ca3af;
+}
+
+.signup-form__input-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.signup-form__input--password {
+    padding-right: 48px;
+}
+
+.signup-form__password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    color: #9ca3af;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.signup-form__password-toggle:hover {
+    color: #555555;
+}

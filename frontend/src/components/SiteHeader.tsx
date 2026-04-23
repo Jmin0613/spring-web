@@ -12,7 +12,7 @@ const topMenus = [
 
 type MemberInfo = {
     id: number
-    nickname?: string
+    nickName?: string
     name?: string
 }
 
@@ -25,15 +25,23 @@ export default function SiteHeader() {
     const [menuOpen, setMenuOpen] = useState(false)
 
     const displayName =
-        loginMember?.nickname ?? loginMember?.name ?? '회원'
+        loginMember?.nickName ?? loginMember?.name ?? '회원'
 
     useEffect(() => {
         async function loadMyInfo() {
             try {
-                const response = await axios.get<MemberInfo>(
+                const response = await axios.get<MemberInfo | null>(
                     `${API_BASE_URL}/members/myinfo`,
-                    { withCredentials: true },
+                    {
+                        withCredentials: true,
+                    },
                 )
+
+                if (!response.data) {
+                    setLoginMember(null)
+                    return
+                }
+
                 setLoginMember(response.data)
             } catch (error) {
                 setLoginMember(null)
@@ -41,7 +49,7 @@ export default function SiteHeader() {
         }
 
         void loadMyInfo()
-    }, [location.pathname])
+    }, [location.pathname, location.search, location.hash])
 
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
@@ -86,7 +94,7 @@ export default function SiteHeader() {
                     </Link>
 
                     <nav style={navStyle}>
-                        <Link to="/" style={activeNavLinkStyle}>
+                        <Link to="/" style={activeHomeLinkStyle}>
                             홈
                         </Link>
 
@@ -99,13 +107,13 @@ export default function SiteHeader() {
                 </div>
 
                 <div style={rightGroupStyle}>
-                    <button style={iconButtonStyle} aria-label="검색">
+                    <button type="button" style={iconButtonStyle} aria-label="검색">
                         🔍
                     </button>
-                    <button style={iconButtonStyle} aria-label="장바구니">
+                    <button type="button" style={iconButtonStyle} aria-label="장바구니">
                         🛒
                     </button>
-                    <button style={iconButtonStyle} aria-label="배송">
+                    <button type="button" style={iconButtonStyle} aria-label="배송">
                         🚚
                     </button>
 
@@ -233,7 +241,7 @@ const navLinkStyle = {
     fontWeight: 700,
 } as const
 
-const activeNavLinkStyle = {
+const activeHomeLinkStyle = {
     textDecoration: 'none',
     color: '#111827',
     fontSize: '16px',
@@ -273,7 +281,7 @@ const profileMenuWrapStyle = {
 const profileButtonStyle = {
     minWidth: '118px',
     height: '46px',
-    border: '1px solid #111827',
+    border: '1px solid #d1d5db',
     backgroundColor: '#ffffff',
     color: '#111827',
     borderRadius: '8px',
@@ -309,7 +317,7 @@ const profileNameStyle = {
 
 const profileArrowStyle = {
     fontSize: '12px',
-    color: '#374151',
+    color: '#6b7280',
 } as const
 
 const dropdownMenuStyle = {

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { fetchNoticeList } from '../api/noticeApi'
 import type { NoticeListItem } from '../types/notice'
 import './NoticeListPage.css'
+import SiteHeader from '../components/SiteHeader'
 
 function formatDate(dateString: string) {
     const date = new Date(dateString)
@@ -75,6 +76,7 @@ export default function NoticeListPage() {
     if (loading) {
         return (
             <div className="notice-page">
+                <SiteHeader />
                 <div className="notice-container">
                     <p className="notice-state-text">공지 목록을 불러오는 중입니다...</p>
                 </div>
@@ -85,6 +87,7 @@ export default function NoticeListPage() {
     if (error) {
         return (
             <div className="notice-page">
+                <SiteHeader />
                 <div className="notice-container">
                     <p className="notice-state-text">{error}</p>
                 </div>
@@ -94,6 +97,7 @@ export default function NoticeListPage() {
 
     return (
         <div className="notice-page">
+            <SiteHeader />
             <div className="notice-container">
                 <header className="notice-header">
                     <p className="notice-header-badge">NOTICE</p>

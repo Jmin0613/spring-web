@@ -14,12 +14,14 @@ public class MemberInfoResponse {
     private String loginId;
     private String email;
     private String name;
+    private String nickName;
     private Role role;
 
     // fromEntity가 내부에서 호출할 생성자
     public MemberInfoResponse(Member member){
         this.id = member.getId(); this.loginId = member.getLoginId();
         this.email = member.getEmail(); this.name = member.getName(); this.role = getRole();
+        this.nickName = member.getNickName();
     }
 
     // 엔티티 -> DTO

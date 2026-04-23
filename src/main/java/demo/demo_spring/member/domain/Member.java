@@ -33,25 +33,29 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(unique = true)
+    private String phoneNumber;
+
     private Member(String loginId, String password,
-                   String email, String name, String nickName){
+                   String email, String name, String nickName, String phoneNumber){
         // 회원가입이기에 모두 체크
         if(loginId == null || loginId.isBlank()){ throw new IllegalStateException("로그인 아이디를 입력해주세요.");}
         if(password == null || password.isBlank()){ throw new IllegalStateException("비밀번호를 입력해주세요.");}
         if(email == null || email.isBlank()){ throw new IllegalStateException("이메일을 입력해주세요.");}
         if(name == null || name.isBlank()){ throw new IllegalStateException("이름을 입력해주세요.");}
         if(nickName == null || nickName.isBlank()){ throw new IllegalStateException("닉네임을 입력해주세요.");}
+        if(phoneNumber == null || phoneNumber.isBlank()){ throw new IllegalStateException("전화번호를 입력해주세요,"); }
 
         this.loginId = loginId; this.password=password;
         this.email=email; this.name=name; this.nickName = nickName;
-        this.role=Role.USER;
+        this.role=Role.USER; this.phoneNumber = phoneNumber;
     }
 
     // 외부 호출용 회원가입 메서드
     public static Member createMember(String loginId, String password,
-                                      String email, String name, String nickName){
+                                      String email, String name, String nickName, String phoneNumber){
         return new Member(
-                loginId, password, email, name, nickName
+                loginId, password, email, name, nickName, phoneNumber
         );
     }
 

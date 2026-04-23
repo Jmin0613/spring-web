@@ -1,6 +1,7 @@
 package demo.demo_spring.member.service;
 
 import demo.demo_spring.member.domain.Member;
+import demo.demo_spring.member.dto.LoginIdCheckResponse;
 import demo.demo_spring.member.dto.MemberCreateRequest;
 import demo.demo_spring.member.dto.MemberFindResponse;
 import demo.demo_spring.member.repository.MemberRepository;
@@ -21,14 +22,15 @@ public class MemberService {
 
     // 회원가입 + 중복 체크
     public Long create(MemberCreateRequest request) {
-        // loginId, email, nickName 중복 체크
+        // loginId, email, nickName, phoneNumber 중복 체크
         validateDuplicateLoginId(request.getLoginId());
         validateDuplicateEmail(request.getEmail());
         validateDuplicateNickName(request.getNickName());
+        validateDuplicatePhoneNumber(request.getPhoneNumber());
 
         Member member = Member.createMember(
                 request.getLoginId(), request.getPassword(),
-                request.getEmail(), request.getName(), request.getNickName()
+                request.getEmail(), request.getName(), request.getNickName(), request.getPhoneNumber()
         );
         memberRepository.save(member);
         return member.getId();
@@ -50,6 +52,26 @@ public class MemberService {
         if(memberRepository.existsByNickName(nickName)){
             throw new IllegalStateException("이미 존재하는 닉네임입니다.");
         }
+    }
+    // 핸드폰 번호 중복 검사
+    private void validateDuplicatePhoneNumber(String phoneNumber){
+        if(memberRepository.existsByPhoneNumber(phoneNumber)){
+            throw new IllegalStateException("이미 가입된 전화번호입니다.");
+        }
+    }
+
+    // 회원가입 시, 로그인id 중복 확인용
+    // validateDuplicateLoginId같은 저장용이 아닌, 프론트에서 중복확인 버튼 눌렀을 때 미리 알려주는 용도.
+    public LoginIdCheckResponse checkLoginId(String loginId){
+        if(loginId == null || loginId.isBlank()){
+            throw new IllegalStateException("로그인 아이디를 입력해주세요.");
+        }
+
+        if(memberRepository.existsByLoginId(loginId)){
+            return LoginIdCheckResponse.unavailable();
+        }
+
+        return LoginIdCheckResponse.available();
     }
 
     // 로그인

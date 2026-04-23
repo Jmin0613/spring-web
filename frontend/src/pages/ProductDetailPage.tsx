@@ -106,7 +106,7 @@ type ProductInquiryDetailItem = { // 문의 상세보기
 
 type MemberInfo = { // 로그인 멤버 정보
     id: number
-    nickname?: string
+    nickName?: string
     name?: string
 }
 
@@ -527,6 +527,12 @@ export default function ProductDetailPage() {
             const response = await axios.get(`${API_BASE_URL}/members/myinfo`, {
                 withCredentials: true,
             })
+
+            if (!response.data) {
+                setCurrentMember(null)
+                return
+            }
+
             setCurrentMember(response.data)
         } catch (e) {
             setCurrentMember(null)

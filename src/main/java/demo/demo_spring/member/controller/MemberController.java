@@ -1,11 +1,9 @@
 package demo.demo_spring.member.controller;
 
-import demo.demo_spring.member.dto.MemberCreateRequest;
-import demo.demo_spring.member.dto.MemberFindResponse;
-import demo.demo_spring.member.dto.MemberInfoResponse;
-import demo.demo_spring.member.dto.MemberLoginRequest;
+import demo.demo_spring.member.dto.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.member.domain.Member;
@@ -24,6 +22,12 @@ public class MemberController {
     @PostMapping("/members")
     public Long save(@RequestBody @Valid MemberCreateRequest request){
         return memberService.create(request);
+    }
+
+    // 회원가입 - 로그인id 중복확인
+    @GetMapping("/members/check-login-id")
+    public LoginIdCheckResponse checkLoginId(@RequestParam String loginId) {
+        return memberService.checkLoginId(loginId);
     }
 
     //회원 로그인
@@ -48,13 +52,14 @@ public class MemberController {
 
     //내 정보 조회
     @GetMapping("/members/myinfo")
-    public MemberInfoResponse myInfo(HttpSession session){
-        Member loginMember = (Member)session.getAttribute("loginMember");
+    public ResponseEntity<MemberInfoResponse> myInfo(HttpSession session) {
+        Member loginMember = (Member) session.getAttribute("loginMember");
 
-        if(loginMember == null){ throw new IllegalStateException("로그인이 필요합니다."); }
+        if (loginMember == null) {
+            return ResponseEntity.noContent().build();
+        }
 
-        Member member = memberService.getMember(loginMember.getId());
-        return MemberInfoResponse.fromEntity(member);
+        return ResponseEntity.ok(MemberInfoResponse.fromEntity(loginMember));
     }
     //--------------->
     // 이런 인증체크 나중가서 더 많아지면 컨트롤러마다 일일이 귀찮으니

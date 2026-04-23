@@ -7,6 +7,7 @@ import HotDealDetailPage from './pages/HotDealDetailPage'
 import ProductDetailPage from './pages/ProductDetailPage'
 import LoginPage from './pages/LoginPage'
 import SiteHeader from './components/SiteHeader'
+import SignupPage from './pages/SignupPage'
 
 // 최상위 루트 컴포넌트
 /*
@@ -16,12 +17,6 @@ App.tsx에서 하는 일
     3. 페이지 분기
 main.tsx가 앱을 시작시키는 파일이라면, App.tsx는 시작된 앱의 제일 큰 화면 뼈대
  */
-
-type MemberInfo = {
-    id: number
-    nickname?: string
-    name?: string
-}
 
 type HotDealApiItem = {
     hotDealId: number
@@ -150,7 +145,6 @@ function getProductSubText(status: string, category: string) {
 }
 
 function HomePage() {
-    const [loginMember, setLoginMember] = useState<MemberInfo | null>(null)
 
     const [hotDeals, setHotDeals] = useState<HotDealApiItem[]>([])
     const [hotDealsLoading, setHotDealsLoading] = useState(true)
@@ -159,21 +153,6 @@ function HomePage() {
     const [products, setProducts] = useState<ProductApiItem[]>([])
     const [productsLoading, setProductsLoading] = useState(true)
     const [productsError, setProductsError] = useState('')
-
-    useEffect(() => {
-        async function loadMyInfo() {
-            try {
-                const response = await axios.get(`${API_BASE_URL}/members/myinfo`, {
-                    withCredentials: true,
-                })
-                setLoginMember(response.data)
-            } catch (error) {
-                setLoginMember(null)
-            }
-        }
-
-        void loadMyInfo()
-    }, [])
 
     useEffect(() => {
         async function loadHotDeals() {
@@ -546,6 +525,7 @@ export default function App() {
         <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
             <Route path="/notices" element={<NoticeListPage />} />
             <Route path="/notices/:id" element={<NoticeDetailPage />} />
             <Route path="/hotdeals/:id" element={<HotDealDetailPage />} />

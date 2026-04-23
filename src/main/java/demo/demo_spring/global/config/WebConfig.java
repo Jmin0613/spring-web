@@ -19,7 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
         //1. 로그인 체크 인터셉터 등록
         registry.addInterceptor(new LoginCheckInterceptor())
                 .order(1) //인터셉터 실행 순서
-                .addPathPatterns("/members/myinfo", "/hotdeals/*/buy", "/products/*/buy",
+                .addPathPatterns("/hotdeals/*/buy", "/products/*/buy",
                         "/orders/**", "/wishlist", "/cartItems/**", "notification/**");
         // addPathPatterns() -> 적용할 경로
         // excludePathPatterns() -> 제외할 경로

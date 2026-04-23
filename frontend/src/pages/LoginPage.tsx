@@ -177,16 +177,26 @@ export default function LoginPage() {
                         </button>
                     </form>
 
-                    <div className="login-card__links">
-                        <Link to="/members/new" className="login-card__link">
-                            회원가입
-                        </Link>
-                        <button type="button" className="login-card__text-button">
-                            아이디 찾기
-                        </button>
-                        <button type="button" className="login-card__text-button">
-                            비밀번호 찾기
-                        </button>
+                    <div className="login-card__helper">
+                        <p className="login-card__helper-text">아직 회원이 아니신가요?</p>
+
+                        <div className="login-card__helper-links">
+                            <Link to="/signup" className="login-card__helper-link">
+                                회원가입
+                            </Link>
+
+                            <span className="login-card__helper-divider">|</span>
+
+                            <button type="button" className="login-card__helper-button">
+                                아이디 찾기
+                            </button>
+
+                            <span className="login-card__helper-divider">|</span>
+
+                            <button type="button" className="login-card__helper-button">
+                                비밀번호 찾기
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
