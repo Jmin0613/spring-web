@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Link, Route, Routes, useLocation } from 'react-router-dom'
+import { Link, Route, Routes } from 'react-router-dom'
 import NoticeListPage from './pages/NoticeListPage'
 import NoticeDetailPage from './pages/NoticeDetailPage'
 import HotDealDetailPage from './pages/HotDealDetailPage'
 import ProductDetailPage from './pages/ProductDetailPage'
 import LoginPage from './pages/LoginPage'
-import MyPage from './pages/MyPage'
+import SiteHeader from './components/SiteHeader'
 
 // 최상위 루트 컴포넌트
 /*
@@ -46,11 +46,7 @@ type ProductApiItem = {
 }
 
 const API_BASE_URL = 'http://localhost:8080'
-const topMenus = [
-    { label: '베스트', to: '/?menu=best' },
-    { label: '공지', to: '/notices' },
-    { label: '전체핫딜', to: '/?menu=hotdeal' },
-]
+
 const categories = ['전체', '식품', '생활', '가전', '뷰티·패션', '여행·쿠폰']
 
 function formatPrice(price: number) {
@@ -154,7 +150,6 @@ function getProductSubText(status: string, category: string) {
 }
 
 function HomePage() {
-    const location = useLocation()
     const [loginMember, setLoginMember] = useState<MemberInfo | null>(null)
 
     const [hotDeals, setHotDeals] = useState<HotDealApiItem[]>([])
@@ -218,100 +213,7 @@ function HomePage() {
                 color: '#111827',
             }}
         >
-            <header
-                style={{
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 10,
-                    backgroundColor: '#ffffff',
-                    borderBottom: '1px solid #ececec',
-                }}
-            >
-                <div
-                    style={{
-                        maxWidth: '1200px',
-                        margin: '0 auto',
-                        padding: '20px 24px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '24px',
-                    }}
-                >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
-                        <Link
-                            to="/"
-                            style={{
-                                textDecoration: 'none',
-                                color: '#111827',
-                                fontSize: '32px',
-                                fontWeight: 900,
-                                letterSpacing: '-0.04em',
-                            }}
-                        >
-                            WAT
-                            <span style={{ color: '#eab308' }}>%</span>
-                        </Link>
-
-                        <nav style={{ display: 'flex', alignItems: 'center', gap: '22px' }}>
-                            <Link
-                                to="/"
-                                style={{
-                                    textDecoration: 'none',
-                                    color: '#111827',
-                                    fontWeight: 700,
-                                    paddingBottom: '8px',
-                                    borderBottom: '3px solid #111827',
-                                }}
-                            >
-                                홈
-                            </Link>
-
-                            {topMenus.map((menu) => (
-                                <Link
-                                    key={menu.label}
-                                    to={menu.to}
-                                    style={navLinkStyle}
-                                >
-                                    {menu.label}
-                                </Link>
-                            ))}
-                        </nav>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
-                        <button type="button" style={iconButtonStyle}>
-                            🔍
-                        </button>
-                        <button type="button" style={iconButtonStyle}>
-                            🛒
-                        </button>
-                        <button type="button" style={iconButtonStyle}>
-                            🚚
-                        </button>
-
-                        {loginMember ? (
-                            <Link to="/mypage" style={mypageIconButtonStyle} aria-label="마이페이지">
-                                👤
-                            </Link>
-                        ) : (
-                            <Link
-                                to="/login"
-                                state={{
-                                    from: {
-                                        pathname: location.pathname,
-                                        search: location.search,
-                                        hash: location.hash,
-                                    },
-                                }}
-                                style={loginButtonStyle}
-                            >
-                                로그인
-                            </Link>
-                        )}
-                    </div>
-                </div>
-            </header>
+            <SiteHeader />
 
             <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '36px 24px 96px' }}>
                 <section
@@ -557,22 +459,17 @@ function HomeSectionTitle({ title, description }: { title: string; description: 
     )
 }
 
-const iconButtonStyle = {
-    border: 'none',
-    backgroundColor: 'transparent',
-    fontSize: '24px',
-    cursor: 'pointer',
-} as const
-
-const loginButtonStyle = {
-    border: '1px solid #e5e7eb',
-    backgroundColor: '#ffffff',
-    color: '#111827',
-    borderRadius: '12px',
-    padding: '12px 18px',
-    fontWeight: 700,
-    cursor: 'pointer',
-} as const
+function PlaceholderPage({ title }: { title: string }) {
+    return (
+        <div style={{ minHeight: '100vh', backgroundColor: '#ffffff' }}>
+            <SiteHeader />
+            <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px' }}>
+                <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 900 }}>{title}</h1>
+                <p style={{ marginTop: '12px', color: '#6b7280' }}>추후 구현 예정입니다.</p>
+            </div>
+        </div>
+    )
+}
 
 const hotDealCardStyle = {
     border: '1px solid #ececec',
@@ -643,28 +540,6 @@ const stateBoxStyle = {
     backgroundColor: '#ffffff',
 } as const
 
-const navLinkStyle = {
-    textDecoration: 'none',
-    color: '#111827',
-    fontSize: '16px',
-    fontWeight: 700,
-} as const
-
-const mypageIconButtonStyle = {
-    width: '46px',
-    height: '46px',
-    border: '1px solid #e5e7eb',
-    backgroundColor: '#ffffff',
-    color: '#111827',
-    borderRadius: '999px',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '22px',
-    cursor: 'pointer',
-    textDecoration: 'none',
-} as const
-
 // 라우트
 export default function App() {
     return (
@@ -675,7 +550,9 @@ export default function App() {
             <Route path="/notices/:id" element={<NoticeDetailPage />} />
             <Route path="/hotdeals/:id" element={<HotDealDetailPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
-            <Route path="/mypage" element={<MyPage />} />
+            <Route path="/mypage" element={<PlaceholderPage title="마이페이지" />} />
+            <Route path="/wishlist" element={<PlaceholderPage title="찜한 상품" />} />
+            <Route path="/orders" element={<PlaceholderPage title="주문 목록" />} />
         </Routes>
     )
 }

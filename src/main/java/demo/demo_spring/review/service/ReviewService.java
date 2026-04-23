@@ -120,7 +120,7 @@ public class ReviewService {
 
     // 리뷰 조회 목록
     public ReviewPageResponse findAllReview(Long productId, ReviewSortType sort,
-                                            Integer rating, int page, int size){
+                                            Integer rating, int page, int size, Long memberId){
         // 요청한 정렬/별점/페이지 조건이 유효한지 검사
         validateReviewSearchCondition(rating, page, size);
 
@@ -135,7 +135,18 @@ public class ReviewService {
         List<ReviewListResponse> reviews = reviewPage.getContent()
                 // reviewPage.getContent() -> 현재 페이지에 해당하는 리뷰 목록만 꺼냄
                 .stream()
-                .map(ReviewListResponse::fromEntity)
+                .map(review -> {
+                    boolean likedByCurrentUser = false;
+                    // 추천여부. 기본값은 false.
+                    // 비로그인 사용자가 볼 수 있고, 아직 추천 여부 확인 전이기에.
+
+                    if (memberId != null) { // 로그인한 상태인지 확인
+                        likedByCurrentUser = reviewLikeRepository // 로그인했으면 해당 사용자가 해당 리뷰 추천했는지 확인
+                                .existsByMemberIdAndReviewId(memberId, review.getId());
+                    }
+
+                    return ReviewListResponse.fromEntity(review, likedByCurrentUser); // 리뷰 카드DTO + 추천여부
+                })
                 .toList();
 
         // productId로 해당 리뷰 통계 생성

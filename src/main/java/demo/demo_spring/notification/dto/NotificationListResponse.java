@@ -23,9 +23,6 @@ public class NotificationListResponse {
     private Long relatedId;
 
     private LocalDateTime createdAt;
-
-
-
     private NotificationListResponse(Notification notification){
         this.notificationId = notification.getId();
         this.title = notification.getTitle(); this.content = notification.getContent();

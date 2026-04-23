@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import axios from 'axios'
 
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 // 페이지 이동(라우팅) 담당하는 별도의 라이브러리 도구들
 
 import SiteHeader from '../components/SiteHeader'
@@ -50,7 +50,7 @@ type ReviewSummary = { //리뷰 통계 요약
     oneStarCount: number
 }
 
-type ProductReviewItem = { //리뷰 상품 정보
+type ProductReviewItem = { // 리뷰 상품 정보
     reviewId: number
     writerNickName?: string
     rating: number
@@ -58,6 +58,7 @@ type ProductReviewItem = { //리뷰 상품 정보
     content: string
     createdAt: string
     likeCount?: number
+    likedByCurrentUser?: boolean
     productNameSnapshot?: string
     quantity?: number
 }
@@ -188,46 +189,9 @@ function getReviewLikeLabel(likeCount: number) { // 리뷰 추천버튼에 들�
     return `${likeCount}명에게 도움이 됐어요`
 }
 
-// 리뷰 목록을 추천순(베스트순)으로 정렬
-function sortReviewsByBest(reviews: ProductReviewItem[]) {
-    // 바깥쪽 return : 함수의 결과물(정렬된 새 배열)을 반환
-    //          역할 : 리뷰 배열을 가져와서 정렬된 결과물을 줌
-    //          리턴값 : 최종적으로 정렬이 끝난 배열 전체
-
-    // 안쪽 return : sort()가 내부적으로 a, b를 비교할때 사용하는 비교함수의 결과물을 반환
-    //          역할 : sort()가 A랑 B 중에 누가 더 위인지 판단
-    //          리턴값 : sort()에게 알려줄 숫자 하나 (likeDiff)
-
-    return [...reviews].sort((a, b) => {
-        // ... -> 스프레드Spread 연산자. 배열이나 객체를 펼침.
-        // sort((a, b) => { ... }) -> 리턴하는 값이 음수면 알아서 a,b의 자리를 바꿈.
-        // 배열.sort((a, b) => 비교결과)
-
-        // likeDiff -> 두 리뷰의 추천수 차이 계산한 결과값을 담음.
-        const likeDiff = (b.likeCount ?? 0) - (a.likeCount ?? 0)
-        // 추천수가 많은 리뷰가 위로 올라가게 함 -> 내림차순 정렬
-        // ?? 0 -> 추천수가 null이거나 undefined일 경우 0으로 취급하여 계산 오류 방지
-
-        // 자바스크립트/타입스크립트 정렬 로직의 Short-circuit(단락) 방식
-        if (likeDiff !== 0) {
-            return likeDiff
-        }
-
-        // 추천수가 둘 다 0인 경우
-        // 이럴때는 생성날짜 비교하여 최신리뷰가 위로 오게 정렬
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    })
-}
-
 // 화면에 보여줄 작성자 닉네임
 function getWriterLabel(target: WriterLabelTarget) {
     return target.writerNickName ?? '알 수 없음'
-}
-
-// 현재 로그인한 사용자의 화면에 표시할 닉네임을 결정
-function getCurrentMemberLabel(member: MemberInfo | null) {
-    if (!member) return '' // 로그인 안해서 member 정보 없을때, 빈 문자열 반환
-    return member.nickname ?? member.name ?? '' // nickName을 사용하겠지만, 혹시 모르니 name과 빈 문자열을 넣어둠.
 }
 
 function isSecretInquiry(inquiry: ProductInquiryListItem) {
@@ -357,6 +321,9 @@ function PageState({ text }: { text: string }) {
 }
 
 export default function ProductDetailPage() {
+    const navigate = useNavigate()
+    const location = useLocation()
+
     // {} -> 객체 구조 분해. 이름이 중요할 때.
     // 객체 안에 있는 여러 데이터 중, 원하는 '이름'의 필드만 쏙 골라오기.
 
@@ -449,6 +416,20 @@ export default function ProductDetailPage() {
     const [inquirySubmitError, setInquirySubmitError] = useState('')
     // 등록 실패 시, 사용자에게 보여줄 에러메세지.
 
+    const [editingInquiryId, setEditingInquiryId] = useState<number | null>(null)
+
+    function moveToLoginPage() {
+        navigate('/login', {
+            state: {
+                from: {
+                    pathname: location.pathname,
+                    search: location.search,
+                    hash: location.hash,
+                },
+            },
+        })
+    }
+
     function handleTabChange(tab: ProductDetailTab) {
         const nextSearchParams = new URLSearchParams(searchParams)
 
@@ -500,10 +481,21 @@ export default function ProductDetailPage() {
 
             const response = await axios.get<ReviewPageResponse>(
                 `${API_BASE_URL}/products/${id}/reviews`,
-                { params },
+                {
+                    params,
+                    withCredentials: true,
+                },
             )
 
+            const nextLikedMap: Record<number, boolean> = {}
+
+            response.data.reviews.forEach((review) => {
+                nextLikedMap[review.reviewId] = review.likedByCurrentUser ?? false
+            })
+
             setReviewPageData(response.data)
+
+            setLikedReviewMap(nextLikedMap)
         } catch (e) {
             setReviewsError('상품후기를 불러오지 못했습니다.')
         } finally {
@@ -583,8 +575,6 @@ export default function ProductDetailPage() {
     즉, useEffect는 화면 렌더 후에 필요한 부가 작업(API 호출 같은 것)을 자동 실행하는 곳임.
      */
 
-    const currentMemberLabel = getCurrentMemberLabel(currentMember)
-
     const reviewSummary = reviewPageData?.summary ?? null
     const reviewItems = reviewPageData?.reviews ?? []
     const reviewTotalPages = reviewPageData?.totalPages ?? 0
@@ -599,16 +589,11 @@ export default function ProductDetailPage() {
     const oneStarPercent = reviewSummary ? getRatingPercent(reviewSummary.oneStarCount, totalReviewCount) : 0
 
     function isMyInquiry(inquiry: ProductInquiryListItem) {
-        if (currentMember?.id && inquiry.writerId) {
-            // currentMember?.id -> 로그인 정보가 있으면 id가져오고, 없으면 에러 대신 null취급
-            return inquiry.writerId === currentMember.id
-        }
-
-        if (!currentMemberLabel) {
+        if (!currentMember?.id) {
             return false
         }
 
-        return getWriterLabel(inquiry) === currentMemberLabel
+        return inquiry.writerId === currentMember.id
     }
 
     const filteredInquiries = useMemo(() => {
@@ -674,34 +659,23 @@ export default function ProductDetailPage() {
                 [reviewId]: liked,
             }))
 
+            // 현재 보이는 카드의 숫자/버튼 상태만 바꾸고
+            // 리뷰 목록 순서는 그대로 유지
             setReviewPageData((prev) => {
                 if (!prev) return prev
 
-                const updatedReviews = prev.reviews.map((review) =>
-                    review.reviewId === reviewId
-                        ? {
-                            ...review,
-                            likeCount,
-                        }
-                        : review,
-                )
-
                 return {
                     ...prev,
-                    reviews:
-                        reviewSort === 'BEST'
-                            ? sortReviewsByBest(updatedReviews)
-                            : updatedReviews,
+                    reviews: prev.reviews.map((review) =>
+                        review.reviewId === reviewId
+                            ? {
+                                ...review,
+                                likeCount,
+                            }
+                            : review,
+                    ),
                 }
             })
-
-            if (reviewSort === 'BEST') {
-                if (reviewPage !== 0) {
-                    setReviewPage(0)
-                } else {
-                    await loadReviews()
-                }
-            }
         } catch (e) {
             if (axios.isAxiosError(e) && [401, 403].includes(e.response?.status ?? 0)) {
                 alert('리뷰 추천은 로그인 후 이용해주세요.')
@@ -778,17 +752,61 @@ export default function ProductDetailPage() {
             setInquirySubmitLoading(true)
             setInquirySubmitError('')
 
-            await axios.post(
-                `${API_BASE_URL}/products/${id}/inquiries`,
-                {
-                    title: inquiryForm.title,
-                    content: inquiryForm.content,
-                    secret: inquiryForm.secret,
-                },
-                {
-                    withCredentials: true,
-                },
-            )
+            if (editingInquiryId) {
+                await axios.patch(
+                    `${API_BASE_URL}/products/${id}/inquiries/${editingInquiryId}`,
+                    {
+                        title: inquiryForm.title,
+                        content: inquiryForm.content,
+                        secret: inquiryForm.secret,
+                    },
+                    {
+                        withCredentials: true,
+                    },
+                )
+
+                // 문의 목록 제목/비밀글 여부 즉시 반영
+                setInquiries((prev) =>
+                    prev.map((inquiry) =>
+                        inquiry.id === editingInquiryId
+                            ? {
+                                ...inquiry,
+                                title: inquiryForm.title,
+                                secret: inquiryForm.secret,
+                            }
+                            : inquiry,
+                    ),
+                )
+
+                // 이미 열어본 상세 캐시도 즉시 반영
+                setInquiryDetailMap((prev) => {
+                    const currentDetail = prev[editingInquiryId]
+                    if (!currentDetail) return prev
+
+                    return {
+                        ...prev,
+                        [editingInquiryId]: {
+                            ...currentDetail,
+                            title: inquiryForm.title,
+                            content: inquiryForm.content,
+                        },
+                    }
+                })
+            } else {
+                await axios.post(
+                    `${API_BASE_URL}/products/${id}/inquiries`,
+                    {
+                        title: inquiryForm.title,
+                        content: inquiryForm.content,
+                        secret: inquiryForm.secret,
+                    },
+                    {
+                        withCredentials: true,
+                    },
+                )
+
+                await loadInquiries()
+            }
 
             setInquiryForm({
                 title: '',
@@ -796,13 +814,57 @@ export default function ProductDetailPage() {
                 secret: false,
             })
             setShowInquiryForm(false)
+            setEditingInquiryId(null)
             setViewMode('all')
             setCurrentPage(1)
-            await loadInquiries()
         } catch (e) {
             setInquirySubmitError(getInquirySubmitErrorMessage(e))
         } finally {
             setInquirySubmitLoading(false)
+        }
+    }
+
+    function handleStartEditInquiry(inquiry: ProductInquiryListItem,
+                                    detailItem: ProductInquiryDetailItem,
+    ) {
+        setEditingInquiryId(inquiry.id)
+        setShowInquiryForm(true)
+        setInquirySubmitError('')
+
+        setInquiryForm({
+            title: inquiry.title,
+            content: detailItem.content ?? '',
+            secret: inquiry.secret ?? false,
+        })
+    }
+
+    async function handleDeleteInquiry(inquiryId: number) {
+        if (!id) return
+
+        const confirmed = window.confirm('문의글을 삭제할까요?')
+        if (!confirmed) return
+
+        try {
+            await axios.delete(
+                `${API_BASE_URL}/products/${id}/inquiries/${inquiryId}`,
+                {
+                    withCredentials: true,
+                },
+            )
+
+            if (openInquiryId === inquiryId) {
+                setOpenInquiryId(null)
+            }
+
+            setInquiryDetailMap((prev) => {
+                const next = { ...prev }
+                delete next[inquiryId]
+                return next
+            })
+
+            await loadInquiries()
+        } catch (e) {
+            alert('문의 삭제에 실패했습니다.')
         }
     }
 
@@ -1135,7 +1197,14 @@ export default function ProductDetailPage() {
                                 <div style={inquiryTopControlRowStyle}>
                                     <button
                                         style={inquiryWriteButtonStyle}
-                                        onClick={() => setShowInquiryForm(true)}
+                                        onClick={() => {
+                                            if (!currentMember) {
+                                                moveToLoginPage()
+                                                return
+                                            }
+
+                                            setShowInquiryForm(true)
+                                        }}
                                     >
                                         문의하기
                                     </button>
@@ -1144,10 +1213,14 @@ export default function ProductDetailPage() {
                                         <button
                                             style={viewMode === 'mine' ? activeSmallButtonStyle : smallButtonStyle}
                                             onClick={() => {
+                                                if (!currentMember) {
+                                                    moveToLoginPage()
+                                                    return
+                                                }
+
                                                 setViewMode('mine')
                                                 setCurrentPage(1)
                                             }}
-                                            disabled={!currentMember}
                                         >
                                             내 문의보기
                                         </button>
@@ -1172,7 +1245,9 @@ export default function ProductDetailPage() {
 
                                 {showInquiryForm && (
                                     <div style={inquiryFormWrapStyle}>
-                                        <div style={inquiryFormTitleStyle}>상품문의 작성</div>
+                                        <div style={inquiryFormTitleStyle}>
+                                            {editingInquiryId ? '상품문의 수정' : '상품문의 작성'}
+                                        </div>
 
                                         <input
                                             type="text"
@@ -1223,6 +1298,7 @@ export default function ProductDetailPage() {
                                                 onClick={() => {
                                                     setShowInquiryForm(false)
                                                     setInquirySubmitError('')
+                                                    setEditingInquiryId(null)
                                                 }}
                                                 disabled={inquirySubmitLoading}
                                             >
@@ -1234,7 +1310,14 @@ export default function ProductDetailPage() {
                                                 onClick={handleSubmitInquiry}
                                                 disabled={inquirySubmitLoading}
                                             >
-                                                {inquirySubmitLoading ? '등록 중...' : '등록'}
+                                                {inquirySubmitLoading
+                                                    ? editingInquiryId
+                                                        ? '수정 중...'
+                                                        : '등록 중...'
+                                                    : editingInquiryId
+                                                        ? '수정'
+                                                        : '등록'
+                                                }
                                             </button>
                                         </div>
                                     </div>
@@ -1320,6 +1403,29 @@ export default function ProductDetailPage() {
                                                                                 <div style={inquiryDetailTextStyle}>
                                                                                     {detailItem.answerContent}
                                                                                 </div>
+                                                                            </div>
+                                                                        )}
+
+                                                                        {isMyInquiry(inquiry) && (
+                                                                            <div style={inquiryActionRowStyle}>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    style={inquiryTextActionButtonStyle}
+                                                                                    onClick={() => {
+                                                                                        if (!detailItem) return
+                                                                                        handleStartEditInquiry(inquiry, detailItem)
+                                                                                    }}
+                                                                                >
+                                                                                    수정
+                                                                                </button>
+
+                                                                                <button
+                                                                                    type="button"
+                                                                                    style={inquiryTextActionButtonStyle}
+                                                                                    onClick={() => handleDeleteInquiry(inquiry.id)}
+                                                                                >
+                                                                                    삭제
+                                                                                </button>
                                                                             </div>
                                                                         )}
                                                                     </>
@@ -2259,4 +2365,21 @@ const heroRatingCountStyle = {
     color: '#6b7280',
     fontSize: '14px',
     fontWeight: 700,
+} as const
+
+const inquiryActionRowStyle = {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '14px',
+    marginTop: '12px',
+} as const
+
+const inquiryTextActionButtonStyle = {
+    border: 'none',
+    backgroundColor: 'transparent',
+    color: '#9ca3af',
+    fontSize: '13px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    padding: 0,
 } as const

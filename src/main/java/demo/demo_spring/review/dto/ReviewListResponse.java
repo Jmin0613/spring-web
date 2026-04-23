@@ -22,7 +22,9 @@ public class ReviewListResponse {
     private String productNameSnapshot;
     private int quantity;
 
-    private ReviewListResponse(Review review){
+    private boolean likedByCurrentUser;
+
+    private ReviewListResponse(Review review, boolean likedByCurrentUser){
         this.reviewId = review.getId();
         this.writerNickName = review.getMember().getNickName();
         this.rating = review.getRating();
@@ -32,9 +34,10 @@ public class ReviewListResponse {
         this.likeCount = review.getLikeCount();
         this.productNameSnapshot = review.getProductNameSnapshot();
         this.quantity = review.getOrderItem().getQuantity();
+        this.likedByCurrentUser = likedByCurrentUser;
     }
 
-    public static ReviewListResponse fromEntity(Review review){
-        return new ReviewListResponse(review);
+    public static ReviewListResponse fromEntity(Review review, boolean likedByCurrentUser){
+        return new ReviewListResponse(review, likedByCurrentUser);
     }
 }

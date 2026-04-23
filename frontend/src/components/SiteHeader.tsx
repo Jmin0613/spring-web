@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 const API_BASE_URL = 'http://localhost:8080'
 
@@ -18,14 +18,22 @@ type MemberInfo = {
 
 export default function SiteHeader() {
     const location = useLocation()
+    const navigate = useNavigate()
+    const menuRef = useRef<HTMLDivElement | null>(null)
+
     const [loginMember, setLoginMember] = useState<MemberInfo | null>(null)
+    const [menuOpen, setMenuOpen] = useState(false)
+
+    const displayName =
+        loginMember?.nickname ?? loginMember?.name ?? '회원'
 
     useEffect(() => {
         async function loadMyInfo() {
             try {
-                const response = await axios.get(`${API_BASE_URL}/members/myinfo`, {
-                    withCredentials: true,
-                })
+                const response = await axios.get<MemberInfo>(
+                    `${API_BASE_URL}/members/myinfo`,
+                    { withCredentials: true },
+                )
                 setLoginMember(response.data)
             } catch (error) {
                 setLoginMember(null)
@@ -33,7 +41,40 @@ export default function SiteHeader() {
         }
 
         void loadMyInfo()
-    }, [])
+    }, [location.pathname])
+
+    useEffect(() => {
+        function handleClickOutside(e: MouseEvent) {
+            if (!menuRef.current) return
+            if (!menuRef.current.contains(e.target as Node)) {
+                setMenuOpen(false)
+            }
+        }
+
+        if (menuOpen) {
+            document.addEventListener('mousedown', handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [menuOpen])
+
+    async function handleLogout() {
+        try {
+            await axios.post(
+                `${API_BASE_URL}/logout`,
+                {},
+                { withCredentials: true },
+            )
+
+            setLoginMember(null)
+            setMenuOpen(false)
+            navigate('/', { replace: true })
+        } catch (error) {
+            alert('로그아웃에 실패했습니다.')
+        }
+    }
 
     return (
         <header style={headerStyle}>
@@ -69,9 +110,55 @@ export default function SiteHeader() {
                     </button>
 
                     {loginMember ? (
-                        <Link to="/mypage" style={mypageIconButtonStyle} aria-label="마이페이지">
-                            👤
-                        </Link>
+                        <div style={profileMenuWrapStyle} ref={menuRef}>
+                            <button
+                                type="button"
+                                style={profileButtonStyle}
+                                onClick={() => setMenuOpen((prev) => !prev)}
+                            >
+                                <span style={profileAvatarStyle}>👤</span>
+                                <span style={profileNameStyle}>{displayName}</span>
+                                <span style={profileArrowStyle}>▾</span>
+                            </button>
+
+                            {menuOpen && (
+                                <div style={dropdownMenuStyle}>
+                                    <Link
+                                        to="/mypage"
+                                        style={dropdownItemLinkStyle}
+                                        onClick={() => setMenuOpen(false)}
+                                    >
+                                        마이페이지
+                                    </Link>
+
+                                    <Link
+                                        to="/wishlist"
+                                        style={dropdownItemLinkStyle}
+                                        onClick={() => setMenuOpen(false)}
+                                    >
+                                        찜한 상품
+                                    </Link>
+
+                                    <Link
+                                        to="/orders"
+                                        style={dropdownItemLinkStyle}
+                                        onClick={() => setMenuOpen(false)}
+                                    >
+                                        주문 목록
+                                    </Link>
+
+                                    <div style={dropdownDividerStyle} />
+
+                                    <button
+                                        type="button"
+                                        style={dropdownLogoutButtonStyle}
+                                        onClick={handleLogout}
+                                    >
+                                        로그아웃
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     ) : (
                         <Link
                             to="/login"
@@ -179,17 +266,88 @@ const loginButtonStyle = {
     textDecoration: 'none',
 } as const
 
-const mypageIconButtonStyle = {
-    width: '46px',
+const profileMenuWrapStyle = {
+    position: 'relative',
+} as const
+
+const profileButtonStyle = {
+    minWidth: '118px',
     height: '46px',
-    border: '1px solid #e5e7eb',
+    border: '1px solid #111827',
     backgroundColor: '#ffffff',
     color: '#111827',
-    borderRadius: '999px',
+    borderRadius: '8px',
+    padding: '0 12px',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '22px',
+    gap: '8px',
     cursor: 'pointer',
+} as const
+
+const profileAvatarStyle = {
+    width: '26px',
+    height: '26px',
+    borderRadius: '999px',
+    backgroundColor: '#9ca3af',
+    color: '#ffffff',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '13px',
+    flexShrink: 0,
+} as const
+
+const profileNameStyle = {
+    fontSize: '15px',
+    fontWeight: 700,
+    maxWidth: '60px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+} as const
+
+const profileArrowStyle = {
+    fontSize: '12px',
+    color: '#374151',
+} as const
+
+const dropdownMenuStyle = {
+    position: 'absolute',
+    top: '56px',
+    right: 0,
+    width: '180px',
+    border: '1px solid #d1d5db',
+    borderRadius: '4px',
+    backgroundColor: '#ffffff',
+    boxShadow: '0 10px 30px rgba(17, 24, 39, 0.12)',
+    overflow: 'hidden',
+    zIndex: 30,
+} as const
+
+const dropdownItemLinkStyle = {
+    display: 'block',
+    padding: '14px 16px',
+    color: '#374151',
     textDecoration: 'none',
+    fontSize: '15px',
+    fontWeight: 500,
+    backgroundColor: '#ffffff',
+} as const
+
+const dropdownDividerStyle = {
+    height: '1px',
+    backgroundColor: '#e5e7eb',
+    margin: '4px 0',
+} as const
+
+const dropdownLogoutButtonStyle = {
+    width: '100%',
+    border: 'none',
+    backgroundColor: '#ffffff',
+    color: '#374151',
+    textAlign: 'left',
+    padding: '14px 16px',
+    fontSize: '15px',
+    cursor: 'pointer',
 } as const

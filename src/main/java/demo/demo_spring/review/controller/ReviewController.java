@@ -48,8 +48,13 @@ public class ReviewController {
                                             @RequestParam(required = false) Integer rating,
                                             // required = false -> rating 파라미터가 있어도 된고 없어도 된다. (없으면 전체 별점)
                                             @RequestParam(defaultValue = "0") int page,
-                                            @RequestParam(defaultValue = "10") int size){
-        return reviewService.findAllReview(productId, sort, rating, page, size);
+                                            @RequestParam(defaultValue = "10") int size,
+                                            HttpSession session){
+
+        Member loginMember = (Member)session.getAttribute("loginMember");
+        Long loginMemberId = (loginMember != null) ? loginMember.getId() : null;
+
+        return reviewService.findAllReview(productId, sort, rating, page, size, loginMemberId);
     }
 
     // 리뷰 통계

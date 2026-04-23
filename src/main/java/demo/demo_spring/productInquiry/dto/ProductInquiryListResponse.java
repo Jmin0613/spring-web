@@ -13,6 +13,7 @@ public class ProductInquiryListResponse {
     private String writerNickName; //작성자 닉네임
     private InquiryStatus status;
     private LocalDateTime createdAt; // 작성일
+    private Long writerId; //작성자 id
 
     private ProductInquiryListResponse(ProductInquiry productInquiry){
         this.id = productInquiry.getId();
@@ -20,6 +21,7 @@ public class ProductInquiryListResponse {
         this.writerNickName = productInquiry.getMember().getNickName();
         this.status = productInquiry.getStatus();
         this.createdAt = productInquiry.getCreatedAt();
+        this.writerId = productInquiry.getMember().getId();
     }
 
     public static ProductInquiryListResponse fromEntity(ProductInquiry productInquiry){
