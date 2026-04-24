@@ -45,6 +45,8 @@ public class CartItem {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    private boolean selected; // 구매 선택 여부
+
     private CartItem(Product product, int quantity){
         if(product == null){
             throw new IllegalStateException("장바구니 추가하려는 상품이 없습니다.");
@@ -54,6 +56,7 @@ public class CartItem {
             throw new IllegalStateException("장바구니 수량이 잘못되었습니다. 수량은 최소 1개 입니다.");
         }
         this.product = product; this.quantity = quantity;
+        this.selected = true; // 처음엔 체크 상태
     }
 
     public static CartItem createCartItem(Product product, int quantity){
@@ -63,6 +66,11 @@ public class CartItem {
     // Cart 연결
     void setCart(Cart cart){
         this.cart = cart;
+    }
+
+    // 구매 선택 메서드
+    public void changeSelected(boolean selected){
+        this.selected = selected;
     }
 
     // 같은 상품 다시 담을 시, 기존 수량 누적

@@ -110,9 +110,9 @@ export default function SiteHeader() {
                     <button type="button" style={iconButtonStyle} aria-label="검색">
                         🔍
                     </button>
-                    <button type="button" style={iconButtonStyle} aria-label="장바구니">
+                    <Link to="/cart-items" style={iconLinkStyle} aria-label="장바구니">
                         🛒
-                    </button>
+                    </Link>
                     <button type="button" style={iconButtonStyle} aria-label="배송">
                         🚚
                     </button>
@@ -358,4 +358,10 @@ const dropdownLogoutButtonStyle = {
     padding: '14px 16px',
     fontSize: '15px',
     cursor: 'pointer',
+} as const
+
+const iconLinkStyle = {
+    textDecoration: 'none',
+    fontSize: '24px',
+    lineHeight: 1,
 } as const

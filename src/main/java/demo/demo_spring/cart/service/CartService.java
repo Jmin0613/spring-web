@@ -38,111 +38,130 @@ public class CartService {
     }
 
     // 장바구니 담기
-    public Long create(Long productId, Long memberId, CartItemCreateRequest request) {
-        // 1. member회원과 product상품을 찾는다 -> member 및 product 조회
-        Member member = memberService.getMember(memberId);
+    public Long create(Long productId, Long memberId, String guestToken,
+                       CartItemCreateRequest request) {
+        // 장바구니 담을 해당 product 조회
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalStateException("장바구니에 담으시려는 상품이 없습니다."));
 
-        // 2. 요청 수량 null 체크
-        Integer quantity = request.getQuantity();
-        if (quantity == null) {
-            throw new IllegalStateException("장바구니 수량을 입력해주세요.");
+        // 카트 조회하거나 새로 만들어오기
+        Cart cart = getOrCreateCart(memberId, guestToken);
+
+        // 요청 수량 null 체크
+        int quantity = request.getQuantity();
+        if (quantity < 1) {
+            throw new IllegalStateException("장바구니 수량은 1개 이상이어야 합니다.");
         }
 
-        // 3. 회원의 cart를 찾는다. 없으면 만든다.
-        Cart cart = getOrCreateCart(member); // 진짜 Cart가 아닌, 응답용
-
-        // 4. 그 cart안에 같은 cartItem이 있는지 찾는다.
+        // cart안에 같은 cartItem이 있는지 찾기
         Optional<CartItem> foundCartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
 
-        if (foundCartItem.isPresent()) { // 있으면 그 cartItem 객체를 꺼내서 수량 증가
-            CartItem existingCartItem = foundCartItem.get(); // Optional꺼내서 저장하기
-            existingCartItem.addQuantity(quantity); // 기존꺼에 수량 더하기
+        if(foundCartItem.isPresent()){
+            CartItem existingCartItem = foundCartItem.get();
+            existingCartItem.addQuantity(quantity);
             return existingCartItem.getId();
-        } else { // 없으면 새 cartItem 생성 후 cart에 연결하고 저장
-            CartItem cartItem = CartItem.createCartItem(product, quantity); // 새로운 객체 생성
-            cart.addCartItem(cartItem); // cart에 cartItem 연결
-            CartItem savedCartItem = cartItemRepository.save(cartItem);
-            return savedCartItem.getId();
         }
 
+        // 없으면 새로 cartItem 생성 후, cart에 연결, 저장
+        CartItem cartItem = CartItem.createCartItem(product, request.getQuantity());
+        cart.addCartItem(cartItem);
+
+        CartItem savedCartItem = cartItemRepository.save(cartItem);
+        return savedCartItem.getId();
+
+    }
+
+    // 장바구니 조회
+    public CartResponse findCartItems(Long memberId, String guestToken) {
+        // 담아올 Cart 객체 Optional로 생성
+        Optional<Cart> foundCart;
+
+        // member 조회
+        if(memberId != null){ // 회원일 경우
+            memberService.getMember(memberId); //memberId넣어서 member 존재 체크
+            foundCart = cartRepository.findByMemberId(memberId); //해당 member의 cart 꺼내오기
+        } else{ // 비회워일 경우
+            if(guestToken == null || guestToken.isBlank()){ //만약 토큰이 비어있다면
+                return CartResponse.empty(); //빈 카트 반환
+            }
+            foundCart = cartRepository.findByGuestToken(guestToken); //토큰이 있다면, 해당 토큰의 cart 꺼내오기
+        }
+
+        // 만약 꺼내온 cart들이 비어있을 경우 빈 칸트 반환
+        if(foundCart.isEmpty()){
+            return CartResponse.empty();
+        }
+
+        // 받아온 foundCart를 Optional에서 꺼내기
+        Cart cart = foundCart.get();
+        // 장바구니 summary 생성
+        CartSummaryResponse summary = CartSummaryResponse.fromEntity(cart);
+
+        // 찾아온 cart 반환
+        return CartResponse.of(cart, summary);
     }
 
     // 장바구니 수량 변경
-    public void update(Long cartItemId, Long memberId, CartItemUpdateRequest request) {
-        // 1. 로그인 member 조회
-        memberService.getMember(memberId);
-        // 2. cartItem 조회
-        CartItem cartItem = getCartItemOrThrow(cartItemId);
+    public void update(Long cartItemId, Long memberId, String guestToken,
+                       CartItemUpdateRequest request) {
+        // 본인 cartItem인지 확인 + 조회
+        CartItem cartItem = getOwnedCartItem(cartItemId, memberId, guestToken);
 
-        // 3. 그 cartItem이 로그인 회원의 cart 소속인지 확인
-        validateCartItemOwner(cartItem, memberId);
-
-        // 4. 요청 수량 null 체크
-        Integer quantity = request.getQuantity();
-        if (quantity == null) {
-            throw new IllegalStateException("장바구니 수량을 입력해주세요.");
+        // 요청 수량 null 체크
+        int quantity = request.getQuantity();
+        if (quantity < 1) {
+            throw new IllegalStateException("장바구니 수량은 1개 이상이어야 합니다.");
         }
 
-        // 5. 통과하면 수량 변경
-        cartItem.changeQuantity(quantity);
+        // 수량 변경
+        cartItem.changeQuantity(request.getQuantity());
+
     }
 
     // 장바구니 삭제
-    public void delete(Long cartItemId, Long memberId) {
-        // 1. 로그인 member 조회
-        memberService.getMember(memberId);
-        // 2. cartItem 조회
-        CartItem cartItem = getCartItemOrThrow(cartItemId);
+    public void delete(Long cartItemId, Long memberId, String guestToken) {
+        // 본인 cartItem인지 확인 + 조회
+        CartItem cartItem = getOwnedCartItem(cartItemId, memberId, guestToken);
 
-        // 3. 그 cartItem이 로그인 회원의 cart 소속인지 확인
-        validateCartItemOwner(cartItem, memberId);
-
-        // 4. 맞으면 삭제
+        // 삭제
         cartItemRepository.delete(cartItem);
     }
 
     // 장바구니 전체 삭제
-    public void deleteAll(Long memberId){
-        // 로그인 member 조회
-        // System.out.println("멤버 조회");
-        memberService.getMember(memberId);
+    public void deleteAll(Long memberId, String guestToken){
+        // 담아올 Cart 객체 Optional로 생성
+        Optional<Cart> foundCart;
 
-        // 해당 member의 카트 꺼내오기
-        Optional<Cart> foundCart = cartRepository.findByMemberId(memberId);
-        // 장바구니 자체가 있는지 확인
+        if(memberId != null){  //회원인 경우
+            foundCart = cartRepository.findByMemberId(memberId); //memberId로 꺼내오기
+        } else{ // 비회원인 경우
+            if(guestToken == null || guestToken.isBlank()){ //토큰이 비어있으면
+                return; //지울거 없으니 그대로 반환
+            }
+            foundCart = cartRepository.findByGuestToken(guestToken); //토큰이있으면 해당 token으로 꺼내오기
+        }
+
+        //꺼내온 cart가 비어있으면
         if(foundCart.isEmpty()){
-            return;
+            return; //그대로 return.
         }
 
-        // Optional에서 꺼내기
+        // 꺼내온 cart값을 Optional에서 꺼내기
         Cart cart = foundCart.get();
-        // 장바구니 안이 비어있나 확인
-        if(cart.getCartItems().isEmpty()){
-            return;
-        }
 
+        // 삭제
         cartItemRepository.deleteAllByCartId(cart.getId());
-//        int deletedCount = cartItemRepository.deleteAllByCartId(cart.getId());
-//        System.out.println("삭제된 cartItem 개수 = " + deletedCount);
+        // cartItem.isEmpty()안하고, 그냥 0건 삭제하고 보내기.
     }
 
-    // 장바구니 조회
-    public CartResponse findCartItems(Long memberId) {
-        // member 조회
-        memberService.getMember(memberId);
+    // 장바구니 선택상태 변경
+    public void changeCartItemSelection(Long cartItemId, Long memberId, String guestToken,
+                                        CartItemSelectionRequest request) {
+        // 본인 cartItem인지 확인 + 조회
+        CartItem cartItem = getOwnedCartItem(cartItemId, memberId, guestToken);
 
-        // cart 조회
-        Optional<Cart> foundCart = cartRepository.findByMemberId(memberId); // memberId로 cart 조회
-
-        if (foundCart.isEmpty()) { // cart 없으면 DTO에서 빈 리스트 만들어 반환
-            return CartResponse.empty(); //서비스 로직 깔끔하게 DTO에서 빈 리스트 생성
-        }
-
-        // cart 있으면 cartItem 목록 조회
-        Cart cart = foundCart.get();
-        return CartResponse.fromEntity(cart);
+        // 선택 상태 변경
+        cartItem.changeSelected(request.isSelected());
     }
 
     // 장바구니 구매
@@ -151,32 +170,18 @@ public class CartService {
         // -> 상품 id 정렬 -> 정렬된 순서대로 비관적 락 걸어서 Product 다시 조회
         // -> 그 락 걸린 Product로 재고 차감 -> 주문 생성
 
-        // 구매할 멤버 조회 + 장바구니 선택 항목(id 목록) 꺼내기
+        // 구매할 멤버 조회
         Member member = memberService.getMember(memberId);
-        List<Long> cartItemIds = request.getCartItemIds();
 
-        // 장바구니 선택 항목 List 잘 들어왔나 체크 -> null은 dto에서 검증
-        if(cartItemIds.isEmpty()){ // 빈 리스트일 수 있으니 체크
+        // 해당 회원의 장바구니에서 선택된 상품만 조회
+        List<CartItem> cartItems = cartItemRepository.findByCartMemberIdAndSelectedTrue(memberId);
+
+        // 장바구니 선택 상품들 잘 들어왔나 체크 -> null은 dto에서 검증
+        if(cartItems.isEmpty()){ // 빈 리스트일 수 있으니 체크
             throw new IllegalStateException("구매할 장바구니 항목을 선택해주세요.");
         }
 
-        // 받아온 항목(id 목록)을 DB에서 한 번에 조회
-        List<CartItem> cartItems = cartItemRepository.findAllById(cartItemIds);
-        // cartItemIds : 숫자 목록
-        // cartItems : 실제 장바구니 엔티티 목록
-
-        // 받아온 항목(ids)과 넣은 항목(items) 개수 동일한지 size 체크
-        // 존재하지 않는 장바구니 항목 id가 섞여있나 체크
-        if(cartItems.size() != cartItemIds.size()){
-            throw new IllegalStateException("존재하지 않는 장바구니 상품이 포함되어있습니다.");
-        }
-
-        // 장바구니 본인건지 확인
-        for(CartItem cartItem : cartItems){
-            validateCartItemOwner(cartItem, memberId);
-        }
-
-        // 장바구니 상품들에서 productId만 따로 추출
+        // 받아온 장바구니 상품들에서 productId만 따로 추출
         // 추출하는 이유 -> 비관적 락은 CartItem이 아닌, Product에 걸어야 하기 떄문.
         List<Long> productIds = cartItems.stream()
                 .map(cartItem -> cartItem.getProduct().getId())
@@ -231,23 +236,44 @@ public class CartService {
         );
     }
 
+
+
+    /* 헬퍼 메서드 */
+
     // Cart 조회 또는 생성 메서드 -> 있으면 꺼내기, 없으면 만들어 보내기
-    private Cart getOrCreateCart(Member member) {
-        return cartRepository.findByMemberId(member.getId()) //있으면 꺼내기
-                .orElseGet(()-> cartRepository.save(Cart.createCart(member))); // 없으면 만들기
-    }
+    private Cart getOrCreateCart(Long memberId, String guestToken) {
+        // 회원 장바구니 조회
+        if(memberId != null){
+            Member member = memberService.getMember(memberId);
 
-    // cartItem 조회 메서드
-    private CartItem getCartItemOrThrow(Long cartItemId){
-        return cartItemRepository.findById(cartItemId)
-                .orElseThrow(()-> new IllegalStateException("장바구니 안에 상품이 없습니다."));
-    }
-
-    // 검증 메서드 -> 본인 장바구니인지
-    private void validateCartItemOwner(CartItem cartItem, Long memberId) {
-        if (!cartItem.getCart().getMember().getId().equals(memberId)) {
-            throw new IllegalStateException("본인의 장바구니가 아닙니다.");
+            return cartRepository.findByMemberId(memberId) //있으면 꺼내기
+                    .orElseGet(()-> cartRepository.save(Cart.createMemberCart(member))); // 없으면 만들기
         }
+
+        // 비회원 토큰 존재 체크
+        if(guestToken == null || guestToken.isBlank()){
+            throw new IllegalStateException("비회원 장바구니 토큰이 없습니다.");
+        }
+
+        // 통과 -> 토큰 존재 O. 비회원 장바구니 조회.
+        return cartRepository.findByGuestToken(guestToken) //있으면 꺼내기
+                .orElseGet(() -> cartRepository.save(Cart.createGuestCart(guestToken))); //없으면 만들기
+    }
+
+    // 본인 cartItem 찾기 (cartItem이 있는지 + 그게 본인 cart에 속하는지)
+    private CartItem getOwnedCartItem(Long cartItemId, Long memberId, String guestToken){
+        // 회원일 경우
+        if(memberId != null){
+            return cartItemRepository.findByIdAndCartMemberId(cartItemId, memberId)
+                    .orElseThrow(() -> new IllegalStateException("장바구니 상품이 없습니다."));
+        }
+
+        // 비회원일 경우
+        if(guestToken == null || guestToken.isBlank()){
+            throw new IllegalStateException("비회원 장바구니 토큰이 없습니다.");
+        }
+        return cartItemRepository.findByIdAndCartGuestToken(cartItemId, guestToken)
+                .orElseThrow(() -> new IllegalStateException("장바구니 상품이 없습니다."));
     }
 
     // 회원카트 -> 비회원 임시 카트 -> 로그인 시 병합. 확장 생각해보기

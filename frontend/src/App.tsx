@@ -8,6 +8,7 @@ import ProductDetailPage from './pages/ProductDetailPage'
 import LoginPage from './pages/LoginPage'
 import SiteHeader from './components/SiteHeader'
 import SignupPage from './pages/SignupPage'
+import CartPage from './pages/CartPage'
 
 // 최상위 루트 컴포넌트
 /*
@@ -65,26 +66,7 @@ function getHotDealBadge(status: string) {
 }
 
 function getHotDealEmoji(name?: string) {
-    if (!name) {
-        return '🎁'
-    }
-
-    if (name.includes('강아지')) {
-        return '🐶'
-    }
-
-    if (name.includes('고양이')) {
-        return '🐱'
-    }
-
-    if (name.includes('비타민')) {
-        return '💊'
-    }
-
-    if (name.includes('노트북')) {
-        return '💻'
-    }
-
+    if (!name) { return '🎁' }
     return '🎁'
 }
 
@@ -533,6 +515,7 @@ export default function App() {
             <Route path="/mypage" element={<PlaceholderPage title="마이페이지" />} />
             <Route path="/wishlist" element={<PlaceholderPage title="찜한 상품" />} />
             <Route path="/orders" element={<PlaceholderPage title="주문 목록" />} />
+            <Route path="/cart-items" element={<CartPage />} />
         </Routes>
     )
 }

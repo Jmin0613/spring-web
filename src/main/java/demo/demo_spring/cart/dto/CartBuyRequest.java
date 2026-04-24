@@ -12,6 +12,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class CartBuyRequest {
+    // 주문하기 요청
     @NotNull(message = "구매할 장바구니 항목을 선택해주세요.")
     private List<Long> cartItemIds;
 

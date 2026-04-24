@@ -7,8 +7,11 @@ import java.util.Optional;
 
 public interface CartRepository extends JpaRepository <Cart, Long>{
     // member cart 찾아오기
+
+    // 회원이면 memberId사용
     Optional<Cart> findByMemberId(Long memberId);
-    // 회원당 cart는 1개씩
-    // cart 없으면 새로 만들어야 하니 Optional
+
+    // 비회원이면 guestToken사용
+    Optional<Cart> findByGuestToken(String guestToken);
 
 }

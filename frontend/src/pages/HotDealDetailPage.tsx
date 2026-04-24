@@ -56,17 +56,7 @@ function getStatusLabel(status: string) {
 }
 
 function getEmoji(name: string) {
-    if (name.includes('강아지')) {
-        return '🐶'
-    }
-
-    if (name.includes('고양이')) {
-        return '🐱'
-    }
-
-    if (name.includes('비타민')) {
-        return '💊'
-    }
+    if (!name) return '🎁'
 
     return '🎁'
 }

@@ -23,8 +23,11 @@ public class Cart {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false, unique = true)
+    @JoinColumn(name = "member_id", nullable = true, unique = true)
     private Member member; // 회원당 장바구니 1개 -> unique제약
+
+    @Column(name = "guest_token", unique = true)
+    private String guestToken; //비회원
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createdAt DESC ") // 조회에서 cart 자체에서 꺼내오기에 Cart엔티티에서 정렬 책임 가짐
@@ -35,19 +38,24 @@ public class Cart {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    private Cart(Member member){
+    private Cart(Member member, String guestToken){
         // member null 체크
-        if(member == null){
-            throw new IllegalStateException("로그인이 필요합니다.");
+        if(member == null && (guestToken == null || guestToken.isBlank())){
+            throw new IllegalStateException("장바구니 주인 정보가 없습니다."); //멤버x, 게스트x
         }
-        this.member =member;
+        this.member = member;
+        this.guestToken = guestToken;
     }
 
-    public static Cart createCart(Member member){
+    public static Cart createMemberCart(Member member){
         // Cart는 비어있을 수 있는게 정상 -> 따로 isEmpty() 체크 안함.
         // cartItem는 필요할때 생성 -> Cart 생성 메서드에서 x
 
-        return new Cart(member);
+        return new Cart(member, null);
+    }
+
+    public static Cart createGuestCart(String guestToken){
+        return new Cart(null, guestToken);
     }
 
     // cartItem 추가 메서드

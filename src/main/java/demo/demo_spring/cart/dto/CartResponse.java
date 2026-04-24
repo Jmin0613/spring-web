@@ -1,7 +1,6 @@
 package demo.demo_spring.cart.dto;
 
 import demo.demo_spring.cart.domain.Cart;
-import demo.demo_spring.cart.domain.CartItem;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,37 +9,28 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class CartResponse {
-    private Integer totalQuantity;
-    private Integer totalPrice;
+    // 장바구니 전체 화면 응답
     private List<CartItemResponse> cartItems;
+    private CartSummaryResponse summary;
 
-    private CartResponse(Cart cart){
+    private CartResponse(Cart cart, CartSummaryResponse summary){
         // 구매 상품 목록
         this.cartItems = cart.getCartItems()
                 .stream()
                 .map(CartItemResponse::fromEntity)
                 .toList();
 
-        // 구매 총 수량
-        this.totalQuantity = cart.getCartItems()
-                .stream()
-                .mapToInt(CartItem::getQuantity)
-                .sum();
-
-        // 구매 총 가격
-        this.totalPrice = cart.getCartItems()
-                .stream()
-                .mapToInt(cartItems->cartItems.getQuantity() * cartItems.getProduct().getPrice())
-                .sum();
-
+        this.summary = summary;
     }
 
-    public static CartResponse fromEntity(Cart cart){ return new CartResponse(cart); }
+    public static CartResponse of(Cart cart, CartSummaryResponse summary){
+        return new CartResponse(cart, summary);
+    }
 
     public static CartResponse empty(){
         CartResponse response = new CartResponse();
-        response.totalQuantity = 0; response.totalPrice = 0;
         response.cartItems = List.of();
+        response.summary = CartSummaryResponse.empty();
         return response;
     }
 }

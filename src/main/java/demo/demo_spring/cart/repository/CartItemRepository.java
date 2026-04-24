@@ -12,6 +12,14 @@ public interface CartItemRepository extends JpaRepository <CartItem, Long> {
     // 같은 상품이 이미 cart에 있는지 확인
     Optional<CartItem> findByCartIdAndProductId(Long cartId, Long productId);
 
+    // 내 장바구니 상품인지 확인 (회원용)
+    Optional<CartItem> findByIdAndCartMemberId(Long cartItemId, Long memberId);
+    // 내 장바구니 상품인지 확인 (비회원용)
+    Optional<CartItem> findByIdAndCartGuestToken(Long cartItemId, String guestToken);
+
+    // 해당 회원의 장바구니 항목 중 선택된 상품들만 조회 (회원용)
+    List<CartItem> findByCartMemberIdAndSelectedTrue(Long memberId);
+
     // cart 목록 전체 비우기
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     // 삭제 후 영속성 컨텍스트 정리

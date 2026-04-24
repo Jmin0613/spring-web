@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class CartItemCreateRequest {
+    //장바구니 담기
     @NotNull(message = "장바구니 수량 입력은 필수입니다.")
     @Positive(message = "장바구니 수량은 1 이상이어야 합니다.")
-    private Integer quantity;
+    private int quantity;
 }

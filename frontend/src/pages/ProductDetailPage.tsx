@@ -158,10 +158,7 @@ function getEmoji(name: string) {
     // 아직 테스트 서버라서 이미지 데이터가 없음. 테스트 편의성을 위해 플레이스홀더로 대체.
     // Placeholder : 자리를 미리 차지하고 있는 데이터
 
-    if (name.includes('강아지')) return '🐶'
-    if (name.includes('고양이')) return '🐱'
-    if (name.includes('비타민')) return '💊'
-    if (name.includes('노트북')) return '💻'
+    if (!name) return '🎁'
     return '🛍️'
 }
 
