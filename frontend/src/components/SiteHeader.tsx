@@ -24,6 +24,8 @@ export default function SiteHeader() {
     const [loginMember, setLoginMember] = useState<MemberInfo | null>(null)
     const [menuOpen, setMenuOpen] = useState(false)
 
+    const isLoggedIn = !!loginMember
+
     const displayName =
         loginMember?.nickName ?? loginMember?.name ?? '회원'
 
@@ -110,10 +112,25 @@ export default function SiteHeader() {
                     <button type="button" style={iconButtonStyle} aria-label="검색">
                         🔍
                     </button>
+
                     <Link to="/cart-items" style={iconLinkStyle} aria-label="장바구니">
                         🛒
                     </Link>
-                    <Link to="/mypage/orders" style={iconLinkStyle} aria-label="주문목록">
+
+                    <Link
+                        to={isLoggedIn ? '/mypage/orders' : '/login'}
+                        state={
+                            isLoggedIn
+                                ? undefined
+                                : {
+                                    from: {
+                                        pathname: '/mypage/orders',
+                                    },
+                                }
+                        }
+                        style={iconLinkStyle}
+                        aria-label="주문목록"
+                    >
                         🚚
                     </Link>
 
@@ -148,7 +165,7 @@ export default function SiteHeader() {
                                     </Link>
 
                                     <Link
-                                        to="/orders"
+                                        to="/mypage/orders"
                                         style={dropdownItemLinkStyle}
                                         onClick={() => setMenuOpen(false)}
                                     >
