@@ -10,6 +10,8 @@ import SiteHeader from './components/SiteHeader'
 import SignupPage from './pages/SignupPage'
 import CartPage from './pages/CartPage'
 import OrderSheetPage from './pages/OrderSheetPage'
+import OrderDetailPage from './pages/OrderDetailPage'
+import OrderListPage from './pages/OrderListPage'
 
 // 최상위 루트 컴포넌트
 /*
@@ -519,6 +521,7 @@ export default function App() {
             <Route path="/cart-items" element={<CartPage />} />
             <Route path="/order-sheet" element={<OrderSheetPage />} />
             <Route path="/mypage/orders/:orderId" element={<OrderDetailPage />} />
+            <Route path="/mypage/orders" element={<OrderListPage />} />
         </Routes>
     )
 }

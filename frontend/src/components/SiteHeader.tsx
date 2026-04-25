@@ -113,9 +113,9 @@ export default function SiteHeader() {
                     <Link to="/cart-items" style={iconLinkStyle} aria-label="장바구니">
                         🛒
                     </Link>
-                    <button type="button" style={iconButtonStyle} aria-label="배송">
+                    <Link to="/mypage/orders" style={iconLinkStyle} aria-label="주문목록">
                         🚚
-                    </button>
+                    </Link>
 
                     {loginMember ? (
                         <div style={profileMenuWrapStyle} ref={menuRef}>
