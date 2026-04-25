@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { Link, Route, Routes } from 'react-router-dom'
 import NoticeListPage from './pages/NoticeListPage'
@@ -46,19 +46,19 @@ type ProductApiItem = {
 
 const API_BASE_URL = 'http://localhost:8080'
 
-const categories = ['전체', '식품', '생활', '가전', '뷰티·패션', '여행·쿠폰']
+const productCategories = ['전체', '식품', '생활', '가전', '뷰티·패션', '도서']
 
 function formatPrice(price: number) {
     return `${price.toLocaleString('ko-KR')}원`
 }
 
 function getHotDealName(item: HotDealApiItem) {
-    return item.productName ?? item.productName ?? '이름 없는 핫딜'
+    return item.productName ?? '이름 없는 핫딜'
 }
 
 function getHotDealBadge(status: string) {
     if (status === 'ON_SALE') {
-        return '진행중'
+        return '특가 진행중'
     }
 
     if (status === 'READY') {
@@ -69,21 +69,23 @@ function getHotDealBadge(status: string) {
 }
 
 function getHotDealEmoji(name?: string) {
-    if (!name) { return '🎁' }
+    if (!name) {
+        return '🎁'
+    }
     return '🎁'
 }
 
 function getProductBadge(category: string) {
     if (category === 'Doll') {
-        return '추천 상품'
+        return '인기 상품'
     }
 
     if (category === 'Food') {
-        return 'BEST'
+        return '인기 상품'
     }
 
     if (category === 'Beauty') {
-        return '신상'
+        return '인기 상품'
     }
 
     return '인기 상품'
@@ -129,8 +131,53 @@ function getProductSubText(status: string, category: string) {
     return `상품 상태 ${status} · ${category}`
 }
 
-function HomePage() {
+function matchesProductCategory(product: ProductApiItem, selectedCategory: string) {
+    if (selectedCategory === '전체') {
+        return true
+    }
 
+    if (selectedCategory === '식품') {
+        return product.category === 'Food' || product.category === '식품'
+    }
+
+    if (selectedCategory === '생활') {
+        return product.category === 'Life' || product.category === '생활'
+    }
+
+    if (selectedCategory === '가전') {
+        return product.category === 'Electronics' || product.category === '가전'
+    }
+
+    if (selectedCategory === '뷰티·패션') {
+        return (
+            product.category === 'Beauty' ||
+            product.category === 'Fashion' ||
+            product.category === '뷰티' ||
+            product.category === '패션'
+        )
+    }
+
+    if (selectedCategory === '여행·쿠폰') {
+        return (
+            product.category === 'Travel' ||
+            product.category === 'Coupon' ||
+            product.category === '여행' ||
+            product.category === '쿠폰'
+        )
+    }
+
+    if (selectedCategory === '도서') {
+        return (
+            product.category === 'Book' ||
+            product.category === 'Books' ||
+            product.category === '도서'
+        )
+    }
+
+    return true
+}
+
+function HomePage() {
     const [hotDeals, setHotDeals] = useState<HotDealApiItem[]>([])
     const [hotDealsLoading, setHotDealsLoading] = useState(true)
     const [hotDealsError, setHotDealsError] = useState('')
@@ -138,6 +185,21 @@ function HomePage() {
     const [products, setProducts] = useState<ProductApiItem[]>([])
     const [productsLoading, setProductsLoading] = useState(true)
     const [productsError, setProductsError] = useState('')
+
+    const [selectedProductCategory, setSelectedProductCategory] = useState('전체')
+    const [productSearchInput, setProductSearchInput] = useState('')
+    const [appliedProductSearchKeyword, setAppliedProductSearchKeyword] = useState('')
+    const [hotDealPage, setHotDealPage] = useState(0)
+
+    function handleApplyProductSearch() {
+        setAppliedProductSearchKeyword(productSearchInput.trim())
+    }
+
+    function handleProductSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (e.key === 'Enter') {
+            handleApplyProductSearch()
+        }
+    }
 
     useEffect(() => {
         async function loadHotDeals() {
@@ -151,7 +213,7 @@ function HomePage() {
             }
         }
 
-        loadHotDeals()
+        void loadHotDeals()
     }, [])
 
     useEffect(() => {
@@ -166,8 +228,36 @@ function HomePage() {
             }
         }
 
-        loadProducts()
+        void loadProducts()
     }, [])
+
+    const onSaleHotDeals = useMemo(() => {
+        return hotDeals.filter((item) => item.status === 'ON_SALE')
+    }, [hotDeals])
+
+    const hotDealsPerPage = 4
+    const hotDealPageCount = Math.max(1, Math.ceil(onSaleHotDeals.length / hotDealsPerPage))
+    const visibleHotDeals = onSaleHotDeals.slice(
+        hotDealPage * hotDealsPerPage,
+        hotDealPage * hotDealsPerPage + hotDealsPerPage,
+    )
+
+    useEffect(() => {
+        if (hotDealPage > hotDealPageCount - 1) {
+            setHotDealPage(0)
+        }
+    }, [hotDealPage, hotDealPageCount])
+
+    const filteredProducts = useMemo(() => {
+        return products.filter((item) => {
+            const categoryMatched = matchesProductCategory(item, selectedProductCategory)
+            const keywordMatched =
+                appliedProductSearchKeyword === '' ||
+                item.name.toLowerCase().includes(appliedProductSearchKeyword.toLowerCase())
+
+            return categoryMatched && keywordMatched
+        })
+    }, [products, selectedProductCategory, appliedProductSearchKeyword])
 
     return (
         <div
@@ -179,14 +269,14 @@ function HomePage() {
         >
             <SiteHeader />
 
-            <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '36px 24px 96px' }}>
+            <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '28px 24px 96px' }}>
                 <section
                     style={{
                         display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'end',
-                        gap: '16px',
-                        marginBottom: '20px',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginBottom: '22px',
+                        textAlign: 'center',
                     }}
                 >
                     <div>
@@ -196,14 +286,15 @@ function HomePage() {
                                 color: '#d19a00',
                                 fontSize: '14px',
                                 fontWeight: 800,
-                                letterSpacing: '0.08em',
+                                letterSpacing: '.08em',
                             }}
                         >
                             TODAY DEAL
                         </p>
+
                         <h1
                             style={{
-                                margin: '10px 0 0',
+                                margin: '4px 0 0',
                                 fontSize: '42px',
                                 fontWeight: 900,
                                 lineHeight: 1.2,
@@ -215,133 +306,257 @@ function HomePage() {
                     </div>
                 </section>
 
-                <section
-                    style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: '12px',
-                        padding: '16px',
-                        border: '1px solid #ececec',
-                        borderRadius: '18px',
-                        backgroundColor: '#ffffff',
-                        marginBottom: '28px',
-                    }}
-                >
-                    {categories.map((category, index) => (
-                        <button
-                            key={category}
-                            type="button"
-                            style={{
-                                border: index === 0 ? '1px solid #111827' : '1px solid #e5e7eb',
-                                backgroundColor: index === 0 ? '#111827' : '#ffffff',
-                                color: index === 0 ? '#ffffff' : '#111827',
-                                padding: '14px 24px',
-                                borderRadius: '14px',
-                                fontWeight: 700,
-                                fontSize: '15px',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            {category}
-                        </button>
-                    ))}
-                </section>
-
-                <HomeSectionTitle
-                    title="진행 중인 핫딜 상품들"
-                    description="짧은 시간 동안만 만날 수 있는 인기 특가 상품입니다."
-                />
-
                 {hotDealsLoading ? (
                     <div style={stateBoxStyle}>핫딜 상품을 불러오는 중입니다...</div>
                 ) : hotDealsError ? (
                     <div style={stateBoxStyle}>{hotDealsError}</div>
-                ) : hotDeals.length === 0 ? (
+                ) : onSaleHotDeals.length === 0 ? (
                     <div style={stateBoxStyle}>현재 진행 중인 핫딜이 없습니다.</div>
                 ) : (
-                    <section
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                            gap: '18px',
-                            marginBottom: '52px',
-                        }}
-                    >
-                        {hotDeals.map((item) => {
-                            const hotDealName = getHotDealName(item)
+                    <>
+                        <section
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                                gap: '18px',
+                            }}
+                        >
+                            {visibleHotDeals.map((item) => {
+                                const hotDealName = getHotDealName(item)
 
-                            return (
-                                <Link
-                                    key={item.hotDealId}
-                                    to={`/hotdeals/${item.hotDealId}`}
-                                    style={{ textDecoration: 'none', color: 'inherit' }}
-                                >
-                                    <article style={hotDealCardStyle}>
-                                        <div style={cardImageStyle}>
-                                            <span style={cardBadgeStyle}>{getHotDealBadge(item.status)}</span>
-                                            <span style={{ fontSize: '56px' }}>{getHotDealEmoji(hotDealName)}</span>
-                                        </div>
-
-                                        <div style={{ padding: '18px 18px 20px' }}>
-                                            <h3
-                                                style={{
-                                                    margin: '0 0 12px',
-                                                    fontSize: '17px',
-                                                    fontWeight: 700,
-                                                    lineHeight: 1.5,
-                                                    minHeight: '52px',
-                                                }}
-                                            >
-                                                {hotDealName}
-                                            </h3>
-
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                <span style={{ color: '#dc2626', fontSize: '18px', fontWeight: 900 }}>
-                                                    {item.discountRate}%
+                                return (
+                                    <Link
+                                        key={item.hotDealId}
+                                        to={`/hotdeals/${item.hotDealId}`}
+                                        style={{ textDecoration: 'none', color: 'inherit' }}
+                                    >
+                                        <article style={compactHotDealCardStyle}>
+                                            <div style={compactHotDealImageStyle}>
+                                                <span style={cardBadgeStyle}>
+                                                    {getHotDealBadge(item.status)}
                                                 </span>
-                                                <span style={{ fontSize: '24px', fontWeight: 900 }}>
-                                                    {formatPrice(item.hotDealPrice)}
+                                                <span style={{ fontSize: '48px' }}>
+                                                    {getHotDealEmoji(hotDealName)}
                                                 </span>
                                             </div>
 
-                                            <p
-                                                style={{
-                                                    margin: '6px 0 0',
-                                                    color: '#9ca3af',
-                                                    textDecoration: 'line-through',
-                                                    fontSize: '14px',
-                                                }}
-                                            >
-                                                {formatPrice(item.originalPrice)}
-                                            </p>
-                                        </div>
-                                    </article>
-                                </Link>
-                            )
-                        })}
-                    </section>
+                                            <div style={{ padding: '18px 18px 22px' }}>
+                                                <h3
+                                                    style={{
+                                                        margin: '0 0 10px',
+                                                        fontSize: '19px',
+                                                        fontWeight: 800,
+                                                        lineHeight: 1.5,
+                                                        textAlign: 'center',
+                                                    }}
+                                                >
+                                                    {hotDealName}
+                                                </h3>
+
+                                                <p
+                                                    style={{
+                                                        margin: '0 0 8px',
+                                                        color: '#9ca3af',
+                                                        textDecoration: 'line-through',
+                                                        fontSize: '13px',
+                                                        fontWeight: 700,
+                                                        textAlign: 'left',
+                                                    }}
+                                                >
+                                                    {formatPrice(item.originalPrice)}
+                                                </p>
+
+                                                <div
+                                                    style={{
+                                                        position: 'relative',
+                                                        minHeight: '34px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                    }}
+                                                >
+                                                    <span
+                                                        style={{
+                                                            position: 'absolute',
+                                                            left: 0,
+                                                            color: '#dc2626',
+                                                            fontSize: '18px',
+                                                            fontWeight: 900,
+                                                        }}
+                                                    >
+                                                        -{item.discountRate}%
+                                                    </span>
+
+                                                    <span
+                                                        style={{
+                                                            fontSize: '24px',
+                                                            fontWeight: 900,
+                                                            textAlign: 'center',
+                                                        }}
+                                                    >
+                                                        {formatPrice(item.hotDealPrice)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </article>
+                                    </Link>
+                                )
+                            })}
+                        </section>
+
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'flex-end',
+                                alignItems: 'center',
+                                gap: '10px',
+                                marginTop: '14px',
+                                marginBottom: '40px',
+                            }}
+                        >
+                            <span style={{ color: '#6b7280', fontSize: '14px', fontWeight: 700 }}>
+                                {hotDealPage + 1}/{hotDealPageCount}
+                            </span>
+
+                            <button
+                                type="button"
+                                onClick={() => setHotDealPage((prev) => Math.max(prev - 1, 0))}
+                                disabled={hotDealPage === 0}
+                                style={{
+                                    ...arrowButtonStyle,
+                                    opacity: hotDealPage === 0 ? 0.45 : 1,
+                                    cursor: hotDealPage === 0 ? 'not-allowed' : 'pointer',
+                                }}
+                            >
+                                ‹
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setHotDealPage((prev) =>
+                                        Math.min(prev + 1, hotDealPageCount - 1),
+                                    )
+                                }
+                                disabled={hotDealPage === hotDealPageCount - 1}
+                                style={{
+                                    ...arrowButtonStyle,
+                                    opacity: hotDealPage === hotDealPageCount - 1 ? 0.45 : 1,
+                                    cursor:
+                                        hotDealPage === hotDealPageCount - 1
+                                            ? 'not-allowed'
+                                            : 'pointer',
+                                }}
+                            >
+                                ›
+                            </button>
+                        </div>
+                    </>
                 )}
 
-                <HomeSectionTitle
-                    title="일반상품들"
-                    description="핫딜 아래에서 일반 상품도 함께 둘러볼 수 있게 배치했습니다."
-                />
+                <section
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '16px',
+                        padding: '16px',
+                        border: '1px solid #ececec',
+                        borderRadius: '18px',
+                        backgroundColor: '#ffffff',
+                        marginBottom: '24px',
+                        flexWrap: 'wrap',
+                    }}
+                >
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                        {productCategories.map((category) => {
+                            const active = category === selectedProductCategory
+
+                            return (
+                                <button
+                                    key={category}
+                                    type="button"
+                                    onClick={() => setSelectedProductCategory(category)}
+                                    style={{
+                                        border: active ? '1px solid #111827' : '1px solid #e5e7eb',
+                                        backgroundColor: active ? '#111827' : '#ffffff',
+                                        color: active ? '#ffffff' : '#111827',
+                                        padding: '14px 24px',
+                                        borderRadius: '14px',
+                                        fontWeight: 700,
+                                        fontSize: '15px',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    {category}
+                                </button>
+                            )
+                        })}
+                    </div>
+
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            width: '360px',
+                            maxWidth: '100%',
+                        }}
+                    >
+                        <input
+                            type="text"
+                            value={productSearchInput}
+                            onChange={(e) => setProductSearchInput(e.target.value)}
+                            onKeyDown={handleProductSearchKeyDown}
+                            placeholder="상품 이름 검색"
+                            style={{
+                                flex: 1,
+                                height: '48px',
+                                border: '1px solid #d1d5db',
+                                borderRadius: '14px',
+                                padding: '0 16px',
+                                fontSize: '14px',
+                                outline: 'none',
+                            }}
+                        />
+
+                        <button
+                            type="button"
+                            onClick={handleApplyProductSearch}
+                            style={{
+                                height: '48px',
+                                border: '1px solid #111827',
+                                backgroundColor: '#111827',
+                                color: '#ffffff',
+                                borderRadius: '14px',
+                                padding: '0 18px',
+                                fontSize: '14px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                flexShrink: 0,
+                            }}
+                        >
+                            검색
+                        </button>
+                    </div>
+                </section>
 
                 {productsLoading ? (
                     <div style={stateBoxStyle}>일반 상품을 불러오는 중입니다...</div>
                 ) : productsError ? (
                     <div style={stateBoxStyle}>{productsError}</div>
-                ) : products.length === 0 ? (
+                ) : filteredProducts.length === 0 ? (
                     <div style={stateBoxStyle}>등록된 일반 상품이 없습니다.</div>
                 ) : (
                     <section
                         style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
                             gap: '22px',
+                            marginBottom: '56px',
                         }}
                     >
-                        {products.map((item) => (
+                        {filteredProducts.map((item) => (
                             <Link
                                 key={item.id}
                                 to={`/products/${item.id}`}
@@ -349,8 +564,12 @@ function HomePage() {
                             >
                                 <article style={productCardStyle}>
                                     <div style={productImageStyle}>
-                                        <span style={productBadgeStyle}>{getProductBadge(item.category)}</span>
-                                        <span style={{ fontSize: '64px' }}>{getProductEmoji(item.name, item.category)}</span>
+                                        <span style={productBadgeStyle}>
+                                            {getProductBadge(item.category)}
+                                        </span>
+                                        <span style={{ fontSize: '64px' }}>
+                                            {getProductEmoji(item.name, item.category)}
+                                        </span>
                                     </div>
 
                                     <div style={{ padding: '18px 18px 22px' }}>
@@ -397,32 +616,6 @@ function HomePage() {
     )
 }
 
-function HomeSectionTitle({ title, description }: { title: string; description: string }) {
-    return (
-        <div style={{ marginBottom: '20px' }}>
-            <h2
-                style={{
-                    margin: 0,
-                    fontSize: '30px',
-                    fontWeight: 900,
-                    letterSpacing: '-0.03em',
-                }}
-            >
-                {title}
-            </h2>
-            <p
-                style={{
-                    margin: '8px 0 0',
-                    color: '#6b7280',
-                    fontSize: '15px',
-                }}
-            >
-                {description}
-            </p>
-        </div>
-    )
-}
-
 function PlaceholderPage({ title }: { title: string }) {
     return (
         <div style={{ minHeight: '100vh', backgroundColor: '#ffffff' }}>
@@ -435,18 +628,18 @@ function PlaceholderPage({ title }: { title: string }) {
     )
 }
 
-const hotDealCardStyle = {
+const compactHotDealCardStyle = {
     border: '1px solid #ececec',
-    borderRadius: '22px',
+    borderRadius: '24px',
     backgroundColor: '#ffffff',
     overflow: 'hidden',
-    boxShadow: '0 10px 30px rgba(17, 24, 39, 0.06)',
+    boxShadow: '0 10px 30px rgba(17, 24, 39, 0.05)',
 } as const
 
-const cardImageStyle = {
+const compactHotDealImageStyle = {
     position: 'relative',
-    height: '180px',
-    background: 'linear-gradient(135deg, #fff8dc 0%, #f3f4f6 100%)',
+    height: '220px',
+    background: 'linear-gradient(135deg, #f9fafb 0%, #fff8dc 100%)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -457,11 +650,12 @@ const cardBadgeStyle = {
     top: '14px',
     left: '14px',
     borderRadius: '999px',
-    backgroundColor: '#111827',
-    color: '#ffffff',
+    backgroundColor: '#fff1f2',
+    color: '#ef4444',
     padding: '8px 12px',
     fontSize: '12px',
     fontWeight: 800,
+    border: '1px solid #fecdd3',
 } as const
 
 const productCardStyle = {
@@ -494,6 +688,17 @@ const productBadgeStyle = {
     border: '1px solid #f1c84b',
 } as const
 
+const arrowButtonStyle = {
+    width: '40px',
+    height: '40px',
+    border: '1px solid #d1d5db',
+    borderRadius: '10px',
+    backgroundColor: '#ffffff',
+    color: '#374151',
+    fontSize: '24px',
+    lineHeight: 1,
+} as const
+
 const stateBoxStyle = {
     border: '1px solid #ececec',
     borderRadius: '20px',
@@ -504,7 +709,6 @@ const stateBoxStyle = {
     backgroundColor: '#ffffff',
 } as const
 
-// 라우트
 export default function App() {
     return (
         <Routes>

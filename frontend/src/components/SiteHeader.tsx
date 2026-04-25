@@ -5,9 +5,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 const API_BASE_URL = 'http://localhost:8080'
 
 const topMenus = [
-    { label: '베스트', to: '/?menu=best' },
+    { label: '핫딜', to: '/' },
+    { label: '상품', to: '/' },
     { label: '공지', to: '/notices' },
-    { label: '전체핫딜', to: '/?menu=hotdeal' },
 ]
 
 type MemberInfo = {
@@ -23,8 +23,6 @@ export default function SiteHeader() {
 
     const [loginMember, setLoginMember] = useState<MemberInfo | null>(null)
     const [menuOpen, setMenuOpen] = useState(false)
-
-    const isLoggedIn = !!loginMember
 
     const displayName =
         loginMember?.nickName ?? loginMember?.name ?? '회원'
@@ -96,7 +94,7 @@ export default function SiteHeader() {
                     </Link>
 
                     <nav style={navStyle}>
-                        <Link to="/" style={activeHomeLinkStyle}>
+                        <Link to="/" style={homeLinkStyle}>
                             홈
                         </Link>
 
@@ -118,16 +116,7 @@ export default function SiteHeader() {
                     </Link>
 
                     <Link
-                        to={isLoggedIn ? '/mypage/orders' : '/login'}
-                        state={
-                            isLoggedIn
-                                ? undefined
-                                : {
-                                    from: {
-                                        pathname: '/mypage/orders',
-                                    },
-                                }
-                        }
+                        to={loginMember ? '/mypage/orders' : '/login'}
                         style={iconLinkStyle}
                         aria-label="주문목록"
                     >
@@ -143,7 +132,9 @@ export default function SiteHeader() {
                             >
                                 <span style={profileAvatarStyle}>👤</span>
                                 <span style={profileNameStyle}>{displayName}</span>
-                                <span style={profileArrowStyle}>▾</span>
+                                <span style={profileArrowStyle}>
+                                    {menuOpen ? '▴' : '▾'}
+                                </span>
                             </button>
 
                             {menuOpen && (
@@ -251,20 +242,20 @@ const navStyle = {
     gap: '22px',
 } as const
 
+const homeLinkStyle = {
+    textDecoration: 'none',
+    color: '#111827',
+    fontSize: '16px',
+    fontWeight: 800,
+    paddingBottom: '0',
+    borderBottom: 'none',
+} as const
+
 const navLinkStyle = {
     textDecoration: 'none',
     color: '#111827',
     fontSize: '16px',
     fontWeight: 700,
-} as const
-
-const activeHomeLinkStyle = {
-    textDecoration: 'none',
-    color: '#111827',
-    fontSize: '16px',
-    fontWeight: 800,
-    borderBottom: '3px solid #111827',
-    paddingBottom: '6px',
 } as const
 
 const rightGroupStyle = {
@@ -278,6 +269,12 @@ const iconButtonStyle = {
     backgroundColor: 'transparent',
     fontSize: '24px',
     cursor: 'pointer',
+} as const
+
+const iconLinkStyle = {
+    textDecoration: 'none',
+    fontSize: '24px',
+    lineHeight: 1,
 } as const
 
 const loginButtonStyle = {
@@ -301,13 +298,15 @@ const profileButtonStyle = {
     border: '1px solid #d1d5db',
     backgroundColor: '#ffffff',
     color: '#111827',
-    borderRadius: '8px',
+    borderRadius: '10px',
     padding: '0 12px',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '8px',
     cursor: 'pointer',
+    outline: 'none',
+    boxShadow: 'none',
 } as const
 
 const profileAvatarStyle = {
@@ -333,26 +332,32 @@ const profileNameStyle = {
 } as const
 
 const profileArrowStyle = {
-    fontSize: '12px',
+    fontSize: '22px',
+    fontWeight: 700,
     color: '#6b7280',
+    lineHeight: 1,
+    display: 'inline-flex',
+    alignItems: 'center',
 } as const
 
 const dropdownMenuStyle = {
     position: 'absolute',
     top: '56px',
     right: 0,
-    width: '180px',
+    width: '132px',
     border: '1px solid #d1d5db',
-    borderRadius: '4px',
+    borderRadius: '0',
     backgroundColor: '#ffffff',
-    boxShadow: '0 10px 30px rgba(17, 24, 39, 0.12)',
+    boxShadow: '0 10px 24px rgba(17, 24, 39, 0.08)',
     overflow: 'hidden',
     zIndex: 30,
 } as const
 
 const dropdownItemLinkStyle = {
-    display: 'block',
-    padding: '14px 16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '54px',
     color: '#374151',
     textDecoration: 'none',
     fontSize: '15px',
@@ -363,22 +368,16 @@ const dropdownItemLinkStyle = {
 const dropdownDividerStyle = {
     height: '1px',
     backgroundColor: '#e5e7eb',
-    margin: '4px 0',
+    margin: '0',
 } as const
 
 const dropdownLogoutButtonStyle = {
     width: '100%',
+    height: '48px',
     border: 'none',
     backgroundColor: '#ffffff',
     color: '#374151',
-    textAlign: 'left',
-    padding: '14px 16px',
+    textAlign: 'center',
     fontSize: '15px',
     cursor: 'pointer',
-} as const
-
-const iconLinkStyle = {
-    textDecoration: 'none',
-    fontSize: '24px',
-    lineHeight: 1,
 } as const
