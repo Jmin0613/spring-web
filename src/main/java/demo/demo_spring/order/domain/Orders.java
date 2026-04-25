@@ -42,8 +42,11 @@ public class Orders {
     @Embedded //@Embeddable로 정의된 객체 사용한다 선언
     private DeliveryInfo deliveryInfo;
 
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod; //결제 수단
 
-    private Orders(Member member, DeliveryInfo deliveryInfo){
+
+    private Orders(Member member, DeliveryInfo deliveryInfo, PaymentMethod paymentMethod){
         // null 체크
         if (member == null){
             throw new IllegalStateException("구매자 정보가 누락되었습니다.");
@@ -52,15 +55,17 @@ public class Orders {
         this.orderStatus = OrderStatus.ORDERED;
         this.deliveryStatus = DeliveryStatus.READY;
         this.deliveryInfo = deliveryInfo;
+        this.paymentMethod = paymentMethod;
     }
 
     // 주문서 생성 메서드
-    public static Orders createOrder(Member member, List<OrderItem> orderItems, DeliveryInfo deliveryInfo){
+    public static Orders createOrder(Member member, List<OrderItem> orderItems,
+                                     DeliveryInfo deliveryInfo, PaymentMethod paymentMethod){
         if(orderItems == null || orderItems.isEmpty()){
             throw new IllegalStateException("주문 상품 정보가 누락되었습니다.");
         }
 
-        Orders order = new Orders(member, deliveryInfo);
+        Orders order = new Orders(member, deliveryInfo, paymentMethod);
 
         for(OrderItem orderItem : orderItems){
             order.addOrderItem(orderItem);

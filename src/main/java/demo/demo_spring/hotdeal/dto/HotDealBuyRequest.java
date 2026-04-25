@@ -1,8 +1,10 @@
 package demo.demo_spring.hotdeal.dto;
 
 import demo.demo_spring.order.domain.DeliveryInfo;
+import demo.demo_spring.order.domain.PaymentMethod;
 import demo.demo_spring.order.dto.DeliveryInfoRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
@@ -18,4 +20,7 @@ public class HotDealBuyRequest {
     @Valid
     @NotNull(message = "배송 정보를 입력해주세요.")
     private DeliveryInfoRequest deliveryInfo;
+
+    @NotBlank(message = "결제 수단을 선택해 주세요.")
+    private PaymentMethod paymentMethod;
 }

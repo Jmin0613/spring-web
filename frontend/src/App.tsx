@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage'
 import SiteHeader from './components/SiteHeader'
 import SignupPage from './pages/SignupPage'
 import CartPage from './pages/CartPage'
+import OrderSheetPage from './pages/OrderSheetPage'
 
 // 최상위 루트 컴포넌트
 /*
@@ -516,6 +517,8 @@ export default function App() {
             <Route path="/wishlist" element={<PlaceholderPage title="찜한 상품" />} />
             <Route path="/orders" element={<PlaceholderPage title="주문 목록" />} />
             <Route path="/cart-items" element={<CartPage />} />
+            <Route path="/order-sheet" element={<OrderSheetPage />} />
+            <Route path="/mypage/orders/:orderId" element={<OrderDetailPage />} />
         </Routes>
     )
 }

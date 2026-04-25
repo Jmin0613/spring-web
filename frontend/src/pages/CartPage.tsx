@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import SiteHeader from '../components/SiteHeader'
 import './CartPage.css'
+import { useNavigate } from 'react-router-dom'
 
 const API_BASE_URL = 'http://localhost:8080'
 
@@ -69,6 +70,7 @@ export default function CartPage() {
     const [actionLoadingMap, setActionLoadingMap] = useState<Record<number, boolean>>({})
     const [bulkSelectionLoading, setBulkSelectionLoading] = useState(false)
     const [couponMode, setCouponMode] = useState<CouponMode>('preparing')
+    const navigate = useNavigate()
 
     async function loadCart() {
         try {
@@ -234,7 +236,7 @@ export default function CartPage() {
             return
         }
 
-        alert('선택된 상품 구매 연결은 다음 주문 단계에서 붙일게요.')
+        navigate('/order-sheet')
     }
 
     return (

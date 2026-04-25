@@ -3,6 +3,7 @@ package demo.demo_spring.product.service;
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.order.domain.DeliveryInfo;
+import demo.demo_spring.order.domain.PaymentMethod;
 import demo.demo_spring.order.dto.DeliveryInfoRequest;
 import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.product.domain.Product;
@@ -88,7 +89,8 @@ public class ProductService {
     }
 
     // 사용자 단일 상품 즉시 구매 + Pessimistic Lock
-    public void buySingle(Long id, Integer quantity, Long memberId, DeliveryInfoRequest deliveryInfoRequest){
+    public void buySingle(Long id, Integer quantity, Long memberId,
+                          DeliveryInfoRequest deliveryInfoRequest, PaymentMethod paymentMethod){
         Member member = memberService.getMember(memberId);
 
         // quantity를 Integer로 받아서 null 체크
@@ -109,7 +111,10 @@ public class ProductService {
         //4. 구매 완료 후 주문 생성
         // member -> 세션에서 꺼내오기
         DeliveryInfo deliveryInfo = toDeliveryInfo(deliveryInfoRequest);
-        orderService.createSingle(member, product, quantity, product.getPrice(), deliveryInfo);
+        orderService.createSingle(
+                member, product, quantity, product.getPrice(),
+                deliveryInfo, paymentMethod
+        );
 
         // 락 조회 : Service/Repository
         //재고 차감 규칙 : Entity

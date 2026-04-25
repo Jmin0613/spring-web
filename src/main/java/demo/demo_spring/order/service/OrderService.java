@@ -5,6 +5,7 @@ import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.order.domain.DeliveryInfo;
 import demo.demo_spring.order.domain.OrderItem;
 import demo.demo_spring.order.domain.Orders;
+import demo.demo_spring.order.domain.PaymentMethod;
 import demo.demo_spring.order.repository.OrderRepository;
 import demo.demo_spring.product.domain.Product;
 import org.springframework.stereotype.Service;
@@ -26,18 +27,20 @@ public class  OrderService {
     }
 
     // 주문 생성 - HotDeal 즉시 구매 + Product 즉시 구매
-    public Long createSingle(Member member, Product product, int quantity, int orderPrice, DeliveryInfo deliveryInfo){
+    public Long createSingle(Member member, Product product, int quantity, int orderPrice,
+                             DeliveryInfo deliveryInfo, PaymentMethod paymentMethod){
         // 구매할 상품목록 작성
         OrderItem orderItem = OrderItem.createOrderItem(product, quantity, orderPrice);
 
         // 주문서 작성 + 저장 넘겨주기
-        return create(member, List.of(orderItem), deliveryInfo); //구매확정 -> 불변
+        return create(member, List.of(orderItem), deliveryInfo, paymentMethod); //구매확정 -> 불변
     }
 
     // 주문 생성 - Product 다건주문 구매
-    public Long create(Member member, List<OrderItem> orderItems, DeliveryInfo deliveryInfo){
+    public Long create(Member member, List<OrderItem> orderItems,
+                       DeliveryInfo deliveryInfo, PaymentMethod paymentMethod){
         // 주문서 작성
-        Orders order = Orders.createOrder(member, orderItems, deliveryInfo);
+        Orders order = Orders.createOrder(member, orderItems, deliveryInfo, paymentMethod);
 
         // 저장 + 주문번호 리턴
         Orders savedOrder = orderRepository.save(order);

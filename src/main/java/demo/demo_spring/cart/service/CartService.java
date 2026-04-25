@@ -223,7 +223,9 @@ public class CartService {
             orderItems.add(orderItem);
         }
         DeliveryInfo deliveryInfo = toDeliveryInfo(request.getDeliveryInfo());
-        Long orderId = orderService.create(member, orderItems, deliveryInfo); // 주문상품 리스트로 실제 주문서 생성
+        Long orderId = orderService.create(
+                member, orderItems, deliveryInfo, request.getPaymentMethod()
+        ); // 주문상품 리스트로 실제 주문서 생성
 
         cartItemRepository.deleteAll(cartItems); // 구매한 상품 장바구니에서 삭제
 
