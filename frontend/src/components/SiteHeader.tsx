@@ -4,12 +4,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 const API_BASE_URL = 'http://localhost:8080'
 
-const topMenus = [
-    { label: '핫딜', to: '/' },
-    { label: '상품', to: '/' },
-    { label: '공지', to: '/notices' },
-]
-
 type MemberInfo = {
     id: number
     nickName?: string
@@ -24,8 +18,7 @@ export default function SiteHeader() {
     const [loginMember, setLoginMember] = useState<MemberInfo | null>(null)
     const [menuOpen, setMenuOpen] = useState(false)
 
-    const displayName =
-        loginMember?.nickName ?? loginMember?.name ?? '회원'
+    const displayName = loginMember?.nickName ?? loginMember?.name ?? '회원'
 
     useEffect(() => {
         async function loadMyInfo() {
@@ -98,17 +91,15 @@ export default function SiteHeader() {
                             홈
                         </Link>
 
-                        {topMenus.map((menu) => (
-                            <Link key={menu.label} to={menu.to} style={navLinkStyle}>
-                                {menu.label}
-                            </Link>
-                        ))}
+                        <Link to="/notices" style={navLinkStyle}>
+                            공지
+                        </Link>
                     </nav>
                 </div>
 
                 <div style={rightGroupStyle}>
-                    <button type="button" style={iconButtonStyle} aria-label="검색">
-                        🔍
+                    <button type="button" style={iconButtonStyle} aria-label="알림">
+                        🔔
                     </button>
 
                     <Link to="/cart-items" style={iconLinkStyle} aria-label="장바구니">
@@ -269,6 +260,8 @@ const iconButtonStyle = {
     backgroundColor: 'transparent',
     fontSize: '24px',
     cursor: 'pointer',
+    padding: 0,
+    lineHeight: 1,
 } as const
 
 const iconLinkStyle = {

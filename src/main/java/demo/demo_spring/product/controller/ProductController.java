@@ -2,6 +2,7 @@ package demo.demo_spring.product.controller;
 
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
+import demo.demo_spring.product.domain.ProductSortType;
 import demo.demo_spring.product.dto.ProductBuyRequest;
 import demo.demo_spring.product.dto.ProductDetailResponse;
 import demo.demo_spring.product.dto.ProductListResponse;
@@ -22,8 +23,8 @@ public class ProductController {
 
     // 전체조회
     @GetMapping("/products")
-    public List<ProductListResponse> findAllProduct(){
-        return productService.findAllProduct();
+    public List<ProductListResponse> findAllProduct(@RequestParam(defaultValue = "LATEST") ProductSortType sort){ //기본값 : 최신순
+        return productService.findAllProduct(sort);
     }
 
     // 단건 상세조회

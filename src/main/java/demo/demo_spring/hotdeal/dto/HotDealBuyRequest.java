@@ -21,6 +21,6 @@ public class HotDealBuyRequest {
     @NotNull(message = "배송 정보를 입력해주세요.")
     private DeliveryInfoRequest deliveryInfo;
 
-    @NotBlank(message = "결제 수단을 선택해 주세요.")
+    @NotNull(message = "결제수단을 선택해 주세요.")
     private PaymentMethod paymentMethod;
 }

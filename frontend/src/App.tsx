@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { type KeyboardEvent, useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { Link, Route, Routes } from 'react-router-dom'
 import NoticeListPage from './pages/NoticeListPage'
@@ -12,15 +12,6 @@ import CartPage from './pages/CartPage'
 import OrderSheetPage from './pages/OrderSheetPage'
 import OrderDetailPage from './pages/OrderDetailPage'
 import OrderListPage from './pages/OrderListPage'
-
-// 최상위 루트 컴포넌트
-/*
-App.tsx에서 하는 일
-    1. 라우팅 설정
-    2. 공통 레이아웃 연결
-    3. 페이지 분기
-main.tsx가 앱을 시작시키는 파일이라면, App.tsx는 시작된 앱의 제일 큰 화면 뼈대
- */
 
 type HotDealApiItem = {
     hotDealId: number
@@ -44,12 +35,45 @@ type ProductApiItem = {
     status: string
 }
 
-const API_BASE_URL = 'http://localhost:8080'
+type ProductSortType = 'LATEST' | 'BEST'
 
+const API_BASE_URL = 'http://localhost:8080'
 const productCategories = ['전체', '식품', '생활', '가전', '뷰티·패션', '도서']
 
 function formatPrice(price: number) {
     return `${price.toLocaleString('ko-KR')}원`
+}
+
+function formatDateTime(dateTime: string) {
+    const date = new Date(dateTime)
+
+    if (Number.isNaN(date.getTime())) {
+        return dateTime
+    }
+
+    return date.toLocaleString('ko-KR', {
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+    })
+}
+
+function formatOpenDateTime(dateTime: string) {
+    const date = new Date(dateTime)
+
+    if (Number.isNaN(date.getTime())) {
+        return `오픈 : ${dateTime}`
+    }
+
+    return `오픈 : ${date.toLocaleString('ko-KR', {
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+    })}`
 }
 
 function getHotDealName(item: HotDealApiItem) {
@@ -157,15 +181,6 @@ function matchesProductCategory(product: ProductApiItem, selectedCategory: strin
         )
     }
 
-    if (selectedCategory === '여행·쿠폰') {
-        return (
-            product.category === 'Travel' ||
-            product.category === 'Coupon' ||
-            product.category === '여행' ||
-            product.category === '쿠폰'
-        )
-    }
-
     if (selectedCategory === '도서') {
         return (
             product.category === 'Book' ||
@@ -187,15 +202,17 @@ function HomePage() {
     const [productsError, setProductsError] = useState('')
 
     const [selectedProductCategory, setSelectedProductCategory] = useState('전체')
+    const [selectedProductSort, setSelectedProductSort] = useState<ProductSortType>('LATEST')
     const [productSearchInput, setProductSearchInput] = useState('')
     const [appliedProductSearchKeyword, setAppliedProductSearchKeyword] = useState('')
     const [hotDealPage, setHotDealPage] = useState(0)
+    const [readyHotDealPage, setReadyHotDealPage] = useState(0)
 
     function handleApplyProductSearch() {
         setAppliedProductSearchKeyword(productSearchInput.trim())
     }
 
-    function handleProductSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    function handleProductSearchKeyDown(e: KeyboardEvent<HTMLInputElement>) {
         if (e.key === 'Enter') {
             handleApplyProductSearch()
         }
@@ -219,7 +236,14 @@ function HomePage() {
     useEffect(() => {
         async function loadProducts() {
             try {
-                const response = await axios.get<ProductApiItem[]>(`${API_BASE_URL}/products`)
+                setProductsLoading(true)
+                setProductsError('')
+
+                const response = await axios.get<ProductApiItem[]>(`${API_BASE_URL}/products`, {
+                    params: {
+                        sort: selectedProductSort,
+                    },
+                })
                 setProducts(response.data)
             } catch (error) {
                 setProductsError('일반 상품을 불러오지 못했습니다.')
@@ -229,10 +253,14 @@ function HomePage() {
         }
 
         void loadProducts()
-    }, [])
+    }, [selectedProductSort])
 
     const onSaleHotDeals = useMemo(() => {
         return hotDeals.filter((item) => item.status === 'ON_SALE')
+    }, [hotDeals])
+
+    const readyHotDeals = useMemo(() => {
+        return hotDeals.filter((item) => item.status === 'READY')
     }, [hotDeals])
 
     const hotDealsPerPage = 4
@@ -242,11 +270,24 @@ function HomePage() {
         hotDealPage * hotDealsPerPage + hotDealsPerPage,
     )
 
+    const readyHotDealsPerPage = 4
+    const readyHotDealPageCount = Math.max(1, Math.ceil(readyHotDeals.length / readyHotDealsPerPage))
+    const visibleReadyHotDeals = readyHotDeals.slice(
+        readyHotDealPage * readyHotDealsPerPage,
+        readyHotDealPage * readyHotDealsPerPage + readyHotDealsPerPage,
+    )
+
     useEffect(() => {
         if (hotDealPage > hotDealPageCount - 1) {
             setHotDealPage(0)
         }
     }, [hotDealPage, hotDealPageCount])
+
+    useEffect(() => {
+        if (readyHotDealPage > readyHotDealPageCount - 1) {
+            setReadyHotDealPage(0)
+        }
+    }, [readyHotDealPage, readyHotDealPageCount])
 
     const filteredProducts = useMemo(() => {
         return products.filter((item) => {
@@ -295,16 +336,19 @@ function HomePage() {
                         <h1
                             style={{
                                 margin: '4px 0 0',
-                                fontSize: '42px',
-                                fontWeight: 900,
+                                fontSize: '40px',
+                                fontWeight: 800,
                                 lineHeight: 1.2,
-                                letterSpacing: '-0.04em',
+                                letterSpacing: '-0.02em',
+                                color: '#111827',
                             }}
                         >
                             오늘의 추천 딜
                         </h1>
                     </div>
                 </section>
+
+                <SectionTitle title="진행 중인 핫딜" />
 
                 {hotDealsLoading ? (
                     <div style={stateBoxStyle}>핫딜 상품을 불러오는 중입니다...</div>
@@ -360,7 +404,7 @@ function HomePage() {
                                                         textDecoration: 'line-through',
                                                         fontSize: '13px',
                                                         fontWeight: 700,
-                                                        textAlign: 'left',
+                                                        textAlign: 'center',
                                                     }}
                                                 >
                                                     {formatPrice(item.originalPrice)}
@@ -453,6 +497,188 @@ function HomePage() {
                         </div>
                     </>
                 )}
+
+                {!hotDealsLoading && !hotDealsError && (
+                    <>
+                        <SectionTitle title="오픈 예정 핫딜" />
+
+                        {readyHotDeals.length === 0 ? (
+                            <div style={stateBoxStyle}>현재 오픈 예정 핫딜이 없습니다.</div>
+                        ) : (
+                            <>
+                                <section
+                                    style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                                        gap: '18px',
+                                    }}
+                                >
+                                    {visibleReadyHotDeals.map((item) => {
+                                        const hotDealName = getHotDealName(item)
+
+                                        return (
+                                            <Link
+                                                key={`ready-${item.hotDealId}`}
+                                                to={`/hotdeals/${item.hotDealId}`}
+                                                style={{ textDecoration: 'none', color: 'inherit' }}
+                                            >
+                                                <article style={readyHotDealCardStyle}>
+                                                    <div style={readyHotDealImageStyle}>
+                                                        <span style={readyBadgeStyle}>오픈예정</span>
+                                                        <span style={{ fontSize: '44px' }}>
+                                                            {getHotDealEmoji(hotDealName)}
+                                                        </span>
+                                                    </div>
+
+                                                    <div style={{ padding: '18px 18px 20px' }}>
+                                                        <h3
+                                                            style={{
+                                                                margin: '0 0 10px',
+                                                                fontSize: '18px',
+                                                                fontWeight: 800,
+                                                                lineHeight: 1.45,
+                                                                textAlign: 'center',
+                                                            }}
+                                                        >
+                                                            {hotDealName}
+                                                        </h3>
+
+                                                        <p
+                                                            style={{
+                                                                margin: '0 0 8px',
+                                                                color: '#111827',
+                                                                fontSize: '16px',
+                                                                fontWeight: 800,
+                                                                textAlign: 'center',
+                                                            }}
+                                                        >
+                                                            예정가 {formatPrice(item.hotDealPrice)}
+                                                        </p>
+
+                                                        <p
+                                                            style={{
+                                                                margin: 0,
+                                                                color: '#6b7280',
+                                                                fontSize: '13px',
+                                                                textAlign: 'center',
+                                                                lineHeight: 1.5,
+                                                            }}
+                                                        >
+                                                            {formatOpenDateTime(item.startTime)}
+                                                        </p>
+                                                    </div>
+                                                </article>
+                                            </Link>
+                                        )
+                                    })}
+                                </section>
+
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        alignItems: 'center',
+                                        gap: '10px',
+                                        marginTop: '14px',
+                                        marginBottom: '40px',
+                                    }}
+                                >
+                                    <span
+                                        style={{
+                                            color: '#6b7280',
+                                            fontSize: '14px',
+                                            fontWeight: 700,
+                                        }}
+                                    >
+                                        {readyHotDealPage + 1}/{readyHotDealPageCount}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setReadyHotDealPage((prev) => Math.max(prev - 1, 0))
+                                        }
+                                        disabled={readyHotDealPage === 0}
+                                        style={{
+                                            ...arrowButtonStyle,
+                                            opacity: readyHotDealPage === 0 ? 0.45 : 1,
+                                            cursor:
+                                                readyHotDealPage === 0
+                                                    ? 'not-allowed'
+                                                    : 'pointer',
+                                        }}
+                                    >
+                                        ‹
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setReadyHotDealPage((prev) =>
+                                                Math.min(prev + 1, readyHotDealPageCount - 1),
+                                            )
+                                        }
+                                        disabled={readyHotDealPage === readyHotDealPageCount - 1}
+                                        style={{
+                                            ...arrowButtonStyle,
+                                            opacity:
+                                                readyHotDealPage === readyHotDealPageCount - 1
+                                                    ? 0.45
+                                                    : 1,
+                                            cursor:
+                                                readyHotDealPage === readyHotDealPageCount - 1
+                                                    ? 'not-allowed'
+                                                    : 'pointer',
+                                        }}
+                                    >
+                                        ›
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </>
+                )}
+
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '16px',
+                        marginBottom: '14px',
+                        flexWrap: 'wrap',
+                    }}
+                >
+                    <SectionTitle title="일반 상품" noMargin />
+
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        <button
+                            type="button"
+                            onClick={() => setSelectedProductSort('LATEST')}
+                            style={{
+                                ...sortButtonStyle,
+                                ...(selectedProductSort === 'LATEST'
+                                    ? activeSortButtonStyle
+                                    : inactiveSortButtonStyle),
+                            }}
+                        >
+                            최신순
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => setSelectedProductSort('BEST')}
+                            style={{
+                                ...sortButtonStyle,
+                                ...(selectedProductSort === 'BEST'
+                                    ? activeSortButtonStyle
+                                    : inactiveSortButtonStyle),
+                            }}
+                        >
+                            구매순
+                        </button>
+                    </div>
+                </div>
 
                 <section
                     style={{
@@ -616,6 +842,29 @@ function HomePage() {
     )
 }
 
+function SectionTitle({
+                          title,
+                          noMargin = false,
+                      }: {
+    title: string
+    noMargin?: boolean
+}) {
+    return (
+        <div style={{ marginBottom: noMargin ? 0 : '18px' }}>
+            <h2
+                style={{
+                    margin: 0,
+                    fontSize: '30px',
+                    fontWeight: 900,
+                    letterSpacing: '-0.03em',
+                }}
+            >
+                {title}
+            </h2>
+        </div>
+    )
+}
+
 function PlaceholderPage({ title }: { title: string }) {
     return (
         <div style={{ minHeight: '100vh', backgroundColor: '#ffffff' }}>
@@ -645,6 +894,23 @@ const compactHotDealImageStyle = {
     justifyContent: 'center',
 } as const
 
+const readyHotDealCardStyle = {
+    border: '1px solid #ececec',
+    borderRadius: '24px',
+    backgroundColor: '#ffffff',
+    overflow: 'hidden',
+    boxShadow: '0 8px 24px rgba(17, 24, 39, 0.04)',
+} as const
+
+const readyHotDealImageStyle = {
+    position: 'relative',
+    height: '200px',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #fff8dc 100%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+} as const
+
 const cardBadgeStyle = {
     position: 'absolute',
     top: '14px',
@@ -656,6 +922,19 @@ const cardBadgeStyle = {
     fontSize: '12px',
     fontWeight: 800,
     border: '1px solid #fecdd3',
+} as const
+
+const readyBadgeStyle = {
+    position: 'absolute',
+    top: '14px',
+    left: '14px',
+    borderRadius: '999px',
+    backgroundColor: '#eff6ff',
+    color: '#2563eb',
+    padding: '8px 12px',
+    fontSize: '12px',
+    fontWeight: 800,
+    border: '1px solid #bfdbfe',
 } as const
 
 const productCardStyle = {
@@ -697,6 +976,27 @@ const arrowButtonStyle = {
     color: '#374151',
     fontSize: '24px',
     lineHeight: 1,
+} as const
+
+const sortButtonStyle = {
+    height: '42px',
+    borderRadius: '12px',
+    padding: '0 16px',
+    fontSize: '14px',
+    fontWeight: 700,
+    cursor: 'pointer',
+} as const
+
+const activeSortButtonStyle = {
+    border: '1px solid #111827',
+    backgroundColor: '#111827',
+    color: '#ffffff',
+} as const
+
+const inactiveSortButtonStyle = {
+    border: '1px solid #e5e7eb',
+    backgroundColor: '#ffffff',
+    color: '#111827',
 } as const
 
 const stateBoxStyle = {

@@ -7,6 +7,7 @@ import demo.demo_spring.order.domain.PaymentMethod;
 import demo.demo_spring.order.dto.DeliveryInfoRequest;
 import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.product.domain.Product;
+import demo.demo_spring.product.domain.ProductSortType;
 import demo.demo_spring.product.domain.ProductStatus;
 import demo.demo_spring.product.dto.*;
 import demo.demo_spring.product.repository.ProductRepository;
@@ -70,15 +71,25 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(()->new IllegalStateException("해당하는 상품이 없습니다."));
         return AdminProductDetailResponse.fromEntity(product);
-    }
+    } // 관리자페이지 확장할떄 정렬 추가하기
 
-    //사용자 전체조회
-    public List<ProductListResponse> findAllProduct(){
-        return productRepository.findAll() //List<Product>
-                .stream().map(ProductListResponse::fromEntity) //Stream<DTO>
-                .toList(); //List<DTO>
+    //사용자 전체조회 + 정렬 추가
+    public List<ProductListResponse> findAllProduct(ProductSortType sort){
+        List<Product> products;
+
+        if(sort == ProductSortType.BEST){ // 구매순 정렬
+            products = productRepository.findByStatusNotOrderByPurchaseCountDescCreatedAtDesc(ProductStatus.HIDDEN);
+        } else{ // 기본 -> 최신순
+            products = productRepository.findByStatusNotOrderByCreatedAtDesc(ProductStatus.HIDDEN);
+        }
+
+        return products
+                .stream()
+                .map(ProductListResponse::fromEntity)
+                .toList();
+
     }
-    //사용자 단건 상세조회
+    //사용자 단건 상세조회 + 정렬 추가
     public ProductDetailResponse findProduct(Long id){
         Product product = productRepository.findById(id)
                 .orElseThrow(()->new IllegalStateException("해당하는 상품이 없습니다."));

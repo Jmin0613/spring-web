@@ -46,6 +46,9 @@ public class OrderItem {
         this.product = product; this.productNameSnapshot = product.getName();
         this.imageUrlSnapshot = product.getImageUrl();
         this.quantity = quantity; this.orderPrice = orderPrice;
+
+        //orderItem이 생성되는 시점 -> 구매 확정 -> 구매 수량 반영
+        product.increasePurchaseCount(quantity);
     }
 
     // 주문상품 생성 메서드
@@ -69,5 +72,6 @@ public class OrderItem {
     // 주문 취소 메서드
     public void orderCancel(){
         product.restoreStock(this.quantity);
+        product.allocateToHotDeal(this.quantity);
     }
 }

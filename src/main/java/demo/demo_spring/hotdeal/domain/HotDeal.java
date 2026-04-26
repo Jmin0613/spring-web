@@ -68,6 +68,9 @@ public class HotDeal {
         if (hotDealStock < 1){
             throw new IllegalStateException("잘못된 수량을 입력하였습니다.");
         }
+        if(hotDealPrice >= product.getPrice()){
+            throw new IllegalStateException("원본 상품 가격과 같거나 높을 수 없습니다.");
+        }
 
         this.product = product; this.hotDealPrice = hotDealPrice; this.hotDealStock = hotDealStock;
         this.startTime = startTime; this.endTime = endTime;

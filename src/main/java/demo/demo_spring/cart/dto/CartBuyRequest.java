@@ -21,7 +21,7 @@ public class CartBuyRequest {
     @NotNull(message = "배송 정보를 입력해주세요.")
     private DeliveryInfoRequest deliveryInfo;
 
-    @NotNull(message = "결제수단을 선택해주세요.")
+    @NotNull(message = "결제수단을 선택해 주세요.")
     private PaymentMethod paymentMethod;
 
 } // CartBuyRequest, HotDealBuyRequest, ProductBuyRequest -> OrderCreateRequest로 공통화 리팩토링 생각해보기
