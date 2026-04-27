@@ -196,7 +196,7 @@ function isSecretInquiry(inquiry: ProductInquiryListItem) {
 }
 
 // 문의 작성 에러 메세지
-function getInquirySubmitErrorMessage(error: unknown) {
+function getInquirySubmitErrorMessage(error: unknown, mode: 'create' | 'edit') {
     // error : unknown -> 에러가 발생햇는데, 정확히 어떤 형태인지 아직 모르는 경우
     // any 보다 안전함. 타이을 확인하기 전까지는 함부로 속성을 쓸수없게 막기때운 -> 타입 가드(Type Guard)를 강제
 
@@ -209,9 +209,11 @@ function getInquirySubmitErrorMessage(error: unknown) {
         const responseData = error.response?.data // 서버가 보낸 실제 에러 본문
 
         if (status === 401 || status === 403) {
+            return mode === 'edit'
+                ? '문의 수정은 작성자만 가능합니다.'
+                : '문의 작성은 로그인 후 이용해주세요.'
             // 401 -> Unauthorized. 누구세요? 비로그인 상태 또는 인증 만료.
             // 403 -> Forbidden. 권한없음. 로그인은 했지만 접근 권한 X
-            return '문의 작성은 로그인 후 이용해주세요.'
         }
 
         if (typeof responseData === 'string' && responseData.trim()) { //trim() -> 문자열 양 끝의 공백 제거
@@ -228,8 +230,10 @@ function getInquirySubmitErrorMessage(error: unknown) {
             return responseData.message
         }
     }
+    return mode === 'edit'
+        ? '문의 수정에 실패했습니다.'
+        : '문의 등록에 실패했습니다.'
 
-    return '문의 등록에 실패했습니다.'
 }
 
 function getInquiryDetailErrorMessage(error: unknown) {
@@ -756,6 +760,13 @@ export default function ProductDetailPage() {
             setInquirySubmitError('')
 
             if (editingInquiryId) {
+                const editingInquiry = inquiries.find((inquiry) => inquiry.id === editingInquiryId)
+
+                if (editingInquiry?.status === 'ANSWERED') {
+                    setInquirySubmitError('관리자 답변이 완료된 문의는 수정할 수 없습니다.')
+                    return
+                }
+
                 await axios.patch(
                     `${API_BASE_URL}/products/${id}/inquiries/${editingInquiryId}`,
                     {
@@ -821,7 +832,9 @@ export default function ProductDetailPage() {
             setViewMode('all')
             setCurrentPage(1)
         } catch (e) {
-            setInquirySubmitError(getInquirySubmitErrorMessage(e))
+            setInquirySubmitError(
+                getInquirySubmitErrorMessage(e, editingInquiryId ? 'edit' : 'create'),
+            )
         } finally {
             setInquirySubmitLoading(false)
         }

@@ -1,0 +1,328 @@
+.review-create-page {
+    min-height: 100vh;
+    background-color: #ffffff;
+    color: #111827;
+}
+
+.review-create-page__content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px 24px 96px;
+    box-sizing: border-box;
+}
+
+.review-create-page__header {
+    margin-bottom: 22px;
+    text-align: left;
+}
+
+.review-create-page__eyebrow {
+    margin: 0 0 6px;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+}
+
+.review-create-page__title {
+    margin: 0;
+    color: #111827;
+    font-size: 38px;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+}
+
+.review-create-page__description {
+    margin: 10px 0 0;
+    color: #6b7280;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.review-create-page__state-box {
+    border: 1px solid #ececec;
+    border-radius: 22px;
+    background-color: #ffffff;
+    padding: 56px 24px;
+    text-align: center;
+    color: #6b7280;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.04);
+}
+
+.review-create-page__product-card {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 18px;
+    align-items: center;
+    border: 1px solid #ececec;
+    border-radius: 22px;
+    background-color: #ffffff;
+    padding: 22px;
+    margin-bottom: 18px;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.04);
+}
+
+.review-create-page__product-image-box {
+    width: 96px;
+    height: 96px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #fff8dc 0%, #f9fafb 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.review-create-page__product-emoji {
+    font-size: 46px;
+}
+
+.review-create-page__product-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+}
+
+.review-create-page__product-info h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1.4;
+    text-align: left;
+}
+
+.review-create-page__product-info p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.review-create-page__product-info strong {
+    margin-top: 4px;
+    color: #111827;
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.review-create-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.review-create-form__card {
+    border: 1px solid #ececec;
+    border-radius: 22px;
+    background-color: #ffffff;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.04);
+}
+
+.review-create-form__row {
+    display: grid;
+    grid-template-columns: 160px minmax(0, 1fr);
+    min-height: 64px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.review-create-form__row:last-child {
+    border-bottom: none;
+}
+
+.review-create-form__row--textarea {
+    min-height: 220px;
+}
+
+.review-create-form__label {
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    background-color: #f8fafc;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.review-create-form__field {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    min-width: 0;
+}
+
+.review-create-form__star-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.review-create-form__star {
+    border: none;
+    background-color: transparent;
+    color: #d1d5db;
+    font-size: 32px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+}
+
+.review-create-form__star--active {
+    color: #f59e0b;
+}
+
+.review-create-form__rating-text {
+    margin-left: 10px;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.review-create-form__input {
+    width: 100%;
+    max-width: 560px;
+    height: 42px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background-color: #ffffff;
+    padding: 0 13px;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 500;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.review-create-form__textarea {
+    width: 100%;
+    min-height: 180px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background-color: #ffffff;
+    padding: 13px;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.7;
+    resize: vertical;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.review-create-form__input:focus,
+.review-create-form__textarea:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.review-create-form__help-text {
+    margin: 0;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: right;
+}
+
+.review-create-page__button-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.review-create-page__button-row--right {
+    justify-content: flex-end;
+}
+
+.review-create-page__primary-button,
+.review-create-page__secondary-button {
+    min-width: 108px;
+    height: 42px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.review-create-page__primary-button {
+    border: 1px solid #2563eb;
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+.review-create-page__primary-button:hover {
+    background-color: #1d4ed8;
+}
+
+.review-create-page__primary-button:disabled {
+    border-color: #93c5fd;
+    background-color: #93c5fd;
+    cursor: not-allowed;
+}
+
+.review-create-page__secondary-button {
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #374151;
+}
+
+.review-create-page__secondary-button:hover {
+    background-color: #f9fafb;
+}
+
+@media (max-width: 760px) {
+    .review-create-page__content {
+        padding: 24px 16px 72px;
+    }
+
+    .review-create-page__title {
+        font-size: 32px;
+    }
+
+    .review-create-page__product-card {
+        grid-template-columns: 1fr;
+    }
+
+    .review-create-page__product-image-box {
+        width: 100%;
+        height: 180px;
+    }
+
+    .review-create-form__card {
+        padding: 20px;
+    }
+
+    .review-create-form__row {
+        grid-template-columns: 1fr;
+    }
+
+    .review-create-form__label {
+        min-height: 44px;
+    }
+
+    .review-create-form__field {
+        padding: 14px 0;
+    }
+
+    .review-create-form__input {
+        max-width: none;
+    }
+
+    .review-create-page__button-row,
+    .review-create-page__button-row--right {
+        justify-content: stretch;
+    }
+
+    .review-create-page__primary-button,
+    .review-create-page__secondary-button {
+        flex: 1;
+    }
+}

@@ -2,6 +2,7 @@ package demo.demo_spring.review.service;
 
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
+import demo.demo_spring.order.domain.DeliveryStatus;
 import demo.demo_spring.order.domain.OrderItem;
 import demo.demo_spring.order.repository.OrderItemRepository;
 import demo.demo_spring.product.domain.Product;
@@ -63,6 +64,9 @@ public class ReviewService {
 
         // 주문항목이 로그인 회원것인지 확인
         validateOrderItemMatch(orderItem, memberId);
+
+        // 배송완료된 주문상품인지 확인
+        validateDeliveredOrderItem(orderItem);
 
         // 주문항목의 상품과 product가 같은지 확인 -> 상품 일치 검증
         if(!orderItem.getProduct().getId().equals(productId)){
@@ -202,6 +206,13 @@ public class ReviewService {
     private void validateWriter(Long memberId, Review review){
         if(!memberId.equals(review.getMember().getId())){
             throw new IllegalStateException("리뷰 작성자 본인이 아닙니다.");
+        }
+    }
+
+    // 배송상태 확인 메서드
+    private void validateDeliveredOrderItem(OrderItem orderItem){
+        if(orderItem.getOrder().getDeliveryStatus() != DeliveryStatus.DELIVERED){
+            throw new IllegalStateException("배송완료된 상품만 리뷰를 작성할 수 있습니다.");
         }
     }
 

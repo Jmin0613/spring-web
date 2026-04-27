@@ -15,6 +15,10 @@ import OrderListPage from './pages/OrderListPage'
 import WishlistPage from './pages/WishlistPage'
 import MyInquiryPage from './pages/MyInquiryPage'
 import MyReviewPage from './pages/MyReviewPage'
+import MyPage from './pages/MyPage'
+import MyPagePasswordCheck from './pages/MyPagePasswordCheck.tsx'
+import MyPageEditMyInfo from './pages/MyPageEditMyInfo'
+import ReviewCreatePage from './pages/ReviewCreatePage'
 
 type HotDealApiItem = {
     hotDealId: number
@@ -1010,15 +1014,18 @@ export default function App() {
             <Route path="/notices/:id" element={<NoticeDetailPage />} />
             <Route path="/hotdeals/:id" element={<HotDealDetailPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
-            <Route path="/mypage" element={<PlaceholderPage title="마이페이지" />} />
             <Route path="/wishlist" element={<WishlistPage />} />
             <Route path="/orders" element={<PlaceholderPage title="주문 목록" />} />
             <Route path="/cart-items" element={<CartPage />} />
             <Route path="/order-sheet" element={<OrderSheetPage />} />
-            <Route path="/mypage/orders/:orderId" element={<OrderDetailPage />} />
+            <Route path="/mypage" element={<MyPage />} />
             <Route path="/mypage/orders" element={<OrderListPage />} />
+            <Route path="/mypage/orders/:orderId" element={<OrderDetailPage />} />
             <Route path="/mypage/inquiries" element={<MyInquiryPage />} />
             <Route path="/mypage/reviews" element={<MyReviewPage />} />
+            <Route path="/mypage/reviews/write" element={<ReviewCreatePage />} />
+            <Route path="/mypage/password-check" element={<MyPagePasswordCheck />} />
+            <Route path="/mypage/edit-myinfo" element={<MyPageEditMyInfo />} />
         </Routes>
     )
 }

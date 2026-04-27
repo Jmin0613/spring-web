@@ -59,6 +59,8 @@ public class MemberController {
             return ResponseEntity.noContent().build();
         }
 
+        Member member = memberService.getMember(loginMember.getId()); // 정보 변경 후, 최신 정보
+
         return ResponseEntity.ok(MemberInfoResponse.fromEntity(loginMember));
     }
     //--------------->

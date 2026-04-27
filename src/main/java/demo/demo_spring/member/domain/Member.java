@@ -62,8 +62,8 @@ public class Member {
     // 관리자 승격
     public void promoteToAdmin(){this.role=Role.ADMIN;}
 
-    // 마이페이지 내 정보 변경 - nickName, email
-    public void updateProfile(String nickName, String email){
+    // 마이페이지 내 정보 변경 - nickName, email, phoneNumber
+    public void updateProfile(String nickName, String email, String phoneNumber){
         // null, blank 체크 + 값 변경
         if(nickName != null){ // null = 미수정
             if(nickName.isBlank()){ // blank = 잘못된 입력, 예외
@@ -79,6 +79,14 @@ public class Member {
             }
             if(!email.equals(this.email)){
                 this.email = email;
+            }
+        }
+        if(phoneNumber != null){
+            if(phoneNumber.isBlank()){
+                throw new IllegalStateException("핸드폰 번호를 공백으로 수정할 수 없습니다.");
+            }
+            if(!phoneNumber.equals(this.phoneNumber)){
+                this.phoneNumber = phoneNumber;
             }
         }
     }

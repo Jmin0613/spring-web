@@ -360,14 +360,6 @@ export default function SiteHeader() {
                         🛒
                     </Link>
 
-                    <Link
-                        to={loginMember ? '/mypage/orders' : '/login'}
-                        style={iconLinkStyle}
-                        aria-label="주문목록"
-                    >
-                        🚚
-                    </Link>
-
                     {loginMember ? (
                         <div style={profileMenuWrapStyle} ref={menuRef}>
                             <button

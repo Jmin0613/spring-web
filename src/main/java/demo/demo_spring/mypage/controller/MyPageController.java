@@ -1,6 +1,7 @@
 package demo.demo_spring.mypage.controller;
 
 import demo.demo_spring.member.domain.Member;
+import demo.demo_spring.member.dto.MemberInfoResponse;
 import demo.demo_spring.mypage.dto.*;
 import demo.demo_spring.mypage.service.MyPageService;
 import demo.demo_spring.order.service.OrderService;
@@ -39,15 +40,37 @@ public class MyPageController {
         return mypageService.findMyWishlist(loginMember.getId());
     }
 
-    @PatchMapping("/mypage/myinfo") // 내 정보 변경 - email, nickName
-    public void updateProfile(@RequestBody MemberUpdateRequest request, HttpSession session){
+    // 마이페이지 메인 화면용 - 내 정보 조회
+    @GetMapping("/mypage/myinfo")
+    public MemberInfoResponse findMyEditInfo(HttpSession session) {
         Member loginMember = (Member)session.getAttribute("loginMember");
-        mypageService.updateProfile(request, loginMember.getId());
+        return mypageService.findMyInfo(loginMember.getId());
     }
-    @PatchMapping("/mypage/password") // 내 비밀번호 변경
-    public void changePassword(@RequestBody @Valid MemberPasswordChangeRequest request, HttpSession session){
+
+    //내 정보 변경 전, 비밀번호 인증
+    @PostMapping("/mypage/password-check")
+    public void checkPassword(@RequestBody @Valid MemberPasswordCheckRequest request, HttpSession session) {
+        Member loginMember = getLoginMember(session);
+
+        // 비밀번호 인증
+        mypageService.checkPassword(request, loginMember.getId());
+
+        // 내 정보 변경을 위한 접근 인증 완료 표시
+        session.setAttribute("mypageVerifiedMemberId", loginMember.getId());
+    }
+
+    //내 정보 변경 페이지 조회
+    @GetMapping("/mypage/edit-myinfo")
+    public MemberInfoResponse findEditMyInfo(HttpSession session){
+        Member loginMember = getLoginMember(session);
+        return mypageService.findMyInfo(loginMember.getId());
+    }
+
+    // 내 정보 변경 - 닉네임, 이메일, 폰번호, 비밀번호
+    @PatchMapping("/mypage/edit-myinfo")
+    public void updateProfile(@RequestBody MemberEditMyInfoRequest request, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
-        mypageService.changePassword(request, loginMember.getId());
+        mypageService.editMyInfo(request, loginMember.getId());
     }
 
     @GetMapping("/mypage/orders") // 내 주문기록 보기
@@ -66,6 +89,19 @@ public class MyPageController {
     public void cancelOrder(@PathVariable Long orderId, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
         orderService.cancel(orderId, loginMember.getId());
+    }
+
+
+    /* 헬퍼 메서드 */
+
+    //로그인한 회원인지 체크. 두 번이나 쓰여서 빼둠.
+    private Member getLoginMember(HttpSession session) {
+        Member loginMember = (Member)session.getAttribute("loginMember");
+
+        if (loginMember == null) {
+            throw new IllegalStateException("로그인이 필요합니다.");
+        }
+        return loginMember;
     }
 
 }

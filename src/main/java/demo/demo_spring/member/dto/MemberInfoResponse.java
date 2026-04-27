@@ -15,13 +15,15 @@ public class MemberInfoResponse {
     private String email;
     private String name;
     private String nickName;
+    private String phoneNumber;
     private Role role;
 
     // fromEntity가 내부에서 호출할 생성자
     public MemberInfoResponse(Member member){
         this.id = member.getId(); this.loginId = member.getLoginId();
-        this.email = member.getEmail(); this.name = member.getName(); this.role = getRole();
-        this.nickName = member.getNickName();
+        this.email = member.getEmail(); this.name = member.getName();
+        this.phoneNumber = member.getPhoneNumber(); this.nickName = member.getNickName();
+        this.role = getRole();
     }
 
     // 엔티티 -> DTO

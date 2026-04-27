@@ -1,0 +1,480 @@
+.mypage {
+    min-height: 100vh;
+    background-color: #ffffff;
+    color: #111827;
+}
+
+.mypage__content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px 96px;
+    box-sizing: border-box;
+}
+
+.mypage__header {
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.mypage__eyebrow {
+    margin: 0 0 6px;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+}
+
+.mypage__title {
+    margin: 0;
+    font-size: 38px;
+    font-weight: 900;
+    color: #111827;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+}
+
+.mypage__description {
+    margin: 10px 0 0;
+    color: #6b7280;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.mypage__state-box {
+    border: 1px solid #ececec;
+    border-radius: 22px;
+    background-color: #ffffff;
+    padding: 56px 24px;
+    text-align: center;
+    color: #6b7280;
+}
+
+/* 마이페이지 메인 */
+.mypage-profile-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 150px;
+    align-items: center;
+    gap: 28px;
+    border: 1px solid #ececec;
+    border-radius: 22px;
+    background-color: #ffffff;
+    padding: 34px 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.05);
+}
+
+.mypage-profile-card__body {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+    min-width: 0;
+}
+
+.mypage-profile-avatar {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #eef2ff 0%, #faf5ff 100%);
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.mypage-profile-avatar span {
+    font-size: 62px;
+}
+
+.mypage-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    min-width: 0;
+}
+
+.mypage-profile-info__row {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+    font-size: 15px;
+}
+
+.mypage-profile-info__label {
+    color: #6b7280;
+    font-weight: 800;
+    text-align: left;
+}
+
+.mypage-profile-info__row strong {
+    display: block;
+    color: #111827;
+    font-weight: 900;
+    text-align: left;
+    word-break: break-all;
+}
+
+.mypage-profile-card > .mypage-primary-button {
+    justify-self: end;
+    align-self: center;
+    margin-top: 130px;
+    width: 118px;
+}
+
+.mypage-menu-card {
+    border: 1px solid #ececec;
+    border-radius: 22px;
+    background-color: #ffffff;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.04);
+}
+
+.mypage-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-height: 78px;
+    padding: 0 26px;
+    color: #111827;
+    text-decoration: none;
+    border-bottom: 1px solid #f1f5f9;
+    box-sizing: border-box;
+}
+
+.mypage-menu-item:last-child {
+    border-bottom: none;
+}
+
+.mypage-menu-item:hover {
+    background-color: #f9fafb;
+}
+
+.mypage-menu-item__icon {
+    width: 34px;
+    text-align: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.mypage-menu-item strong {
+    font-size: 18px;
+    font-weight: 900;
+}
+
+/* 정보 수정 페이지 상단 */
+.mypage-edit-page-header {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    margin-bottom: 28px;
+    padding-top: 8px;
+}
+
+.mypage-edit-page-header__title {
+    text-align: center;
+}
+
+.mypage-edit-page-header .mypage__eyebrow {
+    margin: 0 0 4px;
+}
+
+.mypage-edit-page-header .mypage__title {
+    margin: 0;
+}
+
+.mypage-edit-page-header .mypage-card__badge {
+    position: absolute;
+    right: 0;
+    bottom: 8px;
+}
+
+/* 비밀번호 인증 / 정보 수정 공통 */
+.mypage-auth-card,
+.mypage-card {
+    border: 1px solid #ececec;
+    border-radius: 22px;
+    background-color: #ffffff;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.05);
+}
+
+.mypage-auth-card {
+    max-width: 820px;
+    margin: 0 auto;
+}
+
+.mypage-auth-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.mypage-edit-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.mypage-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.mypage-card__title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 900;
+    color: #111827;
+    letter-spacing: -0.03em;
+}
+
+.mypage-card__description {
+    margin: 8px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.mypage-card__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background-color: #eff6ff;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 900;
+    border: 1px solid #bfdbfe;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.mypage-form-row {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    min-height: 64px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.mypage-form-row:last-child {
+    border-bottom: none;
+}
+
+.mypage-form-row__label {
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    background-color: #f8fafc;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.mypage-form-row__field {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+    padding: 12px 18px;
+    min-width: 0;
+}
+
+.mypage-input {
+    width: 100%;
+    max-width: 430px;
+    height: 42px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background-color: #ffffff;
+    padding: 0 13px;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 500;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.mypage-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.mypage-input--readonly {
+    background-color: #f9fafb;
+    color: #6b7280;
+    cursor: default;
+    font-weight: 500;
+}
+
+.mypage-input::placeholder {
+    color: #6b7280;
+    opacity: 1;
+    font-weight: 500;
+}
+
+.mypage-input:focus::placeholder {
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.mypage-current-value {
+    margin: 0;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.mypage-help-text {
+    margin: 0;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    align-self: flex-start;
+}
+
+/* 버튼 */
+.mypage-button-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.mypage-button-row--right {
+    justify-content: flex-end;
+}
+
+.mypage-primary-button,
+.mypage-secondary-button {
+    min-width: 108px;
+    height: 42px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.mypage-primary-button {
+    border: 1px solid #2563eb;
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+.mypage-primary-button:hover {
+    background-color: #1d4ed8;
+}
+
+.mypage-primary-button:disabled {
+    border-color: #93c5fd;
+    background-color: #93c5fd;
+    cursor: not-allowed;
+}
+
+.mypage-secondary-button {
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #374151;
+}
+
+.mypage-secondary-button:hover {
+    background-color: #f9fafb;
+}
+
+/* 반응형 */
+@media (max-width: 760px) {
+    .mypage__content {
+        padding: 24px 16px 72px;
+    }
+
+    .mypage__title {
+        font-size: 32px;
+    }
+
+    .mypage-profile-card {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+        padding: 24px;
+    }
+
+    .mypage-profile-card__body {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .mypage-profile-info__row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .mypage-profile-info__label,
+    .mypage-profile-info__row strong {
+        text-align: center;
+    }
+
+    .mypage-profile-card > .mypage-primary-button {
+        justify-self: stretch;
+        margin-top: 8px;
+        width: 100%;
+    }
+
+    .mypage-edit-page-header {
+        justify-content: flex-start;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .mypage-edit-page-header__title {
+        text-align: left;
+    }
+
+    .mypage-edit-page-header .mypage-card__badge {
+        position: static;
+    }
+
+    .mypage-auth-card,
+    .mypage-card {
+        padding: 20px;
+    }
+
+    .mypage-card__header {
+        flex-direction: column;
+    }
+
+    .mypage-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .mypage-form-row__label {
+        min-height: 44px;
+    }
+
+    .mypage-form-row__field {
+        padding: 14px 0;
+    }
+
+    .mypage-input {
+        max-width: none;
+    }
+
+    .mypage-button-row,
+    .mypage-button-row--right {
+        justify-content: stretch;
+    }
+
+    .mypage-primary-button,
+    .mypage-secondary-button {
+        flex: 1;
+    }
+}

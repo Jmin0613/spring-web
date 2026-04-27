@@ -17,14 +17,18 @@ public class MyPageOrderItemResponse {
     private int quantity;
     private int itemTotalPrice;
 
-    private MyPageOrderItemResponse(OrderItem orderItem){
+    private boolean reviewed; // 리뷰 작성 여부
+
+    private MyPageOrderItemResponse(OrderItem orderItem, boolean reviewed){
         this.orderItemId = orderItem.getId(); this.productId = orderItem.getProduct().getId();
         this.productNameSnapshot = orderItem.getProductNameSnapshot(); this.imageUrlSnapshot = orderItem.getProduct().getImageUrl();
         this.orderPrice = orderItem.getOrderPrice(); this.quantity = orderItem.getQuantity();
         this.itemTotalPrice = orderItem.getTotalPrice();
+        this.reviewed = reviewed;
     }
 
-    public static MyPageOrderItemResponse fromEntity(OrderItem orderItem){
-        return new MyPageOrderItemResponse(orderItem);
+    // 주문목록 리뷰여부를 위해 사용
+    public static MyPageOrderItemResponse fromEntity(OrderItem orderItem, boolean reviewed){
+        return new MyPageOrderItemResponse(orderItem,reviewed);
     }
 }

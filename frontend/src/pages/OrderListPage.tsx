@@ -10,10 +10,11 @@ type OrderItem = {
     orderItemId: number
     productId: number
     productNameSnapshot: string
-    imageUrlSnapshot: string
+    imageUrlSnapshot: string | null
     orderPrice: number
     quantity: number
     itemTotalPrice: number
+    reviewed: boolean
 }
 
 type OrderListResponse = {
@@ -66,14 +67,27 @@ function getOrderErrorMessage(error: unknown) {
     return '주문목록을 불러오지 못했습니다.'
 }
 
-function getProductEmoji(name?: string) {
-    if (!name) return '🎁'
-    return '🎁'
+function getOrderStatusLabel(status: string) {
+    if (status === 'ORDERED') return '주문완료'
+    if (status === 'CANCELED') return '주문취소'
+    return status
+}
+
+function getDeliveryStatusLabel(status: string) {
+    if (status === 'READY') return '배송준비중'
+    if (status === 'IN_DELIVERY') return '배송중'
+    if (status === 'DELIVERED') return '배송완료'
+    if (status === 'CANCELED') return '배송취소'
+    return status
 }
 
 function getOrderTotalPrice(orderItems: OrderItem[]) {
     return orderItems.reduce((sum, item) => sum + item.itemTotalPrice, 0)
 }
+
+// function canWriteReview(order: OrderListResponse) {
+//     return order.deliveryStatus === 'DELIVERED'
+// }
 
 export default function OrderListPage() {
     const navigate = useNavigate()
@@ -90,7 +104,9 @@ export default function OrderListPage() {
 
                 const response = await axios.get<OrderListResponse[]>(
                     `${API_BASE_URL}/mypage/orders`,
-                    { withCredentials: true },
+                    {
+                        withCredentials: true,
+                    },
                 )
 
                 setOrders(response.data)
@@ -104,14 +120,28 @@ export default function OrderListPage() {
         void loadOrders()
     }, [])
 
+    function handleReviewClick(order: OrderListResponse, item: OrderItem) {
+        if (item.reviewed === true) {
+            alert('이미 리뷰를 작성한 상품입니다.')
+            return
+        }
+
+        if (order.deliveryStatus !== 'DELIVERED') {
+            alert('배송완료된 상품만 리뷰를 작성할 수 있습니다.')
+            return
+        }
+
+        navigate(`/mypage/reviews/write?productId=${item.productId}&orderItemId=${item.orderItemId}`)
+    }
+
     return (
         <div className="order-list-page">
             <SiteHeader />
 
             <main className="order-list-page__content">
-                <header className="order-list-page__header">
+                <section className="order-list-page__header">
                     <h1 className="order-list-page__title">주문목록</h1>
-                </header>
+                </section>
 
                 {loading ? (
                     <div className="order-list-page__state-box">
@@ -124,14 +154,13 @@ export default function OrderListPage() {
                         아직 주문한 내역이 없습니다.
                     </div>
                 ) : (
-                    <div className="order-list-page__list">
+                    <section className="order-list-page__list">
                         {orders.map((order) => {
-                            const firstItem = order.orderItems[0]
-                            const extraCount = order.orderItems.length - 1
                             const totalPrice = getOrderTotalPrice(order.orderItems)
+                            // const reviewEnabled = canWriteReview(order)
 
                             return (
-                                <article key={order.orderId} className="order-list-card">
+                                <article className="order-list-card" key={order.orderId}>
                                     <div className="order-list-card__top">
                                         <div className="order-list-card__top-left">
                                             <strong className="order-list-card__order-date">
@@ -143,9 +172,11 @@ export default function OrderListPage() {
                                         </div>
 
                                         <button
-                                            type="button"
                                             className="order-list-card__detail-button"
-                                            onClick={() => navigate(`/mypage/orders/${order.orderId}`)}
+                                            type="button"
+                                            onClick={() =>
+                                                navigate(`/mypage/orders/${order.orderId}`)
+                                            }
                                         >
                                             상세보기
                                         </button>
@@ -153,50 +184,71 @@ export default function OrderListPage() {
 
                                     <div className="order-list-card__status-row">
                                         <span className="order-list-card__status">
-                                            주문상태 {order.orderStatus}
+                                            주문상태 {getOrderStatusLabel(order.orderStatus)}
                                         </span>
                                         <span className="order-list-card__status">
-                                            배송상태 {order.deliveryStatus}
+                                            배송상태 {getDeliveryStatusLabel(order.deliveryStatus)}
                                         </span>
                                     </div>
 
-                                    {firstItem && (
-                                        <div className="order-list-card__main">
-                                            <div className="order-list-card__image-box">
-                                                <span className="order-list-card__emoji">
-                                                    {getProductEmoji(firstItem.productNameSnapshot)}
-                                                </span>
-                                            </div>
+                                    <div className="order-list-card__items">
+                                        {order.orderItems.map((item) => {
+                                            const reviewCompleted = item.reviewed === true
+                                            const reviewEnabled = order.deliveryStatus === 'DELIVERED' && !reviewCompleted
 
-                                            <div className="order-list-card__body">
-                                                <div className="order-list-card__body-top">
-                                                    <div className="order-list-card__body-left">
-                                                        <h2 className="order-list-card__product-name">
-                                                            {firstItem.productNameSnapshot}
-                                                            {extraCount > 0 && (
-                                                                <span className="order-list-card__extra-text">
-                                                                    {' '}외 {extraCount}건
-                                                                </span>
-                                                            )}
+                                            return (
+                                                <div
+                                                    className="order-list-item"
+                                                    key={item.orderItemId}
+                                                >
+                                                    <div className="order-list-item__image-box">
+                                                        <span className="order-list-item__emoji">🎁</span>
+                                                    </div>
+
+                                                    <div className="order-list-item__body">
+                                                        <h2 className="order-list-item__name">
+                                                            {item.productNameSnapshot}
                                                         </h2>
 
-                                                        <div className="order-list-card__meta">
-                                                            <span>대표상품 수량 {firstItem.quantity}개</span>
-                                                            <span>총 상품 수 {order.orderItems.length}종</span>
+                                                        <div className="order-list-item__meta">
+                                                            <span>수량 {item.quantity}개</span>
+                                                            <span>구매가 {formatPrice(item.orderPrice)}</span>
                                                         </div>
                                                     </div>
 
-                                                    <strong className="order-list-card__price">
-                                                        {formatPrice(totalPrice)}
-                                                    </strong>
+                                                    <div className="order-list-item__right">
+                                                        <strong className="order-list-item__price">
+                                                            {formatPrice(item.itemTotalPrice)}
+                                                        </strong>
+
+                                                        <button
+                                                            className={
+                                                                reviewCompleted
+                                                                    ? 'order-list-item__review-button order-list-item__review-button--completed'
+                                                                    : reviewEnabled
+                                                                        ? 'order-list-item__review-button'
+                                                                        : 'order-list-item__review-button order-list-item__review-button--disabled'
+                                                            }
+                                                            type="button"
+                                                            onClick={() => handleReviewClick(order, item)}
+                                                            disabled={!reviewEnabled}
+                                                        >
+                                                            {reviewCompleted ? '리뷰 등록 완료' : '리뷰 작성하기'}
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    )}
+                                            )
+                                        })}
+                                    </div>
+
+                                    <div className="order-list-card__bottom">
+                                        <span>총 상품 {order.orderItems.length}종</span>
+                                        <strong>총 결제금액 {formatPrice(totalPrice)}</strong>
+                                    </div>
                                 </article>
                             )
                         })}
-                    </div>
+                    </section>
                 )}
             </main>
         </div>

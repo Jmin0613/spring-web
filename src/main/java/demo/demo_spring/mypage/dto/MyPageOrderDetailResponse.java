@@ -27,11 +27,14 @@ public class MyPageOrderDetailResponse {
 
         this.orderItems = order.getOrderItems()
                 .stream()
-                .map(MyPageOrderItemResponse::fromEntity)
+                //.map(MyPageOrderItemResponse::fromEntity)
+                .map(orderItem -> MyPageOrderItemResponse.fromEntity(orderItem, false))
+                // 주문상세에서 reviewed쓸 일 없으니 일단 이렇게 두고, 나중에 유지보수 고려.
                 .toList();
 
         this.deliveryInfo = order.getDeliveryInfo();
     }
+
 
     public static MyPageOrderDetailResponse fromEntity(Orders order){ return new MyPageOrderDetailResponse(order);}
 
