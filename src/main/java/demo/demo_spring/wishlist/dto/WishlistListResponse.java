@@ -13,6 +13,7 @@ public class WishlistListResponse {
     private String imageUrl;
     private int price;
     private LocalDateTime createdAt;
+    private int wishCount;
 
     private WishlistListResponse(Wishlist wishlist){
         this.wishlistId = wishlist.getId();
@@ -21,6 +22,7 @@ public class WishlistListResponse {
         this.imageUrl = wishlist.getProduct().getImageUrl();
         this.price = wishlist.getProduct().getPrice();
         this.createdAt = wishlist.getCreatedAt();
+        this.wishCount = wishlist.getProduct().getWishCount();
     }
 
     public static WishlistListResponse fromEntity(Wishlist wishlist){

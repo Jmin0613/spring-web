@@ -12,6 +12,7 @@ import CartPage from './pages/CartPage'
 import OrderSheetPage from './pages/OrderSheetPage'
 import OrderDetailPage from './pages/OrderDetailPage'
 import OrderListPage from './pages/OrderListPage'
+import WishlistPage from './pages/WishlistPage'
 
 type HotDealApiItem = {
     hotDealId: number
@@ -33,6 +34,7 @@ type ProductApiItem = {
     name: string
     price: number
     status: string
+    purchaseCount: number
 }
 
 type ProductSortType = 'LATEST' | 'BEST'
@@ -42,22 +44,6 @@ const productCategories = ['전체', '식품', '생활', '가전', '뷰티·패�
 
 function formatPrice(price: number) {
     return `${price.toLocaleString('ko-KR')}원`
-}
-
-function formatDateTime(dateTime: string) {
-    const date = new Date(dateTime)
-
-    if (Number.isNaN(date.getTime())) {
-        return dateTime
-    }
-
-    return date.toLocaleString('ko-KR', {
-        month: 'numeric',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-    })
 }
 
 function formatOpenDateTime(dateTime: string) {
@@ -97,22 +83,6 @@ function getHotDealEmoji(name?: string) {
         return '🎁'
     }
     return '🎁'
-}
-
-function getProductBadge(category: string) {
-    if (category === 'Doll') {
-        return '인기 상품'
-    }
-
-    if (category === 'Food') {
-        return '인기 상품'
-    }
-
-    if (category === 'Beauty') {
-        return '인기 상품'
-    }
-
-    return '인기 상품'
 }
 
 function getProductEmoji(name?: string, category?: string) {
@@ -299,6 +269,22 @@ function HomePage() {
             return categoryMatched && keywordMatched
         })
     }, [products, selectedProductCategory, appliedProductSearchKeyword])
+
+    const popularProductIds = useMemo(() => {
+        return new Set(
+            products
+                .filter((item) => item.purchaseCount > 0)
+                .sort((a, b) => {
+                    if (b.purchaseCount !== a.purchaseCount) {
+                        return b.purchaseCount - a.purchaseCount
+                    }
+
+                    return b.id - a.id
+                })
+                .slice(0, 5)
+                .map((item) => item.id),
+        )
+    }, [products])
 
     return (
         <div
@@ -790,9 +776,12 @@ function HomePage() {
                             >
                                 <article style={productCardStyle}>
                                     <div style={productImageStyle}>
-                                        <span style={productBadgeStyle}>
-                                            {getProductBadge(item.category)}
-                                        </span>
+                                        {popularProductIds.has(item.id) && (
+                                            <span style={productBadgeStyle}>
+                                                인기 상품
+                                            </span>
+                                        )}
+
                                         <span style={{ fontSize: '64px' }}>
                                             {getProductEmoji(item.name, item.category)}
                                         </span>
@@ -1020,7 +1009,7 @@ export default function App() {
             <Route path="/hotdeals/:id" element={<HotDealDetailPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
             <Route path="/mypage" element={<PlaceholderPage title="마이페이지" />} />
-            <Route path="/wishlist" element={<PlaceholderPage title="찜한 상품" />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
             <Route path="/orders" element={<PlaceholderPage title="주문 목록" />} />
             <Route path="/cart-items" element={<CartPage />} />
             <Route path="/order-sheet" element={<OrderSheetPage />} />
