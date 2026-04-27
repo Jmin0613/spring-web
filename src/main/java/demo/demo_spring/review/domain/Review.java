@@ -46,7 +46,6 @@ public class Review {
 
     @CreatedDate
     private LocalDateTime createdAt;
-    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     private Review (Member member, Product product,
@@ -102,6 +101,7 @@ public class Review {
             }
             this.rating = rating;
         }
+        this.updatedAt = now;
     }
 
     // 리뷰 추천수 증가

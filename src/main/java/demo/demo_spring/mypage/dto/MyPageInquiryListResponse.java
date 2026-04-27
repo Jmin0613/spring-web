@@ -15,13 +15,15 @@ public class MyPageInquiryListResponse {
     private String title;
     private boolean secret;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private InquiryStatus status;
 
     private MyPageInquiryListResponse(ProductInquiry productInquiry){
         this.inquiryId = productInquiry.getId(); this.productId = productInquiry.getProduct().getId();
         this.productNameSnapshot = productInquiry.getProductNameSnapshot();
         this.title = productInquiry.getTitle(); this.secret = productInquiry.isSecret();
-        this.createdAt = productInquiry.getCreatedAt(); this.status = productInquiry.getStatus();
+        this.createdAt = productInquiry.getCreatedAt(); this.updatedAt = productInquiry.getUpdatedAt();
+        this.status = productInquiry.getStatus();
     }
 
     public static MyPageInquiryListResponse fromEntity(ProductInquiry productInquiry){

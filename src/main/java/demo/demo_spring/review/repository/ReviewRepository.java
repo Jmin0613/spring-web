@@ -13,7 +13,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // 리뷰 이미 존재하는지 중복 체크 -> OrderItem 엔티티의 Id로 체크
     boolean existsByOrderItemId(Long orderItemId);
 
-    // memberId로 특정 회원이 작성한 리뷰 찾기 (마이페이지)
+    // 내 리뷰보기
     List<Review> findAllByMemberIdOrderByCreatedAtDesc(Long memberId);
 
     /* 리뷰 조회 */

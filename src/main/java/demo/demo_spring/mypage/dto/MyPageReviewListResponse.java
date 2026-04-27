@@ -14,6 +14,7 @@ public class MyPageReviewListResponse {
     private Integer rating;
     private String title;
     private String content;
+    private int likeCount;
     private LocalDateTime createdAt;
 
     private MyPageReviewListResponse(Review review){
@@ -23,6 +24,7 @@ public class MyPageReviewListResponse {
         this.title = review.getTitle();
         this.content = review.getContent();
         this.createdAt = review.getCreatedAt();
+        this.likeCount = review.getLikeCount();
     }
 
     public static MyPageReviewListResponse fromEntity(Review review){return new MyPageReviewListResponse(review);}

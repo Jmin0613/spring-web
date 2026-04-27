@@ -36,7 +36,6 @@ public class ProductInquiry {
 
     @CreatedDate
     private LocalDateTime createdAt;
-    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     private LocalDateTime answeredAt;
@@ -68,14 +67,16 @@ public class ProductInquiry {
     }
 
     // 문의글 수정 메서드
-    public void updateInquiry(String title, String content) {
+    public void updateInquiry(String title, String content, LocalDateTime now) {
         validateWaitingStatus();
+
         if (title != null && !title.isBlank()) {
             this.title = title;
         }
         if (content != null && !content.isBlank()) {
             this.content = content;
         }
+        this.updatedAt = now;
     }
 
     // 문의글 답변 메서드 -> 생성 메서드
@@ -86,8 +87,9 @@ public class ProductInquiry {
         }
         if(now == null){
             throw new IllegalStateException("답변 등록 시간이 잘못되었습니다.");
-        }this.answerContent = answerContent; this.answeredAt = now;
+        }this.answerContent = answerContent;
         this.status = InquiryStatus.ANSWERED;
+        this.answeredAt = now;
     }
 
     // 상태체크 메서드

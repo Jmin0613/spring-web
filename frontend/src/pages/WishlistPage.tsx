@@ -359,8 +359,6 @@ export default function WishlistPage() {
                                 </button>
                             </div>
                         )}
-
-                        <p className="wishlist-page__page-note">한 페이지당 10개의 찜한 상품</p>
                     </>
                 )}
             </main>

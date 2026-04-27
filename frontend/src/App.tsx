@@ -13,6 +13,8 @@ import OrderSheetPage from './pages/OrderSheetPage'
 import OrderDetailPage from './pages/OrderDetailPage'
 import OrderListPage from './pages/OrderListPage'
 import WishlistPage from './pages/WishlistPage'
+import MyInquiryPage from './pages/MyInquiryPage'
+import MyReviewPage from './pages/MyReviewPage'
 
 type HotDealApiItem = {
     hotDealId: number
@@ -1015,6 +1017,8 @@ export default function App() {
             <Route path="/order-sheet" element={<OrderSheetPage />} />
             <Route path="/mypage/orders/:orderId" element={<OrderDetailPage />} />
             <Route path="/mypage/orders" element={<OrderListPage />} />
+            <Route path="/mypage/inquiries" element={<MyInquiryPage />} />
+            <Route path="/mypage/reviews" element={<MyReviewPage />} />
         </Routes>
     )
 }

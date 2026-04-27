@@ -32,7 +32,7 @@ public class ProductInquiryService {
         this.notificationService = notificationService;
     }
 
-    // 회원 문의 작성
+    // (회원) 문의 작성
     public Long create(Long productId, Long memberId, ProductInquiryCreateRequest request){
         Member member = memberService.getMember(memberId);
         Product product = productRepository.findById(productId)
@@ -46,7 +46,7 @@ public class ProductInquiryService {
         return savedInquiry.getId();
     }
 
-    // 회원 문의글 수정 메서드
+    // (회원) 문의글 수정 메서드
     public void update(Long productId, Long inquiryId, Long memberId,
                        ProductInquiryUpdateRequest request){
         ProductInquiry productInquiry = productInquiryRepository.findById(inquiryId)
@@ -58,11 +58,13 @@ public class ProductInquiryService {
         // 작성자 본인 확인
         validateWriter(memberId, productInquiry);
 
+        LocalDateTime now = LocalDateTime.now();
+
         // 업데이트 메서드 호출(update()에서 상태검사 실시)
-        productInquiry.updateInquiry(request.getTitle(), request.getContent());
+        productInquiry.updateInquiry(request.getTitle(), request.getContent(), now);
     }
 
-    // 회원 문의글 삭제 메서드
+    // (회원) 문의글 삭제 메서드
     public void delete(Long productId, Long inquiryId, Long memberId){
         // 문의글 존재 여부 확인
         ProductInquiry productInquiry = productInquiryRepository.findById(inquiryId)
@@ -79,7 +81,7 @@ public class ProductInquiryService {
         productInquiryRepository.delete(productInquiry);
     }
 
-    // 관리자 답글 메서드
+    // (관리자) 답글 메서드
     public void adminAnswer(Long productId, Long inquiryId, Long memberId,
                             AdminProductInquiryAnswerRequest request){
         ProductInquiry productInquiry = productInquiryRepository.findById(inquiryId)

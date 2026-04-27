@@ -1,0 +1,332 @@
+.my-inquiry-page {
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.my-inquiry-page__content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 24px 96px;
+    box-sizing: border-box;
+}
+
+.my-inquiry-page__header {
+    margin-bottom: 20px;
+    padding-left: 12px;
+    text-align: left;
+}
+
+.my-inquiry-page__title {
+    margin: 0;
+    font-size: 38px;
+    font-weight: 900;
+    color: #111827;
+    letter-spacing: -0.04em;
+    text-align: left;
+}
+
+.my-inquiry-page__title-count {
+    margin-left: 10px;
+    color: #6b7280;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.my-inquiry-page__state-box {
+    border: 1px solid #ececec;
+    border-radius: 22px;
+    background-color: #ffffff;
+    padding: 56px 24px;
+    text-align: center;
+    color: #6b7280;
+}
+
+.my-inquiry-page__empty-box {
+    border: 1px solid #ececec;
+    border-radius: 22px;
+    background-color: #ffffff;
+    padding: 72px 24px;
+    text-align: center;
+}
+
+.my-inquiry-page__empty-emoji {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.my-inquiry-page__empty-title {
+    margin: 0 0 8px;
+    color: #111827;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.my-inquiry-page__empty-description {
+    margin: 0;
+    color: #6b7280;
+    font-size: 15px;
+}
+
+.my-inquiry-page__list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.my-inquiry-card {
+    border: 1px solid #ececec;
+    border-radius: 22px;
+    background-color: #ffffff;
+    padding: 24px;
+}
+
+.my-inquiry-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.my-inquiry-card__top-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    align-items: flex-start;
+}
+
+.my-inquiry-card__badge-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.my-inquiry-card__status {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.my-inquiry-card__status--answered {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+.my-inquiry-card__status--waiting {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.my-inquiry-card__secret-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background-color: #fff7ed;
+    color: #ea580c;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.my-inquiry-card__product-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #6b7280;
+    text-align: left;
+}
+
+.my-inquiry-card__title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1.4;
+    word-break: keep-all;
+    text-align: left;
+}
+
+.my-inquiry-card__meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: #6b7280;
+    font-size: 14px;
+    text-align: left;
+}
+
+.my-inquiry-card__actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.my-inquiry-card__link-button,
+.my-inquiry-card__detail-button {
+    min-width: 96px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.my-inquiry-card__link-button {
+    border: 1px solid #dbeafe;
+    background-color: #ffffff;
+    color: #3b82f6;
+}
+
+.my-inquiry-card__detail-button {
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #111827;
+}
+
+.my-inquiry-card__detail-box {
+    margin-top: 18px;
+    padding: 20px;
+    border-radius: 18px;
+    background-color: #fafafa;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.my-inquiry-card__detail-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.my-inquiry-card__detail-label {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.my-inquiry-card__detail-text {
+    margin: 0;
+    color: #374151;
+    font-size: 15px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    text-align: left;
+}
+
+.my-inquiry-card__detail-empty-text {
+    margin: 0;
+    color: #6b7280;
+    font-size: 15px;
+    line-height: 1.8;
+    text-align: left;
+}
+
+.my-inquiry-card__answer-time-row {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
+.my-inquiry-card__answer-time {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: right;
+}
+
+.my-inquiry-card__detail-state {
+    color: #6b7280;
+    font-size: 14px;
+    text-align: left;
+}
+
+.my-inquiry-page__pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.my-inquiry-page__page-button {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: #374151;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.my-inquiry-page__page-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.my-inquiry-page__page-indicator {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.my-inquiry-page__page-note {
+    margin: 12px 0 0;
+    text-align: center;
+    color: #64748b;
+    font-size: 15px;
+}
+
+@media (max-width: 640px) {
+    .my-inquiry-page__content {
+        padding: 20px 16px 72px;
+    }
+
+    .my-inquiry-page__title {
+        font-size: 32px;
+    }
+
+    .my-inquiry-card {
+        padding: 18px;
+    }
+
+    .my-inquiry-card__top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .my-inquiry-card__actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .my-inquiry-card__link-button,
+    .my-inquiry-card__detail-button {
+        flex: 1;
+    }
+
+    .my-inquiry-card__answer-time-row {
+        justify-content: flex-start;
+    }
+
+    .my-inquiry-card__answer-time {
+        text-align: left;
+    }
+}
