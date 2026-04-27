@@ -143,4 +143,13 @@ public class NotificationService {
 
         notification.markAsRead();
     } // ---> 알림 클릭 시, 읽음처리 + 이동 정보 반환하여 상세페이지로 이동하는걸로 리팩토링
+
+    // 알림 모두 읽기
+    public void readAllNotifications(Long memberId){
+        memberService.getMember(memberId);
+
+        notificationRepository.findAllByMemberIdOrderByCreatedAtDesc(memberId)
+                .forEach(Notification::markAsRead);
+    }
+
 }

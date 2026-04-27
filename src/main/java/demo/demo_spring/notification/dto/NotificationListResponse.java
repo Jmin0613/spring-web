@@ -14,7 +14,7 @@ public class NotificationListResponse {
     private String title;
     private String content;
 
-    private boolean isRead;
+    private boolean read;
 
     private NotificationType type;
     private NotificationTargetType targetType;
@@ -26,7 +26,7 @@ public class NotificationListResponse {
     private NotificationListResponse(Notification notification){
         this.notificationId = notification.getId();
         this.title = notification.getTitle(); this.content = notification.getContent();
-        this.isRead = notification.isRead();
+        this.read = notification.isRead();
         this.type = notification.getType(); this.targetType = notification.getTargetType();
         this.targetId = notification.getTargetId(); this.relatedId = notification.getRelatedTargetId();
         this.createdAt = notification.getCreatedAt();

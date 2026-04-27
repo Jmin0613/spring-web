@@ -32,5 +32,12 @@ public class NotificationController {
         notificationService.readNotification(notificationId, loginMember.getId());
     }
 
+    // 알림 모두 읽음
+    @PatchMapping("/notifications/read-all")
+    public void readAllNotifications(HttpSession session){
+        Member loginMember = (Member) session.getAttribute("loginMember");
+        notificationService.readAllNotifications(loginMember.getId());
+    }
+
 
 }
