@@ -1,16 +1,22 @@
 package demo.demo_spring.global.seed;
 
+import demo.demo_spring.cart.domain.Cart;
+import demo.demo_spring.cart.domain.CartItem;
+import demo.demo_spring.cart.repository.CartRepository;
 import demo.demo_spring.hotdeal.domain.HotDeal;
 import demo.demo_spring.hotdeal.repository.HotDealRepository;
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.repository.MemberRepository;
 import demo.demo_spring.notice.domain.Notice;
 import demo.demo_spring.notice.repository.NoticeRepository;
-import demo.demo_spring.notification.repository.NotificationRepository;
 import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.domain.ProductCategory;
 import demo.demo_spring.product.domain.ProductStatus;
 import demo.demo_spring.product.repository.ProductRepository;
+import demo.demo_spring.productInquiry.domain.ProductInquiry;
+import demo.demo_spring.productInquiry.repository.ProductInquiryRepository;
+import demo.demo_spring.wishlist.domain.Wishlist;
+import demo.demo_spring.wishlist.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -31,6 +37,10 @@ public class LocalDataSeeder implements CommandLineRunner {
     private final HotDealRepository hotDealRepository;
     private final NoticeRepository noticeRepository;
 
+    private final ProductInquiryRepository productInquiryRepository;
+    private final WishlistRepository wishlistRepository;
+    private final CartRepository cartRepository;
+
     @Override
     @Transactional
     public void run(String... args){ //가볍인자 -> 파라미터의 개수를 정해두지 않고 자유롭게 넘길 수 있음
@@ -40,14 +50,23 @@ public class LocalDataSeeder implements CommandLineRunner {
             return; //통과
         }
 
-        seedMembers();
+        // 1차
+        SeedMembers members = seedMembers();
         List<Product> products = seedProducts();
         seedHotDeals(products);
         seedNotices();
+
+        // 2차
+        seedInquiries(products, members.user());
+        seedWishlists(products, members.user());
+        seedCart(products, members.user());
     }
 
+    // seedMembers()가 저장한 회원을 반환
+    private record SeedMembers(Member admin, Member user){} //이 한줄이 "클래스 + 생성자 + Getter" 역할 다 함.
+
     // 관리자, 회원 게정 생성
-    public void seedMembers(){
+    public SeedMembers seedMembers(){
         // 관리자 계정 생성.
         Member admin = Member.createMember(
                 "admin", "AdminPassword1234!", "admin@test.com",
@@ -62,8 +81,10 @@ public class LocalDataSeeder implements CommandLineRunner {
         );
 
         // 생성 계정 저장.
-        memberRepository.save(admin);
-        memberRepository.save(user);
+        Member savedAdmin = memberRepository.save(admin);
+        Member savedUser = memberRepository.save(user);
+
+        return new SeedMembers(savedAdmin, savedUser);
     }
 
     // 상품 5개 생성
@@ -183,4 +204,58 @@ public class LocalDataSeeder implements CommandLineRunner {
 
         noticeRepository.saveAll(notices);
     }
+
+    // 상품문의 3개 작성
+    private void seedInquiries(List<Product> products, Member user){
+        List<ProductInquiry> inquiries = List.of(
+                ProductInquiry.createInquiry(
+                        user,
+                        products.get(0),
+                        "배송은 얼마나 걸리나요?",
+                        "오늘 주문하면 이번 주 안에 받을 수 있을까요?",
+                        false
+                ),
+                ProductInquiry.createInquiry(
+                        user,
+                        products.get(1),
+                        "키보드 축 선택이 가능한가요?",
+                        "갈축이나 적축 옵션이 있는지 궁금합니다.",
+                        false
+                ),
+                ProductInquiry.createInquiry(
+                        user,
+                        products.get(2),
+                        "비밀 문의입니다.",
+                        "선물용으로 구매하려고 하는데 포장 가능할까요?",
+                        true
+                )
+        );
+
+        productInquiryRepository.saveAll(inquiries);
+    }
+
+    // 찜 3개 생성
+    private void seedWishlists(List<Product> products, Member user){
+        List<Wishlist> wishlists = List.of(
+                Wishlist.createWishlist(user, products.get(0)),
+                Wishlist.createWishlist(user, products.get(3)),
+                Wishlist.createWishlist(user, products.get(4))
+        );
+
+        wishlistRepository.saveAll(wishlists);
+    }
+
+    // 장바구니 2개 추가
+    private void seedCart(List<Product> products, Member user){
+        Cart cart = Cart.createMemberCart(user);
+
+        CartItem cartItem1 = CartItem.createCartItem(products.get(0), 1);
+        CartItem cartItem2 = CartItem.createCartItem(products.get(3), 2);
+
+        cart.addCartItem(cartItem1);
+        cart.addCartItem(cartItem2);
+
+        cartRepository.save(cart);
+    }
+
 }
