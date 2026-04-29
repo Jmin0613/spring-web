@@ -51,7 +51,7 @@ public class MemberController {
     }
 
     //내 정보 조회
-    @GetMapping("/members/myinfo")
+    @GetMapping("/member/myinfo")
     public ResponseEntity<MemberInfoResponse> myInfo(HttpSession session) {
         Member loginMember = (Member) session.getAttribute("loginMember");
 

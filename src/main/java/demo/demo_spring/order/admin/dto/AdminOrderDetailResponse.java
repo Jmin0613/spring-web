@@ -10,15 +10,23 @@ import java.util.List;
 
 @Getter
 public class AdminOrderDetailResponse {
+
     private Long orderId; //주문 번호
     private LocalDateTime orderDate; //주문 날짜
 
     private OrderStatus orderStatus; //주문 상태
     private DeliveryStatus deliveryStatus; //배송 상태
 
+    // 보내는 사람
     private String memberName; //구매자 이름
     private String memberLoginId; //구매자 로그인 아이디
     private String memberEmail; // 구매자 이메일
+
+    // 받는 사람
+    private String receiverName; //받는 사람
+    private String phoneNumber; //연락처
+    private String address; //배송지
+    private String deliveryMemo; //배송메모
 
     private int totalPrice; //총 구매금액/결제금액
     private List<AdminOrderItemResponse> orderItems; // 상품목록
@@ -30,6 +38,11 @@ public class AdminOrderDetailResponse {
         this.memberName = order.getMember().getName(); this.memberLoginId = order.getMember().getLoginId();
         this.memberEmail = order.getMember().getEmail();
         this.totalPrice = order.getTotalPrice();
+
+        this.receiverName = order.getDeliveryInfo().getReceiverName();
+        this.phoneNumber = order.getDeliveryInfo().getPhoneNumber();
+        this.address = order.getDeliveryInfo().getAddress();
+        this.deliveryMemo = order.getDeliveryInfo().getDeliveryMemo();
 
         this.orderItems = order.getOrderItems()
                 .stream()

@@ -6,10 +6,8 @@ import demo.demo_spring.member.repository.MemberRepository;
 import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.notification.service.NotificationService;
 import demo.demo_spring.product.domain.Product;
-import demo.demo_spring.product.domain.ProductStatus;
 import demo.demo_spring.product.repository.ProductRepository;
 import demo.demo_spring.product.service.ProductService;
-import demo.demo_spring.productInquiry.domain.InquiryStatus;
 import demo.demo_spring.productInquiry.domain.ProductInquiry;
 import demo.demo_spring.productInquiry.dto.*;
 import demo.demo_spring.productInquiry.repository.ProductInquiryRepository;
@@ -93,9 +91,7 @@ public class ProductInquiryService {
         validateInquiryBelongToProduct(productInquiry, productId);
 
         //관리자인지 확인
-        if (memberService.getMember(memberId).getRole() != Role.ADMIN){
-           throw new IllegalStateException("답글을 작성할 관리자 권한이 없습니다.");
-        }
+        validateAdmin(memberId);
 
         //답변 날짜
         LocalDateTime now = LocalDateTime.now();
@@ -108,7 +104,29 @@ public class ProductInquiryService {
                 productId, inquiryId, productInquiry.getMember().getId(), productInquiry.getTitle());
     }
 
-    // 상품별 문의 목록 조회
+    // (관리자) 전체 문의 조회
+    public List<AdminProductInquiryListResponse> adminFindAllInquiries(Long memberId){
+        // 관리자 인증
+        validateAdmin(memberId);
+
+        return productInquiryRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(AdminProductInquiryListResponse::fromEntity)
+                .toList();
+    }
+
+    // (관리자) 상세 문의 조회
+    public AdminProductInquiryDetailResponse adminFindInquiryDetail(Long inquiryId, Long memberId){
+        // 관리자 인증
+        validateAdmin(memberId);
+
+        ProductInquiry productInquiry = productInquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new IllegalStateException("조회하시려는 문의가 없습니다."));
+
+        return AdminProductInquiryDetailResponse.fromEntity(productInquiry);
+    }
+
+    // (회원) 상품별 문의 목록 조회
     public List<ProductInquiryListResponse> findAllInquiresByProduct(Long productId){
         productRepository.findById(productId)
                 .orElseThrow(()-> new IllegalStateException("문의 목록을 조회하려는 상품이 없습니다."));
@@ -119,11 +137,11 @@ public class ProductInquiryService {
                 .toList();
     }
 
-    // 문의 단건 상세 조회 + 비밀글 -> 가드 클로즈 활용
+    // (회원) 문의 단건 상세 조회 + 비밀글 -> 가드 클로즈 활용
     public ProductInquiryDetailResponse findInquiry(Long productId, Long inquiryId, Long memberId){
         // 문의글 존재 여부 판단
         ProductInquiry productInquiry = productInquiryRepository.findById(inquiryId)
-                .orElseThrow(()-> new IllegalStateException("조회하려는 문의가 없습니다."));
+                .orElseThrow(()-> new IllegalStateException("조회하시려는 문의가 없습니다."));
 
         // ProductId와 InquiryId 관계 검증
         validateInquiryBelongToProduct(productInquiry, productId);
@@ -154,11 +172,21 @@ public class ProductInquiryService {
         }
     }
 
-    // 작성자 본인 확인 메서드
+    // (회원) 작성자 본인 확인 메서드
     private void validateWriter(Long memberId, ProductInquiry productInquiry){
         if(!memberId.equals(productInquiry.getMember().getId())){
             throw new IllegalStateException("문의 작성자 본인이 아닙니다.");
         }
     }
+
+    // (관리자) 관리자 확인 메서드
+    private void validateAdmin(Long memberId){
+        Member member = memberService.getMember(memberId);
+
+        if(member.getRole() != Role.ADMIN){
+            throw new IllegalStateException("관리자 권한이 필요합니다.");
+        }
+    }
+
 
 }

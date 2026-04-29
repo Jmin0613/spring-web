@@ -1,0 +1,880 @@
+.hotdeal-detail-page {
+    min-height: 100vh;
+    background-color: #ffffff;
+    color: #111827;
+}
+
+.hotdeal-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 96px;
+    box-sizing: border-box;
+}
+
+.hotdeal-detail-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.hotdeal-detail-breadcrumb-link {
+    color: #6b7280;
+    text-decoration: none;
+}
+
+.hotdeal-detail-breadcrumb-divider {
+    color: #d1d5db;
+}
+
+.hotdeal-detail-hero {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 28px;
+    align-items: start;
+}
+
+.hotdeal-detail-image-wrap {
+    width: 100%;
+}
+
+.hotdeal-detail-image-box {
+    position: relative;
+    min-height: 540px;
+    border: 1px solid #ececec;
+    border-radius: 28px;
+    background: linear-gradient(135deg, #fff8dc 0%, #f3f4f6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.hotdeal-detail-image-badge {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    z-index: 2;
+    border-radius: 999px;
+    background-color: #fff6cc;
+    color: #9a6b00;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px solid #f1c84b;
+}
+
+.hotdeal-detail-image-img {
+    width: 100%;
+    height: 100%;
+    min-height: 540px;
+    object-fit: cover;
+    display: block;
+}
+
+.hotdeal-detail-image-placeholder {
+    width: 100%;
+    min-height: 540px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 16px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff8dc 0%, #f3f4f6 100%);
+}
+
+.hotdeal-detail-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.hotdeal-detail-status-badge {
+    align-self: flex-start;
+    border-radius: 999px;
+    background-color: #111827;
+    color: #ffffff;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.hotdeal-detail-title {
+    margin: 0;
+    font-size: 46px;
+    font-weight: 900;
+    line-height: 1.18;
+    letter-spacing: -0.04em;
+    word-break: keep-all;
+    text-align: left;
+}
+
+.hotdeal-detail-description {
+    margin: 0;
+    color: #9ca3af;
+    font-size: 18px;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.hotdeal-detail-price-card {
+    width: 100%;
+    border-radius: 20px;
+    padding: 16px 18px 14px;
+    background-color: #f9fafb;
+    box-sizing: border-box;
+}
+
+.hotdeal-detail-price-card-title {
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.hotdeal-detail-price-card-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.hotdeal-detail-price-main-area {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.hotdeal-detail-original-price {
+    color: #9ca3af;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: line-through;
+    margin-bottom: 6px;
+    text-align: left;
+}
+
+.hotdeal-detail-discount-price-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.hotdeal-detail-discount-rate {
+    color: #dc2626;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.hotdeal-detail-sale-price {
+    color: #111827;
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-align: left;
+}
+
+.hotdeal-detail-stock-box {
+    width: 132px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.hotdeal-detail-stock-label {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.hotdeal-detail-stock-value {
+    color: #111827;
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1.1;
+    text-align: center;
+}
+
+.hotdeal-detail-period-text {
+    margin-top: 10px;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.hotdeal-detail-option-box {
+    width: 100%;
+    border: 1px solid #ececec;
+    border-radius: 20px;
+    padding: 22px 24px;
+    background-color: #ffffff;
+    box-sizing: border-box;
+}
+
+.hotdeal-detail-option-title {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    text-align: left;
+}
+
+.hotdeal-detail-option-placeholder {
+    border: 1px dashed #d1d5db;
+    border-radius: 14px;
+    padding: 18px 16px;
+    color: #6b7280;
+    font-size: 15px;
+    text-align: center;
+}
+
+.hotdeal-detail-button-row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr 1.4fr;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+.hotdeal-detail-ghost-button,
+.hotdeal-detail-primary-button {
+    height: 52px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.hotdeal-detail-ghost-button {
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #111827;
+}
+
+.hotdeal-detail-ghost-button:hover {
+    background-color: #f9fafb;
+}
+
+.hotdeal-detail-primary-button {
+    border: none;
+    background-color: #f59e0b;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.hotdeal-detail-primary-button:hover {
+    background-color: #d97706;
+}
+
+.hotdeal-detail-tab-wrap {
+    margin-top: 48px;
+}
+
+.hotdeal-detail-tab-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.hotdeal-detail-tab-button {
+    height: 52px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    color: #6b7280;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.hotdeal-detail-tab-button:hover {
+    background-color: #f9fafb;
+}
+
+.hotdeal-detail-tab-button--active {
+    border-color: #111827;
+    background-color: #111827;
+    color: #ffffff;
+    font-weight: 800;
+}
+
+.hotdeal-detail-content-wrap {
+    display: grid;
+    gap: 24px;
+}
+
+.hotdeal-detail-placeholder-image-box {
+    min-height: 420px;
+    border-radius: 24px;
+    border: 1px dashed #d1d5db;
+    background: linear-gradient(180deg, #f9fafb 0%, #fffdf4 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.hotdeal-detail-placeholder-title {
+    color: #111827;
+    font-size: 28px;
+    font-weight: 900;
+}
+
+.hotdeal-detail-placeholder-subtitle {
+    color: #6b7280;
+    font-size: 16px;
+}
+
+.hotdeal-detail-text-box {
+    border-radius: 24px;
+    border: 1px solid #ececec;
+    padding: 32px;
+    background-color: #ffffff;
+}
+
+.hotdeal-detail-section-title {
+    margin: 0 0 10px;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+.hotdeal-detail-text {
+    margin: 0 0 14px;
+    color: #374151;
+    font-size: 17px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+}
+
+.hotdeal-section-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.hotdeal-section-sub-text {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.hotdeal-detail-link-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #111827;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 0 16px;
+}
+
+.hotdeal-detail-link-button:hover {
+    background-color: #f9fafb;
+}
+
+.hotdeal-review-section-wrap {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 28px;
+    align-items: start;
+}
+
+.hotdeal-review-summary-box {
+    border: 1px solid #ececec;
+    border-radius: 18px;
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+.hotdeal-review-average-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.hotdeal-review-average-stars {
+    color: #f59e0b;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.hotdeal-review-average-score {
+    font-size: 34px;
+    font-weight: 900;
+    color: #111827;
+}
+
+.hotdeal-review-total-count {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.hotdeal-review-rating-rows {
+    display: grid;
+    gap: 10px;
+}
+
+.hotdeal-review-rating-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 46px;
+    align-items: center;
+    gap: 10px;
+}
+
+.hotdeal-review-rating-label {
+    color: #374151;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.hotdeal-review-bar-track {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background-color: #e5e7eb;
+    overflow: hidden;
+}
+
+.hotdeal-review-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background-color: #f59e0b;
+}
+
+.hotdeal-review-rating-percent {
+    color: #374151;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+}
+
+.hotdeal-review-list-area {
+    display: grid;
+    gap: 18px;
+}
+
+.hotdeal-review-sort-button-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.hotdeal-review-sort-button {
+    min-width: 92px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0 14px;
+}
+
+.hotdeal-review-sort-button:hover {
+    background-color: #f9fafb;
+}
+
+.hotdeal-review-sort-button--active {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+    color: #2563eb;
+    font-weight: 800;
+}
+
+.hotdeal-review-card-list {
+    display: grid;
+    gap: 16px;
+}
+
+.hotdeal-review-card {
+    border-top: 1px solid #ececec;
+    padding-top: 18px;
+    padding-bottom: 12px;
+    display: grid;
+    gap: 10px;
+    text-align: left;
+    justify-items: start;
+}
+
+.hotdeal-review-top-meta-block {
+    display: grid;
+    gap: 6px;
+    width: 100%;
+    text-align: left;
+    justify-items: start;
+}
+
+.hotdeal-review-writer {
+    color: #111827;
+    font-size: 16px;
+    font-weight: 800;
+    text-align: left;
+}
+
+.hotdeal-review-meta-inline-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.hotdeal-review-stars {
+    color: #f59e0b;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.hotdeal-review-date {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.hotdeal-review-title {
+    color: #111827;
+    font-size: 18px;
+    font-weight: 800;
+    margin-top: 2px;
+    text-align: left;
+}
+
+.hotdeal-review-content {
+    color: #374151;
+    font-size: 15px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    text-align: left;
+}
+
+.hotdeal-review-help-count {
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.hotdeal-inquiry-preview-list {
+    display: grid;
+    gap: 16px;
+}
+
+.hotdeal-inquiry-preview-card {
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    padding: 18px 20px;
+    background-color: #ffffff;
+    display: grid;
+    gap: 10px;
+}
+
+.hotdeal-inquiry-preview-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.hotdeal-inquiry-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 74px;
+    height: 28px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 0 12px;
+}
+
+.hotdeal-inquiry-status-badge--answered {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+.hotdeal-inquiry-status-badge--waiting {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.hotdeal-inquiry-preview-meta {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.hotdeal-inquiry-preview-title {
+    color: #111827;
+    font-size: 16px;
+    font-weight: 800;
+    text-align: left;
+}
+
+.hotdeal-inquiry-preview-sub-text {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.7;
+    text-align: left;
+}
+
+.hotdeal-detail-state-box {
+    border: 1px solid #ececec;
+    border-radius: 24px;
+    padding: 80px 24px;
+    text-align: center;
+    color: #6b7280;
+    background-color: #ffffff;
+    font-size: 16px;
+}
+
+.hotdeal-detail-button-row--simple {
+    grid-template-columns: 1fr 2fr;
+}
+
+.hotdeal-detail-quantity-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.hotdeal-detail-quantity-button {
+    width: 42px;
+    height: 42px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #111827;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.hotdeal-detail-quantity-input {
+    width: 88px;
+    height: 42px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 800;
+    text-align: center;
+    outline: none;
+}
+
+.hotdeal-detail-quantity-help {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.hotdeal-detail-quantity-button:disabled,
+.hotdeal-detail-quantity-input:disabled,
+.hotdeal-detail-primary-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.hotdeal-detail-primary-button:disabled:hover {
+    background-color: #f59e0b;
+}
+.hotdeal-detail-button-row--simple {
+    grid-template-columns: 1fr 2fr;
+}
+
+.hotdeal-detail-quantity-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.hotdeal-detail-quantity-button {
+    width: 42px;
+    height: 42px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #111827;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.hotdeal-detail-quantity-input {
+    width: 88px;
+    height: 42px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 800;
+    text-align: center;
+    outline: none;
+}
+
+.hotdeal-detail-quantity-help {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.hotdeal-detail-order-form {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.hotdeal-detail-order-form-title {
+    color: #111827;
+    font-size: 14px;
+    font-weight: 900;
+    margin-top: 4px;
+}
+
+.hotdeal-detail-order-input,
+.hotdeal-detail-order-select {
+    width: 100%;
+    height: 42px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #111827;
+    padding: 0 12px;
+    font-size: 14px;
+    font-weight: 700;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.hotdeal-detail-order-input:focus,
+.hotdeal-detail-order-select:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.16);
+}
+
+.hotdeal-detail-quantity-button:disabled,
+.hotdeal-detail-quantity-input:disabled,
+.hotdeal-detail-order-input:disabled,
+.hotdeal-detail-order-select:disabled,
+.hotdeal-detail-primary-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.hotdeal-detail-primary-button:disabled:hover {
+    background-color: #f59e0b;
+}
+
+@media (max-width: 900px) {
+    .hotdeal-detail-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .hotdeal-detail-image-box,
+    .hotdeal-detail-image-img,
+    .hotdeal-detail-image-placeholder {
+        min-height: 360px;
+    }
+
+    .hotdeal-detail-title {
+        font-size: 36px;
+    }
+
+    .hotdeal-detail-sale-price {
+        font-size: 30px;
+    }
+
+    .hotdeal-review-section-wrap {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .hotdeal-detail-container {
+        padding: 24px 16px 72px;
+    }
+
+    .hotdeal-detail-image-box,
+    .hotdeal-detail-image-img,
+    .hotdeal-detail-image-placeholder {
+        min-height: 300px;
+    }
+
+    .hotdeal-detail-price-card-top-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hotdeal-detail-stock-box {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .hotdeal-detail-button-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .hotdeal-detail-primary-button {
+        grid-column: 1 / -1;
+    }
+
+    .hotdeal-detail-tab-header {
+        gap: 8px;
+    }
+
+    .hotdeal-detail-tab-button {
+        font-size: 14px;
+    }
+
+    .hotdeal-detail-placeholder-image-box {
+        min-height: 300px;
+    }
+
+    .hotdeal-detail-placeholder-title {
+        font-size: 24px;
+    }
+
+    .hotdeal-detail-text-box {
+        padding: 24px 18px;
+    }
+}

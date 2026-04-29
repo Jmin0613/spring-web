@@ -142,7 +142,7 @@ public class HotDealService {
 
     // 사용자 핫딜 구매 + Pessimistic Lock
     // 지금 buy쪽이 파라미터가 너무 많은데, 나중에 DTO자체를 서비스로 넘기는 구조 생각해보기. (유지보수? 확장 가능할 듯)
-    public void buy(Long id, Integer quantity, Long memberId,
+    public Long buy(Long id, Integer quantity, Long memberId,
                     DeliveryInfoRequest deliveryInfoRequest, PaymentMethod paymentMethod){
         // 회원 조회
         Member member = memberService.getMember(memberId);
@@ -169,7 +169,7 @@ public class HotDealService {
         // Redis 재고 차감 성공 후, 주문 생성
         try{
             DeliveryInfo deliveryInfo = toDeliveryInfo(deliveryInfoRequest);
-            orderService.createSingle(
+            return orderService.createSingle(
                     member, hotDeal.getProduct(),
                     quantity, hotDeal.getHotDealPrice(),
                     deliveryInfo, paymentMethod

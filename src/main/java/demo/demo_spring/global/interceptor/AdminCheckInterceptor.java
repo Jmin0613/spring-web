@@ -10,6 +10,11 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class AdminCheckInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        // OPTIONS 통과
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())){
+            return true;
+        }
+
         //1. 세션 꺼내기 + null체크
         HttpSession session = request.getSession(false);
         if(session==null){

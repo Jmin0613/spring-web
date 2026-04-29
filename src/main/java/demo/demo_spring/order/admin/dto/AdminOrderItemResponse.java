@@ -5,9 +5,12 @@ import lombok.Getter;
 
 @Getter
 public class AdminOrderItemResponse {
+    // 관리자 주문관리 -> 주문상품 한 줄씩 응답DTO
+
     private Long orderItemId;
     private Long productId;
-    private String productName;
+
+    private String productNameSnapshot;
 
     private int orderPrice;
     private int quantity;
@@ -17,7 +20,7 @@ public class AdminOrderItemResponse {
     private AdminOrderItemResponse(OrderItem orderItem){
         this.orderItemId = orderItem.getId();
         this.productId = orderItem.getProduct().getId();
-        this.productName = orderItem.getProductNameSnapshot();
+        this.productNameSnapshot = orderItem.getProductNameSnapshot();
         this.orderPrice = orderItem.getOrderPrice();
         this.quantity = orderItem.getQuantity();
         this.itemTotalPrice = orderItem.getTotalPrice();

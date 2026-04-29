@@ -20,8 +20,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByIdWithPessimisticLock(@Param("productId") Long productId);
     //메서드 인자로 들어온 Long id 값을 쿼리문의 :id 부분에 쏙 집어넣으라
 
-    // 상품 정렬 조회 -> HIDDEN 상태 빼고
+    // (사용자) 상품 정렬 조회 -> HIDDEN 상태 빼고
     List<Product> findByStatusNotOrderByCreatedAtDesc(ProductStatus status); //최신순 정렬
     List<Product> findByStatusNotOrderByPurchaseCountDescCreatedAtDesc(ProductStatus status); //구매순 정렬
+
+    // (관리자) 상품목록 최신순 조회
+    List<Product> findAllByOrderByCreatedAtDesc();
 
 }

@@ -1,6 +1,7 @@
 package demo.demo_spring.product.dto;
 
 import demo.demo_spring.product.domain.Product;
+import demo.demo_spring.product.domain.ProductCategory;
 import demo.demo_spring.product.domain.ProductStatus;
 import lombok.Getter;
 
@@ -17,6 +18,7 @@ public class AdminProductDetailResponse {
     private int price;
     private int stock;
     private String category;
+    private String detailImageUrl;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -26,8 +28,10 @@ public class AdminProductDetailResponse {
     //Product 생성자 -> fromEntity()가 내부에서 호출할 생성자
     private AdminProductDetailResponse(Product product){
         this.id = product.getId(); this.name = product.getName();
-        this.description=product.getDescription(); this.imageUrl=product.getImageUrl();
-        this.price = product.getPrice(); this.stock = product.getStock(); this.category=product.getCategory();
+        this.description=product.getDescription();
+        this.imageUrl=product.getImageUrl(); this.detailImageUrl = product.getDetailImageUrl();
+        this.price = product.getPrice(); this.stock = product.getStock();
+        this.category=product.getCategory().getLabel();
         this.createdAt = product.getCreatedAt(); this.updatedAt = product.getUpdatedAt();
         this.status = product.getStatus();
     }

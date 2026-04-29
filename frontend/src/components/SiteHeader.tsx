@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import './SiteHeader.css'
 
 const API_BASE_URL = 'http://localhost:8080'
 
 type MemberInfo = {
     id: number
-    nickName?: string
+    loginId?: string
     name?: string
+    nickName?: string
+    nickname?: string
+    role?: 'ADMIN' | 'USER'
 }
 
 type NotificationItem = {
@@ -89,7 +93,12 @@ export default function SiteHeader() {
     const [notificationLoading, setNotificationLoading] = useState(false)
     const [notificationError, setNotificationError] = useState('')
 
-    const displayName = loginMember?.nickName ?? loginMember?.name ?? '회원'
+    const displayName =
+        loginMember?.nickName ?? loginMember?.nickname ?? loginMember?.name ?? '회원'
+
+    const isAdmin = loginMember?.role === 'ADMIN'
+    const myPagePath = isAdmin ? '/admin' : '/mypage'
+    const myPageLabel = isAdmin ? '관리자 페이지' : '마이페이지'
 
     const unreadCount = useMemo(() => {
         return notifications.filter((item) => !item.read).length
@@ -99,7 +108,7 @@ export default function SiteHeader() {
         async function loadMyInfo() {
             try {
                 const response = await axios.get<MemberInfo | null>(
-                    `${API_BASE_URL}/members/myinfo`,
+                    `${API_BASE_URL}/member/myinfo`,
                     {
                         withCredentials: true,
                     },
@@ -153,9 +162,12 @@ export default function SiteHeader() {
             setNotificationLoading(true)
             setNotificationError('')
 
-            const response = await axios.get<NotificationItem[]>(`${API_BASE_URL}/notifications`, {
-                withCredentials: true,
-            })
+            const response = await axios.get<NotificationItem[]>(
+                `${API_BASE_URL}/notifications`,
+                {
+                    withCredentials: true,
+                },
+            )
 
             setNotifications(response.data)
         } catch (error) {
@@ -176,7 +188,9 @@ export default function SiteHeader() {
             await axios.post(
                 `${API_BASE_URL}/logout`,
                 {},
-                { withCredentials: true },
+                {
+                    withCredentials: true,
+                },
             )
 
             setLoginMember(null)
@@ -213,7 +227,9 @@ export default function SiteHeader() {
             await axios.patch(
                 `${API_BASE_URL}/notifications/read-all`,
                 {},
-                { withCredentials: true },
+                {
+                    withCredentials: true,
+                },
             )
 
             setNotifications((prev) =>
@@ -233,13 +249,18 @@ export default function SiteHeader() {
                 await axios.patch(
                     `${API_BASE_URL}/notifications/${item.notificationId}/read`,
                     {},
-                    { withCredentials: true },
+                    {
+                        withCredentials: true,
+                    },
                 )
 
                 setNotifications((prev) =>
                     prev.map((target) =>
                         target.notificationId === item.notificationId
-                            ? { ...target, read: true }
+                            ? {
+                                ...target,
+                                read: true,
+                            }
                             : target,
                     ),
                 )
@@ -253,58 +274,56 @@ export default function SiteHeader() {
     }
 
     return (
-        <header style={headerStyle}>
-            <div style={headerInnerStyle}>
-                <div style={leftGroupStyle}>
-                    <Link to="/" style={logoStyle}>
-                        <span style={logoMainTextStyle}>WAT</span>
-                        <span style={logoPercentStyle}>%</span>
+        <header className="site-header">
+            <div className="site-header__inner">
+                <div className="site-header__left">
+                    <Link to="/" className="site-header__logo">
+                        <span className="site-header__logo-main">WAT</span>
+                        <span className="site-header__logo-percent">%</span>
                     </Link>
 
-                    <nav style={navStyle}>
-                        <Link to="/" style={homeLinkStyle}>
+                    <nav className="site-header__nav">
+                        <Link to="/" className="site-header__nav-link site-header__nav-link--home">
                             홈
                         </Link>
 
-                        <Link to="/notices" style={navLinkStyle}>
+                        <Link to="/notices" className="site-header__nav-link">
                             공지
                         </Link>
                     </nav>
                 </div>
 
-                <div style={rightGroupStyle}>
-                    <div style={notificationWrapStyle} ref={notificationRef}>
+                <div className="site-header__right">
+                    <div className="site-header__notification-wrap" ref={notificationRef}>
                         <button
                             type="button"
-                            style={iconButtonStyle}
+                            className="site-header__icon-button"
                             aria-label="알림"
                             onClick={handleNotificationToggle}
                         >
                             🔔
                             {loginMember && unreadCount > 0 && (
-                                <span style={notificationBadgeStyle}>
+                                <span className="site-header__notification-badge">
                                     {unreadCount > 9 ? '9+' : unreadCount}
                                 </span>
                             )}
                         </button>
 
                         {notificationOpen && (
-                            <div style={notificationDropdownStyle}>
-                                <div style={notificationDropdownHeaderStyle}>
-                                    <div style={notificationDropdownTitleWrapStyle}>
-                                        <span style={notificationDropdownTitleStyle}>알림</span>
-                                        <span style={notificationDropdownCountStyle}>
+                            <div className="site-header__notification-dropdown">
+                                <div className="site-header__notification-header">
+                                    <div className="site-header__notification-title-wrap">
+                                        <span className="site-header__notification-title">
+                                            알림
+                                        </span>
+                                        <span className="site-header__notification-count">
                                             안 읽음 {unreadCount}
                                         </span>
                                     </div>
 
                                     <button
                                         type="button"
-                                        style={{
-                                            ...notificationReadAllButtonStyle,
-                                            opacity: unreadCount === 0 ? 0.5 : 1,
-                                            cursor: unreadCount === 0 ? 'not-allowed' : 'pointer',
-                                        }}
+                                        className="site-header__notification-read-all-button"
                                         onClick={handleReadAllNotifications}
                                         disabled={unreadCount === 0}
                                     >
@@ -312,15 +331,17 @@ export default function SiteHeader() {
                                     </button>
                                 </div>
 
-                                <div style={notificationListWrapStyle}>
+                                <div className="site-header__notification-list">
                                     {notificationLoading ? (
-                                        <div style={notificationStateStyle}>
+                                        <div className="site-header__notification-state">
                                             알림을 불러오는 중입니다...
                                         </div>
                                     ) : notificationError ? (
-                                        <div style={notificationStateStyle}>{notificationError}</div>
+                                        <div className="site-header__notification-state">
+                                            {notificationError}
+                                        </div>
                                     ) : notifications.length === 0 ? (
-                                        <div style={notificationStateStyle}>
+                                        <div className="site-header__notification-state">
                                             도착한 알림이 없습니다.
                                         </div>
                                     ) : (
@@ -329,23 +350,22 @@ export default function SiteHeader() {
                                                 key={item.notificationId}
                                                 type="button"
                                                 onClick={() => handleClickNotification(item)}
-                                                style={{
-                                                    ...notificationItemStyle,
-                                                    backgroundColor: item.read
-                                                        ? '#f8fafc'
-                                                        : '#ffffff',
-                                                }}
+                                                className={
+                                                    item.read
+                                                        ? 'site-header__notification-item site-header__notification-item--read'
+                                                        : 'site-header__notification-item'
+                                                }
                                             >
-                                                <div style={notificationItemTopStyle}>
-                                                    <span style={notificationItemTitleStyle}>
+                                                <div className="site-header__notification-item-top">
+                                                    <span className="site-header__notification-item-title">
                                                         {item.title}
                                                     </span>
-                                                    <span style={notificationItemTimeStyle}>
+                                                    <span className="site-header__notification-item-time">
                                                         {formatNotificationTime(item.createdAt)}
                                                     </span>
                                                 </div>
 
-                                                <p style={notificationItemContentStyle}>
+                                                <p className="site-header__notification-item-content">
                                                     {item.content}
                                                 </p>
                                             </button>
@@ -356,58 +376,68 @@ export default function SiteHeader() {
                         )}
                     </div>
 
-                    <Link to="/cart-items" style={iconLinkStyle} aria-label="장바구니">
-                        🛒
-                    </Link>
+                    {!isAdmin && (
+                        <Link
+                            to="/cart-items"
+                            className="site-header__icon-link"
+                            aria-label="장바구니"
+                        >
+                            🛒
+                        </Link>
+                    )}
 
                     {loginMember ? (
-                        <div style={profileMenuWrapStyle} ref={menuRef}>
+                        <div className="site-header__profile-wrap" ref={menuRef}>
                             <button
                                 type="button"
-                                style={profileButtonStyle}
+                                className="site-header__profile-button"
                                 onClick={() => {
                                     setNotificationOpen(false)
                                     setMenuOpen((prev) => !prev)
                                 }}
                             >
-                                <span style={profileAvatarStyle}>👤</span>
-                                <span style={profileNameStyle}>{displayName}</span>
-                                <span style={profileArrowStyle}>
+                                <span className="site-header__profile-avatar">👤</span>
+                                <span className="site-header__profile-name">{displayName}</span>
+                                <span className="site-header__profile-arrow">
                                     {menuOpen ? '▴' : '▾'}
                                 </span>
                             </button>
 
                             {menuOpen && (
-                                <div style={dropdownMenuStyle}>
+                                <div className="site-header__dropdown-menu">
                                     <Link
-                                        to="/mypage"
-                                        style={dropdownItemLinkStyle}
+                                        to={myPagePath}
+                                        className="site-header__dropdown-item"
                                         onClick={() => setMenuOpen(false)}
                                     >
-                                        마이페이지
+                                        {myPageLabel}
                                     </Link>
 
-                                    <Link
-                                        to="/wishlist"
-                                        style={dropdownItemLinkStyle}
-                                        onClick={() => setMenuOpen(false)}
-                                    >
-                                        찜한 상품
-                                    </Link>
+                                    {!isAdmin && (
+                                        <>
+                                            <Link
+                                                to="/wishlist"
+                                                className="site-header__dropdown-item"
+                                                onClick={() => setMenuOpen(false)}
+                                            >
+                                                찜한 상품
+                                            </Link>
 
-                                    <Link
-                                        to="/mypage/orders"
-                                        style={dropdownItemLinkStyle}
-                                        onClick={() => setMenuOpen(false)}
-                                    >
-                                        주문 목록
-                                    </Link>
+                                            <Link
+                                                to="/mypage/orders"
+                                                className="site-header__dropdown-item"
+                                                onClick={() => setMenuOpen(false)}
+                                            >
+                                                주문 목록
+                                            </Link>
+                                        </>
+                                    )}
 
-                                    <div style={dropdownDividerStyle} />
+                                    <div className="site-header__dropdown-divider" />
 
                                     <button
                                         type="button"
-                                        style={dropdownLogoutButtonStyle}
+                                        className="site-header__dropdown-logout-button"
                                         onClick={handleLogout}
                                     >
                                         로그아웃
@@ -425,7 +455,7 @@ export default function SiteHeader() {
                                     hash: location.hash,
                                 },
                             }}
-                            style={loginButtonStyle}
+                            className="site-header__login-button"
                         >
                             로그인
                         </Link>
@@ -435,315 +465,3 @@ export default function SiteHeader() {
         </header>
     )
 }
-
-const headerStyle = {
-    width: '100%',
-    borderBottom: '1px solid #ececec',
-    backgroundColor: '#ffffff',
-} as const
-
-const headerInnerStyle = {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    height: '88px',
-    padding: '0 24px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '20px',
-} as const
-
-const leftGroupStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '28px',
-} as const
-
-const logoStyle = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    textDecoration: 'none',
-    fontWeight: 900,
-    fontSize: '28px',
-    letterSpacing: '-0.04em',
-} as const
-
-const logoMainTextStyle = {
-    color: '#111827',
-} as const
-
-const logoPercentStyle = {
-    color: '#f59e0b',
-} as const
-
-const navStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '22px',
-} as const
-
-const homeLinkStyle = {
-    textDecoration: 'none',
-    color: '#111827',
-    fontSize: '16px',
-    fontWeight: 800,
-    paddingBottom: '0',
-    borderBottom: 'none',
-} as const
-
-const navLinkStyle = {
-    textDecoration: 'none',
-    color: '#111827',
-    fontSize: '16px',
-    fontWeight: 700,
-} as const
-
-const rightGroupStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '14px',
-} as const
-
-const notificationWrapStyle = {
-    position: 'relative',
-} as const
-
-const iconButtonStyle = {
-    position: 'relative',
-    border: 'none',
-    backgroundColor: 'transparent',
-    fontSize: '24px',
-    cursor: 'pointer',
-    padding: 0,
-    lineHeight: 1,
-} as const
-
-const notificationBadgeStyle = {
-    position: 'absolute',
-    top: '-8px',
-    right: '-10px',
-    minWidth: '18px',
-    height: '18px',
-    borderRadius: '999px',
-    backgroundColor: '#ef4444',
-    color: '#ffffff',
-    fontSize: '11px',
-    fontWeight: 800,
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '0 5px',
-} as const
-
-const notificationDropdownStyle = {
-    position: 'absolute',
-    top: '40px',
-    right: 0,
-    width: '360px',
-    border: '1px solid #d1d5db',
-    borderRadius: '18px',
-    backgroundColor: '#ffffff',
-    boxShadow: '0 16px 32px rgba(17, 24, 39, 0.12)',
-    overflow: 'hidden',
-    zIndex: 40,
-} as const
-
-const notificationDropdownHeaderStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '16px 18px',
-    borderBottom: '1px solid #e5e7eb',
-} as const
-
-const notificationDropdownTitleWrapStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-} as const
-
-const notificationDropdownTitleStyle = {
-    color: '#111827',
-    fontSize: '16px',
-    fontWeight: 800,
-} as const
-
-const notificationDropdownCountStyle = {
-    color: '#2563eb',
-    fontSize: '13px',
-    fontWeight: 700,
-} as const
-
-const notificationReadAllButtonStyle = {
-    border: '1px solid #bfdbfe',
-    backgroundColor: '#ffffff',
-    color: '#2563eb',
-    borderRadius: '10px',
-    padding: '8px 12px',
-    fontSize: '13px',
-    fontWeight: 700,
-} as const
-
-const notificationListWrapStyle = {
-    maxHeight: '360px',
-    overflowY: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-} as const
-
-const notificationStateStyle = {
-    padding: '40px 20px',
-    textAlign: 'center',
-    color: '#6b7280',
-    fontSize: '14px',
-} as const
-
-const notificationItemStyle = {
-    width: '100%',
-    border: 'none',
-    borderBottom: '1px solid #e5e7eb',
-    padding: '16px 18px',
-    textAlign: 'left',
-    cursor: 'pointer',
-} as const
-
-const notificationItemTopStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: '10px',
-    marginBottom: '8px',
-} as const
-
-const notificationItemTitleStyle = {
-    color: '#111827',
-    fontSize: '15px',
-    fontWeight: 800,
-    lineHeight: 1.4,
-} as const
-
-const notificationItemTimeStyle = {
-    color: '#9ca3af',
-    fontSize: '12px',
-    whiteSpace: 'nowrap',
-} as const
-
-const notificationItemContentStyle = {
-    margin: 0,
-    color: '#4b5563',
-    fontSize: '13px',
-    lineHeight: 1.6,
-    whiteSpace: 'pre-wrap',
-} as const
-
-const iconLinkStyle = {
-    textDecoration: 'none',
-    fontSize: '24px',
-    lineHeight: 1,
-} as const
-
-const loginButtonStyle = {
-    border: '1px solid #e5e7eb',
-    backgroundColor: '#ffffff',
-    color: '#111827',
-    borderRadius: '12px',
-    padding: '12px 18px',
-    fontWeight: 700,
-    cursor: 'pointer',
-    textDecoration: 'none',
-} as const
-
-const profileMenuWrapStyle = {
-    position: 'relative',
-} as const
-
-const profileButtonStyle = {
-    minWidth: '118px',
-    height: '46px',
-    border: '1px solid #d1d5db',
-    backgroundColor: '#ffffff',
-    color: '#111827',
-    borderRadius: '10px',
-    padding: '0 12px',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
-    cursor: 'pointer',
-    outline: 'none',
-    boxShadow: 'none',
-} as const
-
-const profileAvatarStyle = {
-    width: '26px',
-    height: '26px',
-    borderRadius: '999px',
-    backgroundColor: '#9ca3af',
-    color: '#ffffff',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '13px',
-    flexShrink: 0,
-} as const
-
-const profileNameStyle = {
-    fontSize: '15px',
-    fontWeight: 700,
-    maxWidth: '60px',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-} as const
-
-const profileArrowStyle = {
-    fontSize: '22px',
-    fontWeight: 700,
-    color: '#6b7280',
-    lineHeight: 1,
-    display: 'inline-flex',
-    alignItems: 'center',
-} as const
-
-const dropdownMenuStyle = {
-    position: 'absolute',
-    top: '56px',
-    right: 0,
-    width: '132px',
-    border: '1px solid #d1d5db',
-    borderRadius: '0',
-    backgroundColor: '#ffffff',
-    boxShadow: '0 10px 24px rgba(17, 24, 39, 0.08)',
-    overflow: 'hidden',
-    zIndex: 30,
-} as const
-
-const dropdownItemLinkStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '54px',
-    color: '#374151',
-    textDecoration: 'none',
-    fontSize: '15px',
-    fontWeight: 500,
-    backgroundColor: '#ffffff',
-} as const
-
-const dropdownDividerStyle = {
-    height: '1px',
-    backgroundColor: '#e5e7eb',
-    margin: '0',
-} as const
-
-const dropdownLogoutButtonStyle = {
-    width: '100%',
-    height: '48px',
-    border: 'none',
-    backgroundColor: '#ffffff',
-    color: '#374151',
-    textAlign: 'center',
-    fontSize: '15px',
-    cursor: 'pointer',
-} as const

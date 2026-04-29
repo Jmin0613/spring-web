@@ -8,13 +8,11 @@ import java.util.List;
 public interface ProductInquiryRepository extends JpaRepository<ProductInquiry,Long> {
     // 해당 상품의 문의만 보기
     List<ProductInquiry> findAllByProductIdOrderByCreatedAtDesc(Long productId);
-    // find All + By Product_Id + Order By Created At Desc
-    // 모두 찾아라
-    // Product id를 기준으로 검색
-    // createdAt기준으로 내림차순 정렬
-    //특정 상품(ProductId)에 달린 문의들을 createAt 최신순으로 전부 조회
 
     // 내 문의보기
     List<ProductInquiry> findAllByMemberIdOrderByCreatedAtDesc(Long memberId);
+
+    // (관리자) - 전체문의 최신순
+    List<ProductInquiry> findAllByOrderByCreatedAtDesc();
 
 }

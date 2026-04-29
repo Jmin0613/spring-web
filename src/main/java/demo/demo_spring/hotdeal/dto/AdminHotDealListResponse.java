@@ -15,6 +15,7 @@ public class AdminHotDealListResponse {
     // 운영/관리 용도이니, productId 추가
     // 어떤 상품에 붙은 핫딜인지 식별, 나중에 상품 상세/수정 연결 용이, db나 운영 관점에서 추적 쉬움
     private String productName;
+    private String imageUrl;
 
     private int originalPrice;
     private int hotDealPrice;
@@ -36,6 +37,7 @@ public class AdminHotDealListResponse {
         this.createdAt = hotDeal.getCreatedAt();
         this.status = hotDeal.getStatus();
         this.discountRate = hotDeal.calculateDiscountRate();
+        this.imageUrl = hotDeal.getProduct().getImageUrl();
 
     }
 

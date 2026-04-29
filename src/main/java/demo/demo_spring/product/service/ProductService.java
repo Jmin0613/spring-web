@@ -32,48 +32,90 @@ public class ProductService {
     }
 
 
-    //등록
+    // (관리자) 등록
     public Long create(ProductCreateRequest request){
         Product product = Product.createProduct( //Product생성 메서드 호출
-                request.getName(), request.getDescription(), request.getImageUrl(),
+                request.getName(), request.getDescription(), request.getImageUrl(), request.getDetailImageUrl(),
                 request.getPrice(), request.getStock(), request.getCategory(), ProductStatus.ON_SALE
         );
         Product savedProduct = productRepository.save(product); //저장
         return savedProduct.getId(); //저장한 상품 id 반환
     }
 
-    //수정
-    public void update(Long id, ProductUpdateRequest request){
-        Product product = productRepository.findById(id) //id로 상품 찾기
+    // (관리자) 수정
+    public void update(Long productIdd, ProductUpdateRequest request){
+        Product product = productRepository.findById(productIdd) //id로 상품 찾기
                 .orElseThrow(() -> new IllegalStateException("해당하는 상품이 없습니다.")); //없으면 예외
         product.updateProduct( //수정할 값 넣어주기
-                request.getName(), request.getDescription(), request.getImageUrl(),
+                request.getName(), request.getDescription(), request.getImageUrl(), request.getDetailImageUrl(),
                 request.getPrice(), request.getStock(), request.getCategory(),
                 request.getStatus()
         ); //지금은 괜찮은데, 수정할 것 더 늘거나 검증 규칙 복잡해지면 분리하는 것 고려
     }
 
-    //삭제
-    public void delete(Long id){
-        Product product = productRepository.findById(id) //id로 상품 찾기
+    // (관리자) 상태변경
+    public void updateStatus(Long productId, AdminProductStatusUpdateRequest request){
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalStateException("상태를 변경하려는 상품이 없습니다."));
+
+        // 변경하려는 상태
+        ProductStatus targetStatus = request.getStatus();
+
+        // null체크
+        if(targetStatus == null){
+            throw new IllegalStateException("변경할 상품 상태를 선택해주세요.");
+        }
+
+        // 기존 상태와 동일
+        if(product.getStatus() == targetStatus){
+            return; // 통과
+        }
+
+        // 판매재개
+        if (targetStatus == ProductStatus.ON_SALE) {
+            product.onSale();
+            return;
+        }
+
+        // 품절
+        if (targetStatus == ProductStatus.SOLD_OUT) {
+            product.soldOut();
+            return;
+        }
+
+        // 판매중지/비공개
+        if (targetStatus == ProductStatus.HIDDEN) {
+            product.hide();
+            return;
+        }
+
+        // 추후 상태 enum 확장 예정. 서비스로직 수정안해서 성공처리되는거 고려해서 막아두기.
+        throw new IllegalStateException("변경할 수 없는 상품 상태입니다.");
+    }
+
+    // (관리자) 삭제
+    public void delete(Long productId){
+        Product product = productRepository.findById(productId) //id로 상품 찾기
             .orElseThrow(()->new IllegalStateException("해당하는 상품이 없습니다.")); //없으면 예외
         productRepository.delete(product);
     }
+    // -> 무결성 문제때문에 현재 막힘. 생각해보니 데이터는 통계나 그런거에서 곧 자산이니간 딱히 삭제없어도 될듯.
+    // 소프트 딜리트 느낌으로 전환 -> ProductStatus.HIDDEN을 통해 비공개/판매중지로 돌리기.
 
-    //관리자 전체조회
+    // (관리자) 전체조회
     public List<AdminProductListResponse> adminFindAllProduct(){
-        return productRepository.findAll() //List<Product>
+        return productRepository.findAllByOrderByCreatedAtDesc() //List<Product>
                 .stream().map(AdminProductListResponse::fromEntity) //Stream<DTO>
                 .toList(); //List<DTO>
     }
-    //관리자 단건 상세조회
-    public AdminProductDetailResponse adminFindProduct(Long id){
-        Product product = productRepository.findById(id)
+    // (관리자)  단건 상세조회
+    public AdminProductDetailResponse adminFindProduct(Long productId){
+        Product product = productRepository.findById(productId)
                 .orElseThrow(()->new IllegalStateException("해당하는 상품이 없습니다."));
         return AdminProductDetailResponse.fromEntity(product);
     } // 관리자페이지 확장할떄 정렬 추가하기
 
-    //사용자 전체조회 + 정렬 추가
+    // (사용자) 전체조회 + 정렬 추가
     public List<ProductListResponse> findAllProduct(ProductSortType sort){
         List<Product> products;
 
@@ -89,9 +131,9 @@ public class ProductService {
                 .toList();
 
     }
-    //사용자 단건 상세조회 + 정렬 추가
-    public ProductDetailResponse findProduct(Long id){
-        Product product = productRepository.findById(id)
+    // (사용자) 단건 상세조회 + 정렬 추가
+    public ProductDetailResponse findProduct(Long productId){
+        Product product = productRepository.findById(productId)
                 .orElseThrow(()->new IllegalStateException("해당하는 상품이 없습니다."));
         if (product.getStatus() == ProductStatus.HIDDEN){ // 상품이 HIDDEN 상태일때 숨기기
             throw new IllegalStateException("현재 판매되는 상품이 아닙니다.");
@@ -99,8 +141,8 @@ public class ProductService {
         return ProductDetailResponse.fromEntity(product);
     }
 
-    // 사용자 단일 상품 즉시 구매 + Pessimistic Lock
-    public void buySingle(Long id, Integer quantity, Long memberId,
+    // (사용자) 단일 상품 즉시 구매 + Pessimistic Lock
+    public Long buySingle(Long productId, Integer quantity, Long memberId,
                           DeliveryInfoRequest deliveryInfoRequest, PaymentMethod paymentMethod){
         Member member = memberService.getMember(memberId);
 
@@ -110,7 +152,7 @@ public class ProductService {
         }
 
         //1. 비관적 락을 이용해 id를 넣어 상품 가져오기
-        Product product = productRepository.findByIdWithPessimisticLock(id)
+        Product product = productRepository.findByIdWithPessimisticLock(productId)
                 .orElseThrow(()->new IllegalStateException("해당하는 상품이 없습니다."));
         //2. 판매 상태 확인
         if(product.getStatus()==ProductStatus.HIDDEN){
@@ -119,10 +161,10 @@ public class ProductService {
         //3. 재고,수량 체크 + 구매 진행하는 엔티티메서드
         product.buy(quantity);
 
-        //4. 구매 완료 후 주문 생성
+        //4. 구매 완료 후, 주문 생성
         // member -> 세션에서 꺼내오기
         DeliveryInfo deliveryInfo = toDeliveryInfo(deliveryInfoRequest);
-        orderService.createSingle(
+        return orderService.createSingle( //생성된 orderId 넘겨주기
                 member, product, quantity, product.getPrice(),
                 deliveryInfo, paymentMethod
         );

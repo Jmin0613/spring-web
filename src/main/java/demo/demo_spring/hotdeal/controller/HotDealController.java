@@ -38,13 +38,12 @@ public class HotDealController {
 
     // 핫딜 구매
     @PostMapping("/hotdeals/{hotDealId}/buy")
-    public String buy(@PathVariable Long hotDealId, @RequestBody @Valid HotDealBuyRequest request, HttpSession session){
+    public Long buy(@PathVariable Long hotDealId, @RequestBody @Valid HotDealBuyRequest request, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
-        hotDealService.buy(
+        return hotDealService.buy(
                 hotDealId, request.getQuantity(), loginMember.getId(),
                 request.getDeliveryInfo(), request.getPaymentMethod()
         );
-        return "구매 성공";
     }
 
     // 시작 알림 신청

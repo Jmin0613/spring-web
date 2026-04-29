@@ -23,7 +23,7 @@ public class MemberInfoResponse {
         this.id = member.getId(); this.loginId = member.getLoginId();
         this.email = member.getEmail(); this.name = member.getName();
         this.phoneNumber = member.getPhoneNumber(); this.nickName = member.getNickName();
-        this.role = getRole();
+        this.role = member.getRole();
     }
 
     // 엔티티 -> DTO

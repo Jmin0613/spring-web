@@ -1,5 +1,6 @@
 package demo.demo_spring.product.dto;
 
+import demo.demo_spring.product.domain.ProductCategory;
 import demo.demo_spring.product.domain.ProductStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,10 +12,11 @@ public class ProductUpdateRequest {
     private String name;
     private String description;
     private String imageUrl;
+    private String detailImageUrl;
 
     private Integer price; //누락시 0 막기위해 사용
     private Integer stock;
-    private String category;
+    private ProductCategory category;
 
     private ProductStatus status;
 }

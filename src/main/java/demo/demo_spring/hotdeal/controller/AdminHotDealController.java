@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
+@RequestMapping("/admin/hotdeals")
 public class AdminHotDealController {
     //생성자주입 + di
     private final HotDealService hotDealService;
@@ -18,41 +19,41 @@ public class AdminHotDealController {
     }
 
     // 등록
-    @PostMapping("/admin/hotdeals")
+    @PostMapping
     public Long create(@RequestBody @Valid HotDealCreateRequest request){
         return hotDealService.create(request); //등록한 핫딜의 id값 반환
     }
 
     // 수정
-    @PatchMapping("/admin/hotdeals/{hotDealId}")
+    @PatchMapping("/{hotDealId}")
     public void update(@PathVariable Long hotDealId, @RequestBody HotDealUpdateRequest request){
         hotDealService.update(hotDealId, request);
     }
 
     // 긴급 중단
-    @PatchMapping("/admin/hotdeals/{hotDealId}/stop")
+    @PatchMapping("{hotDealId}/stop")
     public void stop(@PathVariable Long hotDealId){
         hotDealService.adminEmergencyStop(hotDealId);
     }
 
     // 중단 재개
-    @PatchMapping("/admin/hotdeals/{hotDealId}/resume")
+    @PatchMapping("/{hotDealId}/resume")
     public void resume(@PathVariable Long hotDealId){ hotDealService.adminResume(hotDealId);}
 
     // 삭제
-    @DeleteMapping("/admin/hotdeals/{hotDealId}")
+    @DeleteMapping("/{hotDealId}")
     public void delete(@PathVariable Long hotDealId){
         hotDealService.delete(hotDealId);
     }
 
     // 전체 조회
-    @GetMapping("/admin/hotdeals")
+    @GetMapping
     public List<AdminHotDealListResponse> adminFindAllHotDeal(){
         return hotDealService.adminFindAllHotDeal();
     }
 
-    // 단건 조회
-    @GetMapping("/admin/hotdeals/{hotDealId}")
+    // 단건 조회 -> 투머치 느낌. 사용x
+    @GetMapping("/{hotDealId}")
     public AdminHotDealDetailResponse adminFindHotDeal(@PathVariable Long hotDealId){
         return hotDealService.adminFindHotDeal(hotDealId);
     }

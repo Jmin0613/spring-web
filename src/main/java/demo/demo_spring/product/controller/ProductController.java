@@ -35,12 +35,11 @@ public class ProductController {
 
     // 상품 구매
     @PostMapping("/products/{id}/buy")
-    public String buy(@PathVariable Long id, @RequestBody @Valid ProductBuyRequest request, HttpSession session){
+    public Long buy(@PathVariable Long id, @RequestBody @Valid ProductBuyRequest request, HttpSession session){
         Member loginMember = (Member)session.getAttribute("loginMember");
-        productService.buySingle(
+        return productService.buySingle(
                 id, request.getQuantity(), loginMember.getId(),
                 request.getDeliveryInfo(), request.getPaymentMethod()
         );
-        return "구매 성공";
     }
 }

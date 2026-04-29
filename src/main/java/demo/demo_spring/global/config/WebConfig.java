@@ -6,7 +6,10 @@ import demo.demo_spring.global.interceptor.MyPageVerifyInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.nio.file.Paths;
 
 @Configuration // 스프링에게 설정 클래스로 알려주기
 public class WebConfig implements WebMvcConfigurer {
@@ -46,5 +49,17 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String uploadPath = Paths.get("uploads")
+                .toAbsolutePath()
+                .normalize()
+                .toUri()
+                .toString();
+
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations(uploadPath);
     }
 }

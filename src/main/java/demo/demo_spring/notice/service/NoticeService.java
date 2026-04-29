@@ -43,7 +43,7 @@ public class NoticeService {
 
     // 공지 목록 조회
     public List<NoticeListResponse> findAllNotice(){
-        return noticeRepository.findAll()
+        return noticeRepository.findAllByOrderByCreatedAtDesc()
                 .stream().map(NoticeListResponse::fromEntity)
                 .toList();
     }

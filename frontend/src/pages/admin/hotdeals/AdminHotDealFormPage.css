@@ -1,0 +1,365 @@
+.admin-hotdeal-form-page {
+    min-height: 100vh;
+    background-color: #ffffff;
+    color: #111827;
+}
+
+.admin-hotdeal-form-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 24px 96px;
+    box-sizing: border-box;
+}
+
+.admin-hotdeal-form-header {
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.admin-hotdeal-form-eyebrow {
+    margin: 0 0 6px;
+    color: #f59e0b;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+}
+
+.admin-hotdeal-form-title {
+    margin: 0;
+    color: #111827;
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+}
+
+.admin-hotdeal-form-description {
+    margin: 12px 0 0;
+    color: #6b7280;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.admin-hotdeal-form-card {
+    border: 1px solid #ececec;
+    border-radius: 22px;
+    background-color: #ffffff;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.05);
+}
+
+.admin-hotdeal-form-row {
+    display: grid;
+    grid-template-columns: 160px minmax(0, 1fr);
+    min-height: 58px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-hotdeal-form-label {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    background-color: #fffbeb;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 900;
+    text-align: center;
+}
+
+.admin-hotdeal-form-field {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 12px 18px;
+    min-width: 0;
+}
+
+.admin-hotdeal-form-input,
+.admin-hotdeal-form-select {
+    width: 100%;
+    height: 42px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    box-sizing: border-box;
+    outline: none;
+    padding: 0 13px;
+}
+
+.admin-hotdeal-form-input:focus,
+.admin-hotdeal-form-select:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.14);
+}
+
+.admin-hotdeal-form-input::placeholder {
+    color: #9ca3af;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.admin-hotdeal-time-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.admin-hotdeal-time-date-input,
+.admin-hotdeal-time-select {
+    height: 38px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.admin-hotdeal-time-date-input {
+    flex: 1;
+    min-width: 180px;
+    padding: 0 12px;
+}
+
+.admin-hotdeal-time-select {
+    width: 66px;
+    padding: 0 8px;
+}
+
+.admin-hotdeal-time-meridiem-select {
+    width: 78px;
+    color: #111827;
+    font-weight: 600;
+}
+
+.admin-hotdeal-time-date-input:focus,
+.admin-hotdeal-time-select:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+}
+
+.admin-hotdeal-time-unit {
+    color: #4b5563;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-hotdeal-preview-card {
+    margin-top: 22px;
+    border: 1px solid #fed7aa;
+    border-radius: 18px;
+    background-color: #fffaf5;
+    padding: 18px;
+}
+
+.admin-hotdeal-preview-title {
+    margin: 0 0 14px;
+    color: #111827;
+    font-size: 16px;
+    font-weight: 900;
+    text-align: center;
+}
+
+.admin-hotdeal-preview-content {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+}
+
+.admin-hotdeal-preview-image {
+    width: 96px;
+    height: 96px;
+    border-radius: 16px;
+    background-color: #ffffff;
+    border: 1px solid #fed7aa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 13px;
+    font-weight: 800;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.admin-hotdeal-preview-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.admin-hotdeal-preview-info {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    text-align: left;
+    justify-items: start;
+    align-items: start;
+}
+
+.admin-hotdeal-preview-info strong {
+    color: #111827;
+    font-size: 18px;
+    font-weight: 900;
+    text-align: left;
+}
+
+.admin-hotdeal-preview-info p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.admin-hotdeal-preview-empty {
+    border-radius: 14px;
+    background-color: #ffffff;
+    border: 1px dashed #fed7aa;
+    padding: 24px;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.admin-hotdeal-form-button-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.admin-hotdeal-form-button-row--right {
+    justify-content: flex-end;
+}
+
+.admin-hotdeal-form-primary-button,
+.admin-hotdeal-form-secondary-button {
+    min-width: 120px;
+    height: 42px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.admin-hotdeal-form-primary-button {
+    border: 1px solid #f59e0b;
+    background-color: #f59e0b;
+    color: #ffffff;
+}
+
+.admin-hotdeal-form-primary-button:hover {
+    background-color: #d97706;
+}
+
+.admin-hotdeal-form-primary-button:disabled {
+    border-color: #fcd34d;
+    background-color: #fcd34d;
+    cursor: not-allowed;
+}
+
+.admin-hotdeal-form-secondary-button {
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #374151;
+}
+
+.admin-hotdeal-form-secondary-button:hover {
+    background-color: #f9fafb;
+}
+
+.admin-hotdeal-form-state-box {
+    border: 1px solid #ececec;
+    border-radius: 22px;
+    background-color: #ffffff;
+    padding: 56px 24px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 10px 30px rgba(17, 24, 39, 0.04);
+}
+
+.admin-hotdeal-form-readonly-box {
+    width: 100%;
+    min-height: 40px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background-color: #f9fafb;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .admin-hotdeal-form-container {
+        padding: 24px 16px 72px;
+    }
+
+    .admin-hotdeal-form-title {
+        font-size: 34px;
+    }
+
+    .admin-hotdeal-form-card {
+        padding: 20px;
+    }
+
+    .admin-hotdeal-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-hotdeal-form-label {
+        min-height: 44px;
+    }
+
+    .admin-hotdeal-form-field {
+        padding: 14px 0;
+    }
+
+    .admin-hotdeal-time-group {
+        flex-wrap: wrap;
+    }
+
+    .admin-hotdeal-time-date-input {
+        width: 100%;
+        flex: none;
+    }
+
+    .admin-hotdeal-time-select {
+        flex: 1;
+        min-width: 72px;
+    }
+
+    .admin-hotdeal-preview-content {
+        align-items: flex-start;
+    }
+
+    .admin-hotdeal-form-button-row,
+    .admin-hotdeal-form-button-row--right {
+        justify-content: stretch;
+    }
+
+    .admin-hotdeal-form-primary-button,
+    .admin-hotdeal-form-secondary-button {
+        flex: 1;
+    }
+}

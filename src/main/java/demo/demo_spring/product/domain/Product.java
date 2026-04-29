@@ -21,11 +21,14 @@ public class Product {
     private String name;
 
     private String description;
-    private String imageUrl;
+    private String imageUrl; //대표 이미지
+    private String detailImageUrl; //상세 설명 이미지
 
     private int price;
     private int stock;
-    private String category;
+
+    @Enumerated(EnumType.STRING)
+    private ProductCategory category;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -41,8 +44,8 @@ public class Product {
     @Column(nullable = false)
     private int purchaseCount; // 누적 구매 수
 
-    private Product (String name, String description, String imageUrl,
-                    int price, int stock, String category, ProductStatus status){
+    private Product (String name, String description, String imageUrl, String detailImageUrl,
+                    int price, int stock, ProductCategory category, ProductStatus status){
         // 핵심 불변조건만 체크
         if(name == null || name.isBlank()){
             throw new IllegalStateException("등록할 상품의 이름을 입력해주세요.");
@@ -57,32 +60,50 @@ public class Product {
             throw new IllegalStateException("상품 판매수량은 1 이상이어야 합니다.");
         }
 
-        this.name = name; this.description = description; this.imageUrl = imageUrl;
+        this.name = name; this.description = description;
+        this.imageUrl = imageUrl; this.detailImageUrl = detailImageUrl;
         this.price = price; this.stock = stock; this.category = category; this.status = status;
         this.wishCount = 0;
         this.purchaseCount = 0;
     }
 
-    public static Product createProduct(String name, String description, String imageUrl,
-                                        int price, int stock, String category, ProductStatus status){
+    public static Product createProduct(String name, String description, String imageUrl, String detailImageUrl,
+                                        int price, int stock, ProductCategory category, ProductStatus status){
         return new Product(
-                name, description, imageUrl,
+                name, description, imageUrl, detailImageUrl,
                 price, stock, category, status
         );
     }
 
     // 상품 정보 부분 수정 (부분 수정을 위해 null 체크)
-    public void updateProduct(String name, String description, String imageUrl,
+    public void updateProduct(String name, String description, String imageUrl, String detailImageUrl,
                                  Integer price, Integer stock,
-                                 String category, ProductStatus status){
+                              ProductCategory category, ProductStatus status){
         if(name != null && !name.isBlank()) this.name=name;
         if(description != null && !description.isBlank()) this.description=description;
         if(imageUrl != null && !imageUrl.isBlank()) this.imageUrl=imageUrl;
-        if(price!=null)this.price=price;
+        if(detailImageUrl != null && !detailImageUrl.isBlank()) this.detailImageUrl=detailImageUrl;
+        if(price!=null) this.price=price;
         if(stock!=null) this.stock=stock;
-        if(category!= null && !category.isBlank()) this.category=category;
+        if(category!= null) this.category=category;
         if(status!=null) this.status=status;
     }
+
+    // 상품 상태변경 메서드
+    public void changeStatus(ProductStatus status){
+        if(status == null){
+            throw new IllegalStateException("변경할 상품 상태를 선택해주세요.");
+        }
+        this.status = status;
+    }
+    // 판매 재개
+    public void onSale(){ this.status = ProductStatus.ON_SALE; }
+
+    // 품절 처리
+    public void soldOut(){ this.status = ProductStatus.SOLD_OUT; }
+
+    // 숨김 처리
+    public void hide(){ this.status = ProductStatus.HIDDEN; }
 
     // 찜하기 수 증가
     public void increaseWishCount(){
