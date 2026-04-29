@@ -217,16 +217,5 @@ public class HotDealService {
             hotDealRedisStockService.deleteStock(hotDeal.getId());
         }
 
-//        System.out.println("beforeStatus = " + beforeStatus);
-//        System.out.println("afterStatus = " + afterStatus);
-//        System.out.println("hotDealId = " + hotDeal.getId());
-//
-//        if (beforeStatus == HotDealStatus.READY && afterStatus == HotDealStatus.ON_SALE) {
-//            System.out.println("Redis setStock 실행");
-//            hotDealRedisStockService.setStock(hotDeal.getId(), hotDeal.getHotDealStock());
-//        }
-//
-//        System.out.println("현재 DB status = " + hotDeal.getStatus());
-
     }
 }
