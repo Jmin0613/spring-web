@@ -69,7 +69,7 @@ function getOrderErrorMessage(error: unknown) {
 }
 
 function getOrderStatusLabel(status: string) {
-    if (status === 'ORDERED') return '주문완료'
+    if (status === 'PAID') return '주문완료'
     if (status === 'CANCELED') return '주문취소'
     return status
 }

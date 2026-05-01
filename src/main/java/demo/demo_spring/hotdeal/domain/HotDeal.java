@@ -193,6 +193,23 @@ public class HotDeal {
         this.hotDealStock = 0;
     }
 
+    // 결제 만료/취소 시, 선점한 핫딜 재고 복구
+    public void restoreReservedStock(int quantity, LocalDateTime now){
+        // 수량 검증
+        if(quantity < 1){
+            throw new IllegalStateException("복구할 핫딜 수량이 잘못됐습니다.");
+        }
+        // 상태갱신할 시간 검증
+        if(now == null){
+            throw new IllegalStateException("현재 시간이 누락되었습니다.");
+        }
+        this.hotDealStock += quantity;
+
+        refreshStatus(now);
+        // 핫딜도 일반상품처럼 선점 시 재고가 0이 되면 SOLD_OUT이 됨
+        // 만료/취소로 재고복구 시, 상태도 복구해주기 위해 상태 갱신 메서드 호출.
+    }
+
     // 관리자 긴급 중단 메서드 -> 핫딜 자신의 상태와 재고를 바꾸는 것이기에 도메인에 넣음.
     public void adminEmergencyStop(){
         // 이미 STOPPED면 그냥 return

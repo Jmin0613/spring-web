@@ -13,6 +13,15 @@ type LoginForm = {
     password: string
 }
 
+type LoginRedirectState = {
+    from?: {
+        pathname?: string
+        search?: string
+        hash?: string
+    }
+    redirectState?: unknown
+}
+
 function getLoginErrorMessage(error: unknown) {
     if (axios.isAxiosError(error)) {
         const responseData = error.response?.data
@@ -48,7 +57,9 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
 
-    const fromLocation = location.state?.from
+    const loginRedirectState = location.state as LoginRedirectState | null
+    const fromLocation = loginRedirectState?.from
+    const redirectState = loginRedirectState?.redirectState
 
     const redirectPath = useMemo(() => {
         if (!fromLocation) {
@@ -59,7 +70,13 @@ export default function LoginPage() {
         const search = fromLocation.search ?? ''
         const hash = fromLocation.hash ?? ''
 
-        return `${pathname}${search}${hash}`
+        const path = `${pathname}${search}${hash}`
+
+        if (path === '/login' || path.startsWith('/login?')) {
+            return '/'
+        }
+
+        return path
     }, [fromLocation])
 
     function handleChange(field: keyof LoginForm, value: string) {
@@ -97,7 +114,12 @@ export default function LoginPage() {
                 },
             )
 
-            navigate(redirectPath, { replace: true })
+            const redirectState = location.state?.redirectState
+
+            navigate(redirectPath, {
+                replace: true,
+                state: redirectState,
+            })
         } catch (error) {
             setErrorMessage(getLoginErrorMessage(error))
         } finally {

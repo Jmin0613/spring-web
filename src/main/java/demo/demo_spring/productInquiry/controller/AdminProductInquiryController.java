@@ -40,7 +40,7 @@ public class AdminProductInquiryController {
     public void answer(@PathVariable Long productId, @PathVariable Long inquiryId,
                        @RequestBody @Valid AdminProductInquiryAnswerRequest request,
                        HttpSession session){
-        Member loginMember = (Member)session.getAttribute("loginMember");
+        Member loginMember = getLoginMember(session);
         productInquiryService.adminAnswer(productId, inquiryId, loginMember.getId(), request);
     }
 

@@ -1,8 +1,10 @@
 package demo.demo_spring.order.repository;
 
+import demo.demo_spring.order.domain.OrderStatus;
 import demo.demo_spring.order.domain.Orders;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public interface OrderRepository extends JpaRepository<Orders, Long> {
@@ -17,6 +19,11 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 
     // 전체 주문 최신순
     List<Orders> findAllByOrderByOrderDateDesc();
+
+    // PENDING 만료 주문 조회
+    List<Orders> findByOrderStatusAndPaymentExpiresAtLessThanEqual(
+            OrderStatus orderStatus, LocalDateTime now
+    );
 
 
 }

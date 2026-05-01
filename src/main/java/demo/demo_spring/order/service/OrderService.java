@@ -11,6 +11,7 @@ import demo.demo_spring.product.domain.Product;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -56,6 +57,6 @@ public class  OrderService {
         Orders order = orderRepository.findByIdAndMemberId(orderId, memberId)
                 .orElseThrow(()-> new IllegalStateException("해당하는 주문이 없습니다."));
 
-        order.cancel();
+        order.cancel(LocalDateTime.now());
     }
 }

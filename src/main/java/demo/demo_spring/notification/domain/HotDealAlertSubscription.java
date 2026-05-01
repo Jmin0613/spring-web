@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_hotDealAlert_member_hotDeal",
-                        columnNames = {"member_id", "hotDeal_id"}
+                        columnNames = {"member_id", "hot_deal_id"}
                 )
         }
 )
@@ -33,7 +33,7 @@ public class HotDealAlertSubscription {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hotDeal_id", nullable = false)
+    @JoinColumn(name = "hot_deal_id", nullable = false)
     private HotDeal hotDeal;
 
     // member_id + hot_deal_id 복합 unique 제약

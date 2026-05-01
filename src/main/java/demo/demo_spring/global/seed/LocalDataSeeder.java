@@ -236,13 +236,21 @@ public class LocalDataSeeder implements CommandLineRunner {
 
     // 찜 3개 생성
     private void seedWishlists(List<Product> products, Member user){
+        Product product1 = products.get(0);
+        Product product2 = products.get(3);
+        Product product3 = products.get(4);
+
         List<Wishlist> wishlists = List.of(
-                Wishlist.createWishlist(user, products.get(0)),
-                Wishlist.createWishlist(user, products.get(3)),
-                Wishlist.createWishlist(user, products.get(4))
+                Wishlist.createWishlist(user, product1),
+                Wishlist.createWishlist(user, product2),
+                Wishlist.createWishlist(user, product3)
         );
 
         wishlistRepository.saveAll(wishlists);
+
+        product1.increaseWishCount();
+        product2.increaseWishCount();
+        product3.increaseWishCount();
     }
 
     // 장바구니 2개 추가

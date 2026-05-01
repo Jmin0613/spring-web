@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import * as PortOne from '@portone/browser-sdk/v2'
 import SiteHeader from '../../components/SiteHeader.tsx'
 import './OrderSheetPage.css'
 
 const API_BASE_URL = 'http://localhost:8080'
+const ORDER_SHEET_REDIRECT_STATE_KEY = 'orderSheetRedirectState'
 
 type CartItem = {
     cartItemId: number
@@ -73,6 +75,36 @@ type OrderSheetItem = {
     orderType: 'CART' | 'PRODUCT_DIRECT' | 'HOTDEAL_DIRECT'
 }
 
+type PaymentOrderType = 'CART' | 'PRODUCT_DIRECT' | 'HOTDEAL_DIRECT'
+
+type DeliveryInfoRequest = {
+    receiverName: string
+    phoneNumber: string
+    address: string
+    deliveryMemo: string
+}
+
+type PaymentPrepareRequest = {
+    paymentOrderType: PaymentOrderType
+    productId?: number
+    hotDealId?: number
+    quantity?: number
+    cartItemIds?: number[]
+    paymentMethod: PaymentMethod
+    deliveryInfo: DeliveryInfoRequest
+}
+
+type PaymentPrepareResponse = {
+    orderId: number
+    paymentId: string
+    orderName: string
+    totalAmount: number
+}
+
+type PaymentCompleteResponse = {
+    orderId: number
+}
+
 function formatPrice(price?: number | null) {
     return `${(price ?? 0).toLocaleString('ko-KR')}원`
 }
@@ -136,16 +168,70 @@ function isHotDealDirectOrderState(state: unknown): state is HotDealDirectOrderS
     )
 }
 
+function readOrderSheetRedirectState(): DirectOrderState | null {
+    const savedState = window.sessionStorage.getItem(ORDER_SHEET_REDIRECT_STATE_KEY)
+
+    if (!savedState) return null
+
+    try {
+        const parsedState: unknown = JSON.parse(savedState)
+
+        if (isProductDirectOrderState(parsedState) || isHotDealDirectOrderState(parsedState)) {
+            return parsedState
+        }
+
+        window.sessionStorage.removeItem(ORDER_SHEET_REDIRECT_STATE_KEY)
+        return null
+    } catch {
+        window.sessionStorage.removeItem(ORDER_SHEET_REDIRECT_STATE_KEY)
+        return null
+    }
+}
+
+function isPortOneFailureResponse(response: unknown): response is { code: string; message?: string } {
+    return (
+        typeof response === 'object' &&
+        response !== null &&
+        'code' in response &&
+        typeof (response as { code?: unknown }).code === 'string'
+    )
+}
+
+async function fetchLoginMember() {
+    const candidates = ['/member/myinfo', '/members/myinfo']
+
+    for (const path of candidates) {
+        try {
+            const response = await axios.get(`${API_BASE_URL}${path}`, {
+                withCredentials: true,
+            })
+
+            if (response.status === 200 && response.data) {
+                return response.data
+            }
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response?.status !== 404) {
+                throw error
+            }
+        }
+    }
+
+    return null
+}
+
 export default function OrderSheetPage() {
     const navigate = useNavigate()
     const location = useLocation()
 
-    const productDirectState = isProductDirectOrderState(location.state)
-        ? location.state
+    const restoredOrderSheetState = useMemo(() => readOrderSheetRedirectState(), [])
+    const orderSheetState = location.state ?? restoredOrderSheetState
+
+    const productDirectState = isProductDirectOrderState(orderSheetState)
+        ? orderSheetState
         : null
 
-    const hotDealDirectState = isHotDealDirectOrderState(location.state)
-        ? location.state
+    const hotDealDirectState = isHotDealDirectOrderState(orderSheetState)
+        ? orderSheetState
         : null
 
     const orderMode: 'CART' | 'PRODUCT_DIRECT' | 'HOTDEAL_DIRECT' = hotDealDirectState
@@ -155,7 +241,7 @@ export default function OrderSheetPage() {
             : 'CART'
 
     const [cart, setCart] = useState<CartResponse | null>(null)
-    const [loading, setLoading] = useState(orderMode === 'CART')
+    const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
 
@@ -163,17 +249,44 @@ export default function OrderSheetPage() {
     const [phoneNumber, setPhoneNumber] = useState('')
     const [address, setAddress] = useState('')
     const [deliveryMemo, setDeliveryMemo] = useState('')
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BANK_TRANSFER')
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD')
+
+    const loginRedirectedRef = useRef(false)
+
+    function redirectToLogin() {
+        if (loginRedirectedRef.current) return
+
+        loginRedirectedRef.current = true
+
+        navigate('/login', {
+            replace: true,
+            state: {
+                from: {
+                    pathname: location.pathname,
+                    search: location.search,
+                    hash: location.hash,
+                },
+                redirectState: location.state,
+            },
+        })
+    }
 
     async function loadOrderSheet() {
-        if (orderMode !== 'CART') {
-            setLoading(false)
-            return
-        }
+        setLoading(true)
+        setErrorMessage('')
 
         try {
-            setLoading(true)
-            setErrorMessage('')
+            const loginMember = await fetchLoginMember()
+
+            if (!loginMember) {
+                redirectToLogin()
+                return
+            }
+
+            if (orderMode !== 'CART') {
+                setLoading(false)
+                return
+            }
 
             const response = await axios.get<CartResponse>(`${API_BASE_URL}/cart-items`, {
                 withCredentials: true,
@@ -181,6 +294,15 @@ export default function OrderSheetPage() {
 
             setCart(response.data)
         } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const status = error.response?.status
+
+                if (status === 401 || status === 403) {
+                    redirectToLogin()
+                    return
+                }
+            }
+
             setErrorMessage(getOrderErrorMessage(error))
         } finally {
             setLoading(false)
@@ -189,7 +311,7 @@ export default function OrderSheetPage() {
 
     useEffect(() => {
         void loadOrderSheet()
-    }, [orderMode])
+    }, [orderMode, location.pathname, location.search, location.hash])
 
     const orderItems = useMemo<OrderSheetItem[]>(() => {
         if (productDirectState) {
@@ -264,6 +386,47 @@ export default function OrderSheetPage() {
         }
     }, [cart, orderItems, orderMode])
 
+    function createPaymentPrepareRequest(deliveryInfo: DeliveryInfoRequest): PaymentPrepareRequest {
+        if (orderMode === 'CART') {
+            const cartItemIds = orderItems
+                .map((item) => item.cartItemId)
+                .filter((cartItemId): cartItemId is number => typeof cartItemId === 'number')
+
+            if (cartItemIds.length === 0) {
+                throw new Error('장바구니 구매 상품이 없습니다.')
+            }
+
+            return {
+                paymentOrderType: 'CART',
+                cartItemIds,
+                paymentMethod,
+                deliveryInfo,
+            }
+        }
+
+        if (orderMode === 'HOTDEAL_DIRECT' && hotDealDirectState) {
+            return {
+                paymentOrderType: 'HOTDEAL_DIRECT',
+                hotDealId: hotDealDirectState.hotDealId,
+                quantity: hotDealDirectState.quantity,
+                paymentMethod,
+                deliveryInfo,
+            }
+        }
+
+        if (orderMode === 'PRODUCT_DIRECT' && productDirectState) {
+            return {
+                paymentOrderType: 'PRODUCT_DIRECT',
+                productId: productDirectState.productId,
+                quantity: productDirectState.quantity,
+                paymentMethod,
+                deliveryInfo,
+            }
+        }
+
+        throw new Error('주문 정보를 찾을 수 없습니다.')
+    }
+
     async function handleSubmitOrder() {
         if (orderItems.length === 0) {
             alert('주문할 상품이 없습니다.')
@@ -292,6 +455,14 @@ export default function OrderSheetPage() {
             return
         }
 
+        const storeId = import.meta.env.VITE_PORTONE_STORE_ID
+        const channelKey = import.meta.env.VITE_PORTONE_CHANNEL_KEY
+
+        if (!storeId || !channelKey) {
+            alert('PortOne 결제 설정이 누락되었습니다. 프론트 .env를 확인해주세요.')
+            return
+        }
+
         const deliveryInfo = {
             receiverName: receiverName.trim(),
             phoneNumber: phoneNumber.trim(),
@@ -302,68 +473,59 @@ export default function OrderSheetPage() {
         try {
             setSubmitting(true)
 
-            if (orderMode === 'CART') {
-                const cartItemIds = orderItems
-                    .map((item) => item.cartItemId)
-                    .filter((cartItemId): cartItemId is number => typeof cartItemId === 'number')
+            const prepareRequest = createPaymentPrepareRequest(deliveryInfo)
 
-                const response = await axios.post<number>(
-                    `${API_BASE_URL}/cart-items/buy`,
-                    {
-                        cartItemIds,
-                        paymentMethod,
-                        deliveryInfo,
-                    },
-                    {
-                        withCredentials: true,
-                    },
-                )
+            const prepareResponse = await axios.post<PaymentPrepareResponse>(
+                `${API_BASE_URL}/payments/prepare`,
+                prepareRequest,
+                {
+                    withCredentials: true,
+                },
+            )
 
-                const orderId = response.data
+            const prepared = prepareResponse.data
 
-                alert('주문이 완료되었습니다.')
-                navigate(`/mypage/orders/${orderId}`)
+            const paymentRequest = {
+                storeId,
+                channelKey,
+                paymentId: prepared.paymentId,
+                orderName: prepared.orderName,
+                totalAmount: prepared.totalAmount,
+                currency: 'KRW',
+                payMethod: 'EASY_PAY',
+            } as const
+
+            const paymentResponse = await PortOne.requestPayment(
+                paymentRequest as unknown as Parameters<typeof PortOne.requestPayment>[0],
+            )
+
+            if (!paymentResponse) {
+                alert('결제가 중단되었습니다.')
                 return
             }
 
-            if (orderMode === 'HOTDEAL_DIRECT' && hotDealDirectState) {
-                const response = await axios.post<number>(
-                    `${API_BASE_URL}/hotdeals/${hotDealDirectState.hotDealId}/buy`,
-                    {
-                        quantity: hotDealDirectState.quantity,
-                        paymentMethod,
-                        deliveryInfo,
-                    },
-                    {
-                        withCredentials: true,
-                    },
-                )
-
-                const orderId = response.data
-
-                alert('핫딜 주문이 완료되었습니다.')
-                navigate(`/mypage/orders/${orderId}`)
+            if (isPortOneFailureResponse(paymentResponse)) {
+                alert(paymentResponse.message ?? '결제가 취소되었거나 실패했습니다.')
                 return
             }
 
-            if (orderMode === 'PRODUCT_DIRECT' && productDirectState) {
-                const response = await axios.post<number>(
-                    `${API_BASE_URL}/products/${productDirectState.productId}/buy`,
-                    {
-                        quantity: productDirectState.quantity,
-                        paymentMethod,
-                        deliveryInfo,
-                    },
-                    {
-                        withCredentials: true,
-                    },
-                )
+            const completeResponse = await axios.post<PaymentCompleteResponse>(
+                `${API_BASE_URL}/payments/complete`,
+                {
+                    orderId: prepared.orderId,
+                    paymentId: prepared.paymentId,
+                },
+                {
+                    withCredentials: true,
+                },
+            )
 
-                const orderId = response.data
+            const completed = completeResponse.data
 
-                alert('주문이 완료되었습니다.')
-                navigate(`/mypage/orders/${orderId}`)
-            }
+            window.sessionStorage.removeItem(ORDER_SHEET_REDIRECT_STATE_KEY)
+
+            alert('결제가 완료되었습니다.')
+            navigate(`/mypage/orders/${completed.orderId}`)
         } catch (error) {
             alert(getOrderErrorMessage(error))
         } finally {
@@ -589,7 +751,7 @@ export default function OrderSheetPage() {
                                 onClick={handleSubmitOrder}
                                 disabled={submitting}
                             >
-                                {submitting ? '주문 처리 중...' : '결제하기'}
+                                {submitting ? '결제 처리 중...' : '결제하기'}
                             </button>
                         </div>
                     </aside>

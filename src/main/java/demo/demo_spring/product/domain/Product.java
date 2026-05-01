@@ -152,7 +152,7 @@ public class Product {
         }
     }
 
-    // 핫딜 재고 이동용 메서드
+    // 핫딜 재고 할당용 메서드
     public void allocateToHotDeal(int hotDealStock){
         if(hotDealStock < 1){
             throw new IllegalStateException("잘못된 핫딜 재고 할당 요청입니다.");
@@ -163,11 +163,18 @@ public class Product {
         this.stock -= hotDealStock; //일반 재고 차감
     }
 
-    // 통합 재고 반환
+    // 통합(product + hotDeal) 재고 반환 -> 재고복구 + 상태복구
     public void restoreStock(int addStock){
+        // 재고복구
         if(addStock < 1){
             throw new IllegalStateException("반환하려는 재고가 0 이하입니다.");
         }
         this.stock += addStock;
+
+        // 상태복구
+        // 선점 시 SOLD_OUT이었는데, 결제 만료/취소하면 상태도 복구해줘야함.
+        if(this.status == ProductStatus.SOLD_OUT && this.stock > 0){ //SOLD_OUT일때만 되돌리기.
+            this.status = ProductStatus.ON_SALE;
+        }
     }
 }

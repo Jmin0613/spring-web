@@ -51,7 +51,7 @@ public class Notification {
         if(member == null){ throw new IllegalStateException("알림을 받을 회원이 없습니다.."); }
         if(type == null){ throw new IllegalStateException("알림의 종류가 없습니다."); }
         if(targetType == null) { throw new IllegalStateException("알림 대상 종류가 없습니다."); }
-        if(targetId == null) { throw new IllegalStateException("알림 대상 id가 없습니다."); }
+        if(targetId == null) { throw new IllegalStateException("알림 대상 ID가 없습니다."); }
 //        if(targetType != NotificationTargetType.NONE && targetId == null){
 //            // targetType이 PRODUCT, HOTDEAL, ORDER같은 실제 대상이 있는 알람 -> targetId있어야 함
 //            // targetType이 NONE -> 굳이 이동할 필요X, 대상 targetId없어도 됨 (서비스 점검 예정 메세지, 정책 변경 메세지 등등???)

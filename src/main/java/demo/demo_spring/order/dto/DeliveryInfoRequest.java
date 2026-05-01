@@ -1,9 +1,7 @@
 package demo.demo_spring.order.dto;
 
 import demo.demo_spring.order.domain.DeliveryInfo;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,4 +16,9 @@ public class DeliveryInfoRequest {
     private String address; //배송 주소
 
     private String deliveryMemo; //배송 메모
+
+    //PaymentPrepareRequest에서 재사용 위해 필요 객체 변환
+    public DeliveryInfo toDeliveryInfo(){
+        return new DeliveryInfo(receiverName, phoneNumber, address, deliveryMemo);
+    }
 }
