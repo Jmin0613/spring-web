@@ -8,7 +8,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -122,16 +124,20 @@ public class CartController {
         );
     }
 
-    // 내 장바구니 상품 구매 (오직 회원만 가능)
-    @PostMapping("/cart-items/buy")
-    public Long buyCartItems(@RequestBody @Valid CartBuyRequest request, HttpSession session){
-        Member loginMember = (Member) session.getAttribute("loginMember");
-
-        if (loginMember == null) {
-            throw new IllegalStateException("로그인이 필요합니다.");
-        }
-
-        return cartService.buyCart(loginMember.getId(), request);
+    // 내 장바구니 상품 구매 (오직 회원만 가능) -> PortOne 결제 도입 후 사용x 레거시 구매API.
+    @PostMapping("/cart-items/buy") // /payment/prepate -> /payment/complete로 연결
+    public void legacyBuyCartItems(@RequestBody @Valid CartBuyRequest request, HttpSession session){
+//        Member loginMember = (Member) session.getAttribute("loginMember");
+//
+//        if (loginMember == null) {
+//            throw new IllegalStateException("로그인이 필요합니다.");
+//        }
+//
+//        return cartService.buyCart(loginMember.getId(), request);
+        throw new ResponseStatusException(
+                HttpStatus.GONE,
+                "기존 CartItems 구매 API는 더 이상 사용되지 않음. /paymnet/prepate 사용 바람."
+        );
     }
 
 

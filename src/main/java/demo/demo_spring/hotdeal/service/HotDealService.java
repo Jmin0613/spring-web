@@ -140,7 +140,6 @@ public class HotDealService {
         return HotDealDetailResponse.fromEntity(hotDeal);
     }
 
-    // 사용자 핫딜 구매 + Pessimistic Lock
     // 지금 buy쪽이 파라미터가 너무 많은데, 나중에 DTO자체를 서비스로 넘기는 구조 생각해보기. (유지보수? 확장 가능할 듯)
     public Long buy(Long id, Integer quantity, Long memberId,
                     DeliveryInfoRequest deliveryInfoRequest, PaymentMethod paymentMethod){
@@ -176,7 +175,7 @@ public class HotDealService {
             );
 
         } catch (Exception e){ // 주문 생성 실패시, Redis 재고 복구
-            hotDealRedisStockService.increaseStock(id, quantity);
+            hotDealRedisStockService.restoreStock(id, quantity);
             throw e;
         }
 

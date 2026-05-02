@@ -3,7 +3,9 @@ package demo.demo_spring.payment.service;
 import demo.demo_spring.cart.domain.CartItem;
 import demo.demo_spring.cart.repository.CartItemRepository;
 import demo.demo_spring.hotdeal.domain.HotDeal;
+import demo.demo_spring.hotdeal.domain.HotDealStatus;
 import demo.demo_spring.hotdeal.repository.HotDealRepository;
+import demo.demo_spring.hotdeal.service.HotDealRedisStockService;
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.order.domain.*;
@@ -41,8 +43,9 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final CartItemRepository cartItemRepository;
     private final PortOneClient portOneClient;
+    private final HotDealRedisStockService hotDealRedisStockService;
 
-    // 결제 준비하기 -> PENDING주문 만들어서 재고 선점고 PortOne에 필요 정보 넘김. 결제를 완료하는게 x.
+    // 결제 준비하기 -> PENDING주문 만들어서 재고 선점과 PortOne에 필요 정보 넘김. 결제를 완료하는게 x.
     public PaymentPrepareResponse preparePayment(Long memberId, PaymentPrepareRequest request){
         /* 1. Pending_Payment Orders주문 생성
            2. 주문상품OrderItem 생성
@@ -63,41 +66,65 @@ public class PaymentService {
 
         //3. paymentOrderType별로 주문상품OrderItem 목록 생성
         // -> 주문타입 : 나중에 실패/만료/취소 시, 재고 및 상태 복구를 위해 필요.
-        List<OrderItem> orderItems = createOrderItems(memberId, request);
+        // -> Product/Cart은 DB재고 선점. HotDeal은 Redis 재고 선점.
+        boolean hotDealRedisReserved = false;
+        Long reservedHotDealId = null;
+        Integer reservedQuantity = null;
 
-        //4. 결제 만료 시간 생성
-        LocalDateTime paymentExpiresAt = now.plusMinutes(PAYMENT_EXPIRE_MINUTES); // 현재시간 + 10분
+        try{
+            List<OrderItem> orderItems = createOrderItems(memberId, request);
 
-        //5. PENDING 주문 생성
-        Orders order = Orders.createPendingPaymentOrder( //결제 대기
-                member, orderItems, deliveryInfo, request.getPaymentMethod(),paymentExpiresAt
-                // 여기서 재고 선점됨
-        );
+            // 주문타입이 HOTDEAL이면 Redis에 넘기기.
+            if(request.getPaymentOrderType() == PaymentOrderType.HOTDEAL_DIRECT){
+                reservedHotDealId = request.getHotDealId(); //구매 요청받은 HotDealId
+                reservedQuantity = request.getQuantity(); //구매 요청받은 재고 수
 
-        //6. Orders 저장 -> 이후 재고복구+상태복구를 위해, 결제 기준과 선점한 재고에 대한 정보 저장해두기.
-        Orders savedOrder = orderRepository.save(order);
+                // reservedHotDealId -> KEY, reservedQuantity -> ARGV.
+                reserveHotDealStockWithRedis(reservedHotDealId, reservedQuantity); //Redis 재고선점으로 넘기기.
+                hotDealRedisReserved = true; // 통과되서 나오면 -> Redis로 재고 선점 체크.
+            }
 
-        //7. paymentId 생성
-        String paymentId = createPaymentId();
+            // 4. 결제 만료 시간 생성
+            LocalDateTime paymentExpiresAt = now.plusMinutes(PAYMENT_EXPIRE_MINUTES); // 현재시간 + 10분
 
-        //8. Payment.createReadyPayment()
-        Payment payment = Payment.createReadyPayment( //결제 준비
-                savedOrder, paymentId, savedOrder.getTotalPrice(), now
-        );
+            // 5. PENDING 주문 생성
+            // 주문타입 PRODUCT/CART은 DB 재고 선점 처리. (HOTDEAL은 Redis에서 재고차감하니, 여기 또 끼면 이중차감됨.)
+            // HotDeal의 경우, OrderItem.restoreReservedStock()에서 no-op 처리해둠.
+            Orders order = Orders.createPendingPaymentOrder( //결제 대기
+                    member, orderItems, deliveryInfo, request.getPaymentMethod(),paymentExpiresAt
+                    // 여기서 재고 선점됨
+            );
 
-        //10. 결제 거래 기록Payment 저장 -> 결제 완료 검증을 위한 조회로 사용되어야 함.
-        paymentRepository.save(payment);
+            //6. Orders 저장 -> 이후 재고복구+상태복구를 위해, 결제 기준과 선점한 재고에 대한 정보 저장해두기.
+            Orders savedOrder = orderRepository.save(order);
 
-        //11. orderName 생성
-        String orderName = createOrderName(savedOrder.getOrderItems()); // PortOne 결제창에 표시할 주문명
+            //7. paymentId 생성 + READY상태
+            String paymentId = createPaymentId();
 
-        //12. PaymentPrepareResponse 만들어 반환 -> 결제 준비 끝.
-        return new PaymentPrepareResponse(
-                savedOrder.getId(), paymentId, orderName, savedOrder.getTotalPrice()
-        );
+            Payment payment = Payment.createReadyPayment( //결제 준비
+                    savedOrder, paymentId, savedOrder.getTotalPrice(), now
+            );
 
+            //8. 결제 거래 기록Payment 저장 -> 결제 완료 검증을 위한 조회로 사용되어야 함.
+            paymentRepository.save(payment);
+
+            //9. orderName 생성
+            String orderName = createOrderName(savedOrder.getOrderItems()); // PortOne 결제창에 표시할 주문명
+
+            //10. PortOne 결제창에 넘길 PaymentPrepareResponse 만들어 반환 -> 결제 준비 끝.
+            return new PaymentPrepareResponse(
+                    savedOrder.getId(), paymentId, orderName, savedOrder.getTotalPrice()
+            );
+        } catch (RuntimeException e){
+            if (hotDealRedisReserved) { //Redis 재고 선점 성공 후, 실패 -> Redis 재고 복구
+                hotDealRedisStockService.restoreStock(reservedHotDealId, reservedQuantity);
+            }
+            // false면 선점 전 터진거니 복구 안해도 됨.
+
+            throw e;
+        }
     }
-    // PaymentOrderType별로 주문상품 생성 나눠주기
+    // PaymentOrderType 판단 후, 맞는 주문상품 생성으로 넘겨주기
     private List<OrderItem> createOrderItems(Long memberId, PaymentPrepareRequest request){
         if(request.getPaymentOrderType() == null){
             throw new IllegalStateException("주문 타입이 누락되었습니다.");
@@ -117,6 +144,33 @@ public class PaymentService {
         }
 
         throw new IllegalStateException("지원하지 않는 주문 타입입니다.");
+    }
+    // HotDeal Redis 재고 선점
+    private void reserveHotDealStockWithRedis(Long hotDealId, Integer quantity){
+        if(hotDealId == null){
+            throw new IllegalStateException("핫딜 정보가 누락되었습니다.");
+        }
+
+        if(quantity == null || quantity < 1){
+            throw new IllegalStateException("구매 수량이 잘못되었습니다.");
+        }
+
+        boolean success = hotDealRedisStockService.decreaseStock(hotDealId, quantity);
+
+        if(!success){
+            throw new IllegalStateException("핫딜 재고가 부족합니다.");
+        }
+    }
+    // HotDeal Redis 재고 복구
+    private void restoreRedisHotDealStocks(Orders order){
+        for(OrderItem orderItem : order.getOrderItems()){
+            if(orderItem.getOrderItemType() == OrderItemType.HOTDEAL){
+                hotDealRedisStockService.restoreStock(
+                        orderItem.getHotDeal().getId(),
+                        orderItem.getQuantity()
+                );
+            }
+        }
     }
     // Product_Direct 주문상품 생성
     private List<OrderItem> createProductDirectOrderItem(PaymentPrepareRequest request){
@@ -138,7 +192,7 @@ public class PaymentService {
 
         return List.of(OrderItem.createProductOrderItem(product, request.getQuantity()));
     }
-    // HotDeal_Direct 주문상품 생성
+    // HotDeal_Direct + Redis 주문상품 생성
     private List<OrderItem> createHotDealDirectOrderItem(PaymentPrepareRequest request){
         // 상품 존재 검증 + 수량 검증
         if(request.getHotDealId() == null){
@@ -151,6 +205,11 @@ public class PaymentService {
         // 핫딜 상품 존재 체크
         HotDeal hotDeal = hotDealRepository.findById(request.getHotDealId())
                 .orElseThrow(() -> new IllegalStateException("해당 핫딜을 찾을 수 없습니다."));
+
+        // 핫딜 상태 체크
+        if(hotDeal.getStatus() != HotDealStatus.ON_SALE){
+            throw new IllegalStateException("판매 중인 핫딜만 구매할 수 있습니다.");
+        }
 
         return List.of(OrderItem.createHotDealOrderItem(hotDeal, request.getQuantity()));
     }
@@ -311,6 +370,10 @@ public class PaymentService {
 
         // 통과하면 PortOne 결제 취소 요청
         portOneClient.cancelPayment(payment.getPaymentId(), reason);
+
+        // HotDeal -> Redis 재고 복구. Product/Cart 통과해도됨. 안에서 타입으로 막고있음.
+        restoreRedisHotDealStocks(order);
+
         // DB 상태 변경
         order.cancel(now);
         payment.cancel(reason, now);
@@ -351,6 +414,11 @@ public class PaymentService {
             Payment payment = paymentRepository.findByOrderId(order.getId())
                     .orElseThrow(() -> new IllegalStateException("결제 정보를 찾을 수 없습니다."));
 
+            //HotDeal은 Redis에서 선점 -> Redis로 재고 복구
+            restoreRedisHotDealStocks(order);
+
+            //Product + Cart는 DB에서 재고 선점
+            // HotDeal 통과해도 괜찮음. OrderItem.restoreReservedStock()에서 no-op해둠.
             order.expirePayment(now); //주문상태 : PENDING_PAYMENT(결제대기) -> EXPIRED(만료). 선점해둔 재고 복구 + 상태 복구
             payment.expire(now); //결제상태 : READY(결제준비) -> EXPIRED(만료).
         }

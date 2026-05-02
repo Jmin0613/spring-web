@@ -128,13 +128,17 @@ public class OrderItem {
 
     // 결제 준비 시 재고 선점
     public void reserveStock(){
+        // Product 재고 선점
         if(this.orderItemType == OrderItemType.PRODUCT){
             product.buy(this.quantity);
             return;
         }
 
+        // HotDeal 재고 선점
         if(this.orderItemType == OrderItemType.HOTDEAL){
-            hotDeal.buy(this.quantity);
+            //hotDeal.buy(this.quantity);
+            // HOTDEAL 재고선점/차감은 PaymentService에서 Redis로 처리.
+            // 여기서 hotDeal.buy()를 호출하면 Redis + DB 이중 차감이 발생.
             return;
         }
 
@@ -151,7 +155,8 @@ public class OrderItem {
 
         // 핫딜 (재고복구 + 상태갱신)
         if(this.orderItemType == OrderItemType.HOTDEAL){
-            hotDeal.restoreReservedStock(this.quantity, now);
+            //hotDeal.restoreReservedStock(this.quantity, now);
+            // HOTDEAL 재고/상태 복구는 PaymentService에서 Redis로 처리.
             return;
         }
 

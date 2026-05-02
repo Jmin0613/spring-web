@@ -129,6 +129,8 @@ public class Orders {
         }
 
         // 결제 대기 단계에서 재고 선점
+        // PRODUCT -> DB에서 재고 선점.
+        // HOTDEAL -> PaymentService에서 Redis로 재고 선점.
         for(OrderItem orderItem : order.orderItems){
             orderItem.reserveStock();
         }
