@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import SiteHeader from '../../components/SiteHeader.tsx'
 import './HotDealDetailPage.css'
 
@@ -21,7 +21,6 @@ type HotDealDetail = {
 
 type HotDealDetailTab = 'detail' | 'review' | 'inquiry'
 type ReviewSortType = 'BEST' | 'LATEST'
-type HotDealActionType = 'buy' | null
 
 type ReviewSummary = {
     averageRating: number
@@ -132,36 +131,6 @@ function isSecretInquiry(inquiry: ProductInquiryListItem) {
     return inquiry.secret === true
 }
 
-function getHotDealActionErrorMessage(error: unknown, fallback: string) {
-    if (axios.isAxiosError(error)) {
-        const status = error.response?.status
-        const responseData = error.response?.data
-
-        if (status === 401 || status === 403) {
-            return '로그인 후 이용해주세요.'
-        }
-
-        if (typeof responseData === 'string' && responseData.trim()) {
-            return responseData
-        }
-
-        if (
-            responseData &&
-            typeof responseData === 'object' &&
-            'message' in responseData &&
-            typeof responseData.message === 'string'
-        ) {
-            return responseData.message
-        }
-    }
-
-    return fallback
-}
-
-function isLoginError(error: unknown) {
-    return axios.isAxiosError(error) && [401, 403].includes(error.response?.status ?? 0)
-}
-
 function HotDealImage({
                           imageUrl,
                           alt,
@@ -228,7 +197,6 @@ function PageState({ text }: { text: string }) {
 export default function HotDealDetailPage() {
     const { id } = useParams()
     const navigate = useNavigate()
-    const location = useLocation()
     const [searchParams, setSearchParams] = useSearchParams()
 
     const [detail, setDetail] = useState<HotDealDetail | null>(null)
@@ -247,9 +215,6 @@ export default function HotDealDetailPage() {
     const [quantity, setQuantity] = useState(1)
     // 핫딜 구매 수량
 
-    const [hotDealActionLoading, setHotDealActionLoading] = useState<HotDealActionType>(null)
-    // 핫딜 구매 요청중인지 관리
-
     const tabParam = searchParams.get('tab')
     const activeTab: HotDealDetailTab =
         tabParam === 'review' || tabParam === 'inquiry' ? tabParam : 'detail'
@@ -264,18 +229,6 @@ export default function HotDealDetailPage() {
         }
 
         setSearchParams(nextSearchParams)
-    }
-
-    function moveToLoginPage() {
-        navigate('/login', {
-            state: {
-                from: {
-                    pathname: location.pathname,
-                    search: location.search,
-                    hash: location.hash,
-                },
-            },
-        })
     }
 
     async function handleShareHotDeal() {
@@ -595,13 +548,9 @@ export default function HotDealDetailPage() {
                                 type="button"
                                 className="hotdeal-detail-primary-button"
                                 onClick={handleBuyHotDeal}
-                                disabled={!canBuyHotDeal || hotDealActionLoading === 'buy'}
+                                disabled={!canBuyHotDeal}
                             >
-                                {hotDealActionLoading === 'buy'
-                                    ? '구매 중...'
-                                    : canBuyHotDeal
-                                        ? '구매하기'
-                                        : '구매불가'}
+                                {canBuyHotDeal ? '구매하기' : '구매불가'}
                             </button>
                         </div>
                     </div>

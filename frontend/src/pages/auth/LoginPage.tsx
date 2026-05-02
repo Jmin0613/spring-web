@@ -59,7 +59,6 @@ export default function LoginPage() {
 
     const loginRedirectState = location.state as LoginRedirectState | null
     const fromLocation = loginRedirectState?.from
-    const redirectState = loginRedirectState?.redirectState
 
     const redirectPath = useMemo(() => {
         if (!fromLocation) {

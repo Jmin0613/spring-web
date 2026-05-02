@@ -9,12 +9,21 @@ import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.repository.MemberRepository;
 import demo.demo_spring.notice.domain.Notice;
 import demo.demo_spring.notice.repository.NoticeRepository;
+import demo.demo_spring.order.domain.DeliveryInfo;
+import demo.demo_spring.order.domain.OrderItem;
+import demo.demo_spring.order.domain.Orders;
+import demo.demo_spring.order.domain.PaymentMethod;
+import demo.demo_spring.order.repository.OrderRepository;
+import demo.demo_spring.payment.domain.Payment;
+import demo.demo_spring.payment.repository.PaymentRepository;
 import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.domain.ProductCategory;
 import demo.demo_spring.product.domain.ProductStatus;
 import demo.demo_spring.product.repository.ProductRepository;
 import demo.demo_spring.productInquiry.domain.ProductInquiry;
 import demo.demo_spring.productInquiry.repository.ProductInquiryRepository;
+import demo.demo_spring.review.domain.Review;
+import demo.demo_spring.review.repository.ReviewRepository;
 import demo.demo_spring.wishlist.domain.Wishlist;
 import demo.demo_spring.wishlist.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +50,10 @@ public class LocalDataSeeder implements CommandLineRunner {
     private final WishlistRepository wishlistRepository;
     private final CartRepository cartRepository;
 
+    private final OrderRepository orderRepository;
+    private final PaymentRepository paymentRepository;
+    private final ReviewRepository reviewRepository;
+
     @Override
     @Transactional
     public void run(String... args){ //가볍인자 -> 파라미터의 개수를 정해두지 않고 자유롭게 넘길 수 있음
@@ -60,10 +73,20 @@ public class LocalDataSeeder implements CommandLineRunner {
         seedInquiries(products, members.user());
         seedWishlists(products, members.user());
         seedCart(products, members.user());
+
+        // 3차
+        SeedPaidOrders paidOrders = seedPaidOrders(products, members.user());
+        seedReviews(paidOrders, members.user());
     }
 
     // seedMembers()가 저장한 회원을 반환
     private record SeedMembers(Member admin, Member user){} //이 한줄이 "클래스 + 생성자 + Getter" 역할 다 함.
+
+    // seedPaidOrders가 저장한 결제 주문을 반환
+    private record SeedPaidOrders(
+            OrderItem earphoneOrderItem,
+            OrderItem backpackOrderItem
+    ) {}
 
     // 관리자, 회원 게정 생성
     public SeedMembers seedMembers(){
@@ -264,6 +287,106 @@ public class LocalDataSeeder implements CommandLineRunner {
         cart.addCartItem(cartItem2);
 
         cartRepository.save(cart);
+    }
+
+    // 결제 완료 주문 2개 생성
+    private SeedPaidOrders seedPaidOrders(List<Product> products, Member user){
+        LocalDateTime now = LocalDateTime.now();
+
+        DeliveryInfo deliveryInfo1 = new DeliveryInfo(
+                "회원1호",
+                "010-1111-1111",
+                "대전광역시 유성구 시드아파트 101동 1001호",
+                "문 앞에 놔주세요."
+        );
+
+        OrderItem orderItem1 = OrderItem.createProductOrderItem(
+                products.get(0),
+                1
+        );
+
+        Orders order1 = Orders.createPendingPaymentOrder(
+                user,
+                List.of(orderItem1),
+                deliveryInfo1,
+                PaymentMethod.CARD,
+                now.plusMinutes(10)
+        );
+
+        order1.markAsPaid(now.minusDays(3));
+
+        Orders savedOrder1 = orderRepository.save(order1);
+
+        Payment payment1 = Payment.createReadyPayment(
+                savedOrder1,
+                "SEED-PAY-ORDER-1",
+                savedOrder1.getTotalPrice(),
+                now.minusDays(3)
+        );
+
+        payment1.markAsPaid(now.minusDays(3));
+        paymentRepository.save(payment1);
+
+
+        DeliveryInfo deliveryInfo2 = new DeliveryInfo(
+                "회원1호",
+                "010-1111-1111",
+                "대전광역시 유성구 시드아파트 101동 1001호",
+                "부재 시 경비실에 맡겨주세요."
+        );
+
+        OrderItem orderItem2 = OrderItem.createProductOrderItem(
+                products.get(3),
+                2
+        );
+
+        Orders order2 = Orders.createPendingPaymentOrder(
+                user,
+                List.of(orderItem2),
+                deliveryInfo2,
+                PaymentMethod.CARD,
+                now.plusMinutes(10)
+        );
+
+        order2.markAsPaid(now.minusDays(1));
+
+        Orders savedOrder2 = orderRepository.save(order2);
+
+        Payment payment2 = Payment.createReadyPayment(
+                savedOrder2,
+                "SEED-PAY-ORDER-2",
+                savedOrder2.getTotalPrice(),
+                now.minusDays(1)
+        );
+
+        payment2.markAsPaid(now.minusDays(1));
+        paymentRepository.save(payment2);
+
+        return new SeedPaidOrders(orderItem1, orderItem2);
+    }
+
+    // 리뷰 2개 작성
+    private void seedReviews(SeedPaidOrders paidOrders, Member user){
+        List<Review> reviews = List.of(
+                Review.createReview(
+                        user,
+                        paidOrders.earphoneOrderItem().getProduct(),
+                        paidOrders.earphoneOrderItem(),
+                        5,
+                        "음질이 좋아요",
+                        "가격 대비 음질이 좋고 착용감도 괜찮아요."
+                ),
+                Review.createReview(
+                        user,
+                        paidOrders.backpackOrderItem().getProduct(),
+                        paidOrders.backpackOrderItem(),
+                        4,
+                        "수납공간이 넉넉해요",
+                        "노트북 넣기 좋고 데일리로 쓰기 괜찮습니다."
+                )
+        );
+
+        reviewRepository.saveAll(reviews);
     }
 
 }
