@@ -39,6 +39,7 @@ out/
 uploads/
 
 # Env files
+env
 .env
 *.env
 !.env.example
