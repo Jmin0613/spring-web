@@ -1,10 +1,18 @@
+# Service -> 각자 역할 분담.
+# 아래에 있는 mysql, redis, rabbitmq, backend, frontend 등이 각각 하나의 독립된 컨테이너가 됨.
 services:
+  # mysql, redis, rabbitmq 처럼 이미 만들어진 것들은 외부에서 image로 가져와서 사용.
   mysql:
     image: mysql:8.4
     container_name: wat-mysql
+
+    # 왼쪽 : 로컬, 오른쪽 : 컨테이너 내부 포트(mysql 기본포트)
     ports:
       - "3307:3306"
+
+    # 설정 주입
     environment:
+      # ${...} -> 보안을 위해 .env파일에 따로 저장된 값 불러오기.
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
@@ -13,8 +21,13 @@ services:
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
+
+    # 컨테이너는 껏다 키면 데이터 날아감
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql # 컨테이너 삭제되어도 db데이터 로컬 mysql-data에 보관하라.
+
+    # healthcheck -> 준비신호 보낼 때까지 체크.
+    # depends_on -> healthcheck완료될때까지 실행하지말고 대기.
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 5s
@@ -51,6 +64,7 @@ services:
       timeout: 5s
       retries: 20
 
+  # 직접 만든 backend, frontend는 Dockerfile을 읽어서 image 새로 build하여 실행.
   backend:
     build:
       context: .

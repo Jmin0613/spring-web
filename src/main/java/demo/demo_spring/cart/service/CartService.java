@@ -212,7 +212,7 @@ public class CartService {
             }
 
             // 락 걸린 product 상품 재고 차감
-            product.buy(cartItem.getQuantity()); // 이제 같은 상품 row에 비관적 락 걸려있음
+            product.reserveStock(cartItem.getQuantity()); // 이제 같은 상품 row에 비관적 락 걸려있음
 
             // 장바구니 항목 하나를 주문상품 하나로 바꾸기
             OrderItem orderItem = OrderItem.createOrderItem(

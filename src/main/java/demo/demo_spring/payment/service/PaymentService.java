@@ -25,9 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional
@@ -72,6 +70,8 @@ public class PaymentService {
         Integer reservedQuantity = null;
 
         try{
+            // 주문타입에 맞게 주문상품 상태 체크해서 구매목록 만들기.
+            // (createOrderItems -> createOrderTypeOrderItem)
             List<OrderItem> orderItems = createOrderItems(memberId, request);
 
             // 주문타입이 HOTDEAL이면 Redis에 넘기기.
@@ -172,7 +172,7 @@ public class PaymentService {
             }
         }
     }
-    // Product_Direct 주문상품 생성
+    // Product_Direct + 비관적 락 주문상품 생성
     private List<OrderItem> createProductDirectOrderItem(PaymentPrepareRequest request){
         // 상품 존재 검증 + 수량 검증
         if(request.getProductId() == null){
@@ -182,17 +182,20 @@ public class PaymentService {
             throw new IllegalStateException("구매 수량이 잘못되었습니다.");
         }
 
-        // 원본 상품 존재 체크
-        Product product = productRepository.findById(request.getProductId())
+        // 비관적 락으로 원본 상품 존재 체크
+        Product product = productRepository.findByIdWithPessimisticLock(request.getProductId())
                 .orElseThrow(() -> new IllegalStateException("해당 상품을 찾을 수 없습니다."));
         // 상품 판매 상태 체크
         if(product.getStatus() != ProductStatus.ON_SALE){
             throw new IllegalStateException("판매 중인 상품만 구매할 수 있습니다.");
         }
 
+        // product.buy() 직접 호출x.
+        // Orders.createPendingPaymentOrder()내부의 orderItem.reserveStock()에서
+        // product.reserveStock()호출하여 재고 선점.
         return List.of(OrderItem.createProductOrderItem(product, request.getQuantity()));
     }
-    // HotDeal_Direct + Redis 주문상품 생성
+    // HotDeal_Direct + Redis+lua 주문상품 생성
     private List<OrderItem> createHotDealDirectOrderItem(PaymentPrepareRequest request){
         // 상품 존재 검증 + 수량 검증
         if(request.getHotDealId() == null){
@@ -213,31 +216,60 @@ public class PaymentService {
 
         return List.of(OrderItem.createHotDealOrderItem(hotDeal, request.getQuantity()));
     }
-    // Cart 주문상품 생성
+    // Cart + 비관적 락 주문상품 생성
     private List<OrderItem> createCartOrderItems(Long memberId, PaymentPrepareRequest request){
-        // z카트 및 상품 존재 검증
+        // 카트 및 상품 존재 검증
         if(request.getCartItemIds() == null || request.getCartItemIds().isEmpty()){
             throw new IllegalStateException("장바구니 상품 정보가 누락되었습니다.");
         }
 
-        // 주문상품 넣을 빈 목록 생성
-        List<OrderItem> orderItems = new ArrayList<>();
+        // 1. 구매 요청받은 cartItem목록을 조회
+        List<CartItem> cartItems = new ArrayList<>();
 
-        // 주문상품 목록에 채워넣기
-        for(Long cartItemId : request.getCartItemIds()){
-            // 카트에 든 주문상품 꺼내기
+        for(Long cartItemId : request.getCartItemIds()) {
+            // memberId로 해당 회원 장바구니에서 선택된 상품만 조회
             CartItem cartItem = cartItemRepository.findByIdAndCartMemberId(cartItemId, memberId)
                     .orElseThrow(() -> new IllegalStateException("장바구니 상품을 찾을 수 없습니다."));
 
-            // 원본 상품 판매 가능 상태 체크
-            Product product = cartItem.getProduct();
+            cartItems.add(cartItem);
+        }
+
+        // 2. 받아온 장바구니 상품들에서 productId만 따로 추출하여 목록 만들기 + 데드락 방지
+        // -> 비관적 락은 CartItem이 아닌, Product에 걸어야 하기 떄문에 productId 추출.
+        List<Long> productIds = cartItems.stream()
+                .map(cartItem -> cartItem.getProduct().getId())
+                .distinct() // 데드락 방지를 위하여
+                .sorted() // 중복제거 + 정렬
+                .toList();
+
+        // 3. 정렬된 순서대로 Product에 비관적 락 걸어서 가져오기
+        Map<Long, Product> lockedProducts = new HashMap<>();
+        // 락 걸어서 다시 조회한 Product들을 담아둘 맵
+        // cartItem마다 다시 db 조회안하고 이미 락 잡은거 바로 꺼내쓰기위해
+
+        for(Long productId : productIds){
+            Product lockedProduct = productRepository.findByIdWithPessimisticLock(productId)
+                    .orElseThrow(()->new IllegalStateException("구매하려는 상품이 없습니다."));
+            lockedProducts.put(productId, lockedProduct);
+        }
+
+        // 4. 비관적 락 걸린 Product로, 최종적으로 주문서에 넣을 OrderItem주문상품 목록 생성
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for(CartItem cartItem : cartItems){
+            Product product = lockedProducts.get(cartItem.getProduct().getId()); //락 걸린 상품 꺼내기
+            // cartItem에서 product id만 참고하고, 실제 재고 차감은 락 걸린 lockedProduct로 진행.
+
+            // Product 판매 상태 체크. -> 비공개, 품절 상품 판매x.
             if(product.getStatus() != ProductStatus.ON_SALE){
-                throw new IllegalStateException("판매 중인 상품만 구매할 수 있습니다.");
+                throw new IllegalStateException("현재 판매하지 않는 상품이 포함되어 있습니다.");
             }
 
-            // 장바구니에 들어가는 상품은 모두 Product이므로 Product 구매로 연결
+            // 여기서 product.buy() 직접 호출
+            // Orders.createPendingPaymentOrder()내부에서 OrderItem.reserveStock()으로 재고 선점함.
             orderItems.add(OrderItem.createProductOrderItem(product, cartItem.getQuantity()));
         }
+        // 생성한 카트 주문상품 목록 반환.
         return orderItems;
     }
     // 결제번호 만들기 -> PortOne에 넘길 결제 고유 id.
@@ -425,3 +457,30 @@ public class PaymentService {
 
     }
 }
+
+/*   < 전체 구매 흐름 >
+
+HOTDEAL_DIRECT
+    -> HotDeal 조회
+    -> Redis Lua로 재고 선점
+    -> OrderItem 생성
+    -> Orders 생성
+    -> Payment READY 생성
+
+PRODUCT_DIRECT
+    -> Product 비관적 락 조회
+    -> OrderItem 생성
+    -> Orders.createPendingPaymentOrder()
+    -> Product 재고 차감
+    -> Payment READY 생성
+
+CART
+    -> CartItem 조회
+    -> Product id 정렬
+    -> Product 비관적 락 조회
+    -> OrderItem 생성
+    -> Orders.createPendingPaymentOrder()
+    -> Product 재고 차감
+    -> Payment READY 생성
+
+ */

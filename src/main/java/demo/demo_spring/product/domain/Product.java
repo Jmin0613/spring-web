@@ -136,7 +136,7 @@ public class Product {
     }
 
     // 상품 구매 시, 재고 차감용 메서드
-    public void buy(int quantity){
+    public void reserveStock(int quantity){
         //stock(재고 수량), quantity(구매 수량)
 
         if(quantity < 1){

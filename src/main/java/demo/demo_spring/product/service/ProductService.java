@@ -159,7 +159,7 @@ public class ProductService {
             throw new IllegalStateException("현재 판매하지 않는 상품입니다.");
         }
         //3. 재고,수량 체크 + 구매 진행하는 엔티티메서드
-        product.buy(quantity);
+        product.reserveStock(quantity);
 
         //4. 구매 완료 후, 주문 생성
         // member -> 세션에서 꺼내오기

@@ -130,7 +130,7 @@ public class OrderItem {
     public void reserveStock(){
         // Product 재고 선점
         if(this.orderItemType == OrderItemType.PRODUCT){
-            product.buy(this.quantity);
+            product.reserveStock(this.quantity);
             return;
         }
 
