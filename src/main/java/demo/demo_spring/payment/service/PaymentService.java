@@ -28,7 +28,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class PaymentService {
 
@@ -44,6 +43,7 @@ public class PaymentService {
     private final HotDealRedisStockService hotDealRedisStockService;
 
     // 결제 준비하기 -> PENDING주문 만들어서 재고 선점과 PortOne에 필요 정보 넘김. 결제를 완료하는게 x.
+    @Transactional
     public PaymentPrepareResponse preparePayment(Long memberId, PaymentPrepareRequest request){
         /* 1. Pending_Payment Orders주문 생성
            2. 주문상품OrderItem 생성
@@ -293,6 +293,7 @@ public class PaymentService {
     }
 
     // 결제 완료하기 -> PortOne 결제 후, 프론트에서 백엔드로 결제완료 검증 요청
+    @Transactional
     public PaymentCompleteResponse completePayment(Long memberId, PaymentCompleteRequest request){
         /*  1. 프론트에서 받아온 값 유효성 검사
             2. PortOne 결제 단건 조회
@@ -364,6 +365,7 @@ public class PaymentService {
     }
 
     // 결제 취소하기
+    @Transactional
     public PaymentCancelResponse cancelPayment(Long memberId, PaymentCancelRequest request){
         /*  1. PortOne 결제 취소 API 호출
             2. Orders.cancel(now)
@@ -428,6 +430,7 @@ public class PaymentService {
     }
 
     // 결제 시간 만료된 주문에 대해 재고+상태 복구 처리
+    @Transactional
     public void expirePendingPayments(){
         /*  1. 만료된 PENDING_PAYMENT 주문 조회
             2. 주문 만료 처리. Orders.expirePayment(now) -> 선점 재고 복구 + 상태 복구

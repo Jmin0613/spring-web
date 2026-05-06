@@ -21,4 +21,9 @@ public interface HotDealRepository extends JpaRepository<HotDeal, Long> {
     List<HotDeal> findAllByStatusAndStartTimeBetween(HotDealStatus status,
                                                      LocalDateTime from,
                                                      LocalDateTime to);
+
+    // k6 테스트 비교를 위한 pessimistic lock
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select h from HotDeal h where h.id = :hotDealId")
+    Optional<HotDeal> findByIdWithPessimisticLock(@Param("hotDealId") Long hotDealId);
 }

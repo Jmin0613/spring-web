@@ -24,7 +24,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(new LoginCheckInterceptor())
                 .order(1) //인터셉터 실행 순서
                 .addPathPatterns("/hotdeals/*/buy", "/products/*/buy",
-                        "/orders/**", "/wishlist", "/cart-items/buy", "notification/**");
+                        "/orders/**", "/wishlist", "/cart-items/buy", "notification/**")
+                .excludePathPatterns("/test/**"); //k6 test
         // addPathPatterns() -> 적용할 경로
         // excludePathPatterns() -> 제외할 경로
 
