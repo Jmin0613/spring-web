@@ -4,3 +4,14 @@ spring:
       maximum-pool-size: 25
       minimum-idle: 20
       connection-timeout: 5000
+#  autoconfigure:
+#    exclude:
+#      - org.springframework.boot.amqp.autoconfigure.RabbitAutoConfiguration
+
+server:
+  tomcat:
+    threads:
+      max: 250
+      min-spare: 20
+    accept-count: 300
+    max-connections: 8192
