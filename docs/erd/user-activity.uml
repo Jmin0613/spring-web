@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.member</OriginalElement>
+  <nodes>
+    <node x="211.56541218637955" y="633.7867383512545">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.product_inquiry</node>
+    <node x="-759.5645161290321" y="80.35304659498217">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.cart</node>
+    <node x="-248.4354838709678" y="-72.5">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.product</node>
+    <node x="-451.22244623655894" y="516.8691756272401">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.review</node>
+    <node x="-997.6290322580642" y="516.8691756272401">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.notification</node>
+    <node x="-511.5" y="23.5">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.member</node>
+    <node x="-997.6290322580642" y="71.5">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.cart_item</node>
+    <node x="-427.5127688172043" y="924.388888888889">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.review_like</node>
+    <node x="-151.3158602150537" y="516.8691756272401">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.wishlist</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.wishlist" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.product" relationship="REFERENCES">
+      <point x="-40.0" y="-68.5" />
+      <point x="-111.3158602150537" y="440.0" />
+      <point x="-49.9354838709678" y="440.0" />
+      <point x="0.0" y="176.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.cart" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.member" relationship="REFERENCES">
+      <point x="0.0" y="-80.5" />
+      <point x="-672.0645161290321" y="420.0" />
+      <point x="-416.5" y="420.0" />
+      <point x="0.0" y="128.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.review" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.member" relationship="REFERENCES">
+      <point x="61.25" y="-164.5" />
+      <point x="-267.47244623655894" y="420.0" />
+      <point x="-416.5" y="420.0" />
+      <point x="0.0" y="128.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.product_inquiry" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.member" relationship="REFERENCES">
+      <point x="61.25" y="-164.5" />
+      <point x="395.31541218637955" y="377.2415770609319" />
+      <point x="-416.5" y="377.2415770609319" />
+      <point x="0.0" y="128.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.review_like" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.member" relationship="REFERENCES">
+      <point x="40.0" y="-68.5" />
+      <point x="-307.5127688172043" y="1100.0" />
+      <point x="-501.1863799283153" y="1100.0" />
+      <point x="-501.1863799283153" y="420.0" />
+      <point x="-416.5" y="420.0" />
+      <point x="0.0" y="128.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.wishlist" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.member" relationship="REFERENCES">
+      <point x="40.0" y="-68.5" />
+      <point x="-31.315860215053704" y="420.0" />
+      <point x="-416.5" y="420.0" />
+      <point x="0.0" y="128.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.notification" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.member" relationship="REFERENCES">
+      <point x="0.0" y="-140.5" />
+      <point x="-813.1290322580642" y="420.0" />
+      <point x="-416.5" y="420.0" />
+      <point x="0.0" y="128.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.review" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.product" relationship="REFERENCES">
+      <point x="-61.25" y="-164.5" />
+      <point x="-389.97244623655894" y="440.0" />
+      <point x="-49.9354838709678" y="440.0" />
+      <point x="0.0" y="176.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.review_like" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.review" relationship="REFERENCES">
+      <point x="-40.0" y="-68.5" />
+      <point x="-328.72244623655894" y="924.388888888889" />
+      <point x="0.0" y="164.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.product_inquiry" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.product" relationship="REFERENCES">
+      <point x="-61.25" y="-164.5" />
+      <point x="272.81541218637955" y="322.4143369175627" />
+      <point x="-49.9354838709678" y="322.4143369175627" />
+      <point x="0.0" y="176.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.cart_item" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.cart" relationship="REFERENCES">
+      <point x="41.25" y="-104.5" />
+      <point x="-873.8790322580642" y="311.0623655913978" />
+      <point x="-672.0645161290321" y="311.0623655913978" />
+      <point x="0.0" y="80.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.cart_item" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.product" relationship="REFERENCES">
+      <point x="-41.25" y="-104.5" />
+      <point x="-956.3790322580642" y="-122.54050179211458" />
+      <point x="-49.9354838709678" y="-122.54050179211458" />
+      <point x="0.0" y="176.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Compact" zoom="0.47896995708154516" showDependencies="false" x="-578.1021505376343" y="459.11021505376334" />
+  <SelectedNodes>
+    <node>8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.product_inquiry</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Columns</Category>
+    <Category>Key columns</Category>
+  </Categories>
+</Diagram>
+

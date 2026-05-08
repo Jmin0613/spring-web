@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.member</OriginalElement>
+  <nodes>
+    <node x="385.6734234234234" y="-114.7545045045045">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.hot_deal</node>
+    <node x="-429.349099099099" y="347.5">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.payment</node>
+    <node x="659.2500000000001" y="347.5">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.order_item</node>
+    <node x="-113.04729729729729" y="-268.3108108108108">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.product</node>
+    <node x="-404.768018018018" y="-90.7545045045045">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.member</node>
+    <node x="24.675675675675677" y="347.5">8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.orders</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.payment" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.orders" relationship="REFERENCES">
+      <point x="0.0" y="-140.5" />
+      <point x="-261.349099099099" y="802.0" />
+      <point x="239.67567567567568" y="802.0" />
+      <point x="0.0" y="164.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.orders" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.member" relationship="REFERENCES">
+      <point x="0.0" y="-164.5" />
+      <point x="239.67567567567568" y="202.0" />
+      <point x="-309.768018018018" y="202.0" />
+      <point x="0.0" y="128.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.order_item" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.orders" relationship="REFERENCES">
+      <point x="-90.0" y="-128.5" />
+      <point x="704.2500000000001" y="549.5349099099099" />
+      <point x="884.2304540540542" y="549.5349099099099" />
+      <point x="884.2304540540542" y="765.1931403220178" />
+      <point x="239.67567567567568" y="765.1931403220178" />
+      <point x="0.0" y="164.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.hot_deal" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.product" relationship="REFERENCES">
+      <point x="0.0" y="-140.5" />
+      <point x="558.1734234234234" y="260.0" />
+      <point x="85.45270270270271" y="260.0" />
+      <point x="0.0" y="176.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.order_item" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.product" relationship="REFERENCES">
+      <point x="0.0" y="-128.5" />
+      <point x="794.2500000000001" y="260.0" />
+      <point x="85.45270270270271" y="260.0" />
+      <point x="0.0" y="176.5" />
+    </edge>
+    <edge source="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.order_item" target="8a281fb3-33cb-4951-a5ed-98fc30a998e3.TABLE:hotdeal_db.hot_deal" relationship="REFERENCES">
+      <point x="90.0" y="-128.5" />
+      <point x="884.2500000000001" y="680.0" />
+      <point x="558.1734234234234" y="680.0" />
+      <point x="0.0" y="140.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Compact" zoom="0.4806495263870095" showDependencies="false" x="316.92398648648646" y="209.8537800534914" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Columns</Category>
+    <Category>Key columns</Category>
+  </Categories>
+</Diagram>
+
