@@ -3,7 +3,7 @@ package demo.demo_spring.wishlist.dto;
 import demo.demo_spring.wishlist.domain.Wishlist;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.*;
 
 @Getter
 public class WishlistListResponse {

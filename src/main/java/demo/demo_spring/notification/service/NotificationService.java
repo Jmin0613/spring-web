@@ -6,6 +6,7 @@ import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
 import demo.demo_spring.notification.domain.HotDealAlertSubscription;
 import demo.demo_spring.notification.domain.Notification;
+import demo.demo_spring.notification.dto.HotDealAlertToggleResponse;
 import demo.demo_spring.notification.dto.NotificationListResponse;
 import demo.demo_spring.notification.repository.HotDealAlertSubscriptionRepository;
 import demo.demo_spring.notification.repository.NotificationRepository;
@@ -81,44 +82,35 @@ public class NotificationService {
         hotDealAlertSubscriptionRepository.deleteAll(hotDealAlerts);
     }
 
-    // 핫딜 시작 알림 신청
-    public void subscribeAlert(Long hotDealId, Long memberId){
+    // 핫딜 시작 알림 Toggle
+    public HotDealAlertToggleResponse alertToggle(Long hotDealId, Long memberId) {
         // member 존재 여부 체크
         Member member = memberService.getMember(memberId);
+
         // hotDeal 존재 여부 체크
         HotDeal hotDeal = hotDealRepository.findById(hotDealId)
-                .orElseThrow(()-> new IllegalStateException("알림 신청할 핫딜 상품이 없습니다."));
+                .orElseThrow(() -> new IllegalStateException("알림 신청할 핫딜 상품이 없습니다."));
+
         // READY만 가능
         if(hotDeal.getStatus() != READY){
             throw new IllegalStateException("핫딜 알림 신청 및 취소는 준비중인 상품에 한하여 가능합니다.");
         }
-        // 중복 신청 체크
-        if (hotDealAlertSubscriptionRepository.existsByMemberIdAndHotDealId(memberId, hotDealId)){
-            throw new IllegalStateException("이미 신청 하셨습니다.");
+
+        // 이미 신청했다면 취소
+        if(hotDealAlertSubscriptionRepository.existsByMemberIdAndHotDealId(memberId, hotDealId)){
+            hotDealAlertSubscriptionRepository.deleteByMemberIdAndHotDealId(memberId, hotDealId);
+            return new HotDealAlertToggleResponse(false); // 신청 안함 상태
         }
 
-        // 알림 신청 저장
+        // 신청하지 않았다면 신청
         HotDealAlertSubscription subscription =
                 HotDealAlertSubscription.createHotDealAlert(member, hotDeal);
 
         hotDealAlertSubscriptionRepository.save(subscription);
-    }
-    // 핫딜 시작 알림 취소
-    public void unsubscribeAlert(Long hotDealId, Long memberId){
-        // member 존재 여부 체크
-        memberService.getMember(memberId);
-        // hotDeal 존재 여부 체크
-        HotDeal hotDeal = hotDealRepository.findById(hotDealId)
-                .orElseThrow(()-> new IllegalStateException("알림 신청할 핫딜 상품이 없습니다."));
-        // READY만 가능
-        if(hotDeal.getStatus() != READY){
-            throw new IllegalStateException("핫딜 알림 신청 및 취소는 준비중인 상품에 한하여 가능합니다.");
-        }
 
-        // 알림 취소
-        hotDealAlertSubscriptionRepository.deleteByMemberIdAndHotDealId(memberId, hotDealId);
-
+        return new HotDealAlertToggleResponse(true); // 신청 완료 상태
     }
+    // 핫딜 시작 알림 신청 여부 확인
 
     // 내 알림 조회
     public List<NotificationListResponse> findMyNotifications(Long memberId){

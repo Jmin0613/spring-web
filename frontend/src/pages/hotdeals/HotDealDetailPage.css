@@ -247,19 +247,19 @@
 }
 
 .hotdeal-detail-button-row {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1.2fr 1.4fr;
+    display: flex;
+    align-items: stretch;
     gap: 12px;
-    box-sizing: border-box;
+    margin-top: 16px;
 }
 
-.hotdeal-detail-ghost-button,
-.hotdeal-detail-primary-button {
+.hotdeal-detail-button-row button {
+    flex: 1;
+    min-width: 0;
     height: 52px;
     border-radius: 14px;
     font-size: 15px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -273,6 +273,31 @@
     background-color: #f9fafb;
 }
 
+.hotdeal-detail-alert-button {
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #111827;
+}
+
+.hotdeal-detail-alert-button:hover {
+    background-color: #f9fafb;
+}
+
+.hotdeal-detail-alert-button--active {
+    border-color: #f59e0b;
+    background-color: #fff7ed;
+    color: #c2410c;
+}
+
+.hotdeal-detail-alert-button--active:hover {
+    background-color: #ffedd5;
+}
+
+.hotdeal-detail-alert-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
 .hotdeal-detail-primary-button {
     border: none;
     background-color: #f59e0b;
@@ -283,6 +308,15 @@
 
 .hotdeal-detail-primary-button:hover {
     background-color: #d97706;
+}
+
+.hotdeal-detail-primary-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.hotdeal-detail-primary-button:disabled:hover {
+    background-color: #f59e0b;
 }
 
 .hotdeal-detail-tab-wrap {
@@ -663,59 +697,7 @@
 }
 
 .hotdeal-detail-button-row--simple {
-    grid-template-columns: 1fr 2fr;
-}
-
-.hotdeal-detail-quantity-row {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.hotdeal-detail-quantity-button {
-    width: 42px;
-    height: 42px;
-    border: 1px solid #d1d5db;
-    border-radius: 12px;
-    background-color: #ffffff;
-    color: #111827;
-    font-size: 18px;
-    font-weight: 900;
-    cursor: pointer;
-}
-
-.hotdeal-detail-quantity-input {
-    width: 88px;
-    height: 42px;
-    border: 1px solid #d1d5db;
-    border-radius: 12px;
-    background-color: #ffffff;
-    color: #111827;
-    font-size: 15px;
-    font-weight: 800;
-    text-align: center;
-    outline: none;
-}
-
-.hotdeal-detail-quantity-help {
-    color: #6b7280;
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.hotdeal-detail-quantity-button:disabled,
-.hotdeal-detail-quantity-input:disabled,
-.hotdeal-detail-primary-button:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-}
-
-.hotdeal-detail-primary-button:disabled:hover {
-    background-color: #f59e0b;
-}
-.hotdeal-detail-button-row--simple {
-    grid-template-columns: 1fr 2fr;
 }
 
 .hotdeal-detail-quantity-row {
@@ -795,14 +777,9 @@
 .hotdeal-detail-quantity-button:disabled,
 .hotdeal-detail-quantity-input:disabled,
 .hotdeal-detail-order-input:disabled,
-.hotdeal-detail-order-select:disabled,
-.hotdeal-detail-primary-button:disabled {
+.hotdeal-detail-order-select:disabled {
     opacity: 0.55;
     cursor: not-allowed;
-}
-
-.hotdeal-detail-primary-button:disabled:hover {
-    background-color: #f59e0b;
 }
 
 @media (max-width: 900px) {
@@ -851,11 +828,7 @@
     }
 
     .hotdeal-detail-button-row {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .hotdeal-detail-primary-button {
-        grid-column: 1 / -1;
+        flex-direction: column;
     }
 
     .hotdeal-detail-tab-header {

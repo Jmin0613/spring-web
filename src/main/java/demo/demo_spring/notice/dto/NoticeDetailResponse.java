@@ -3,7 +3,7 @@ package demo.demo_spring.notice.dto;
 import demo.demo_spring.notice.domain.Notice;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.*;
 
 @Getter
 public class NoticeDetailResponse {

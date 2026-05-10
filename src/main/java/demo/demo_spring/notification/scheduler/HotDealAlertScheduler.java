@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.List;
 
 @Component
@@ -18,6 +18,8 @@ public class HotDealAlertScheduler {
 
     // 알림 조건 -> READY상태(status) + 10분 뒤 시작(startTime)하는 HotDeal
     // HotDeal 기준으로 조회 진행
+
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     private final HotDealRepository hotDealRepository;
     private final HotDealAlertMessageProducer hotDealAlertMessageProducer;
@@ -32,7 +34,7 @@ public class HotDealAlertScheduler {
     public void preStartAlertHotDeal(){
         // 현재시간
         // System.out.println("사전 알림 스케쥴러 실행");
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         // 현재시간 + 9min~10min
         LocalDateTime from = now.plusMinutes(9);

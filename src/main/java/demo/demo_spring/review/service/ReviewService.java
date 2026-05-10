@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -99,7 +99,7 @@ public class ReviewService {
         validateWriter(memberId, review);
 
         // 시간 제한
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         // 업데이트
         review.updateReview(request.getTitle(), request.getContent(), request.getRating(), now);

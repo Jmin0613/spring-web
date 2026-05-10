@@ -6,6 +6,7 @@ import demo.demo_spring.hotdeal.dto.HotDealListResponse;
 import demo.demo_spring.hotdeal.service.HotDealService;
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
+import demo.demo_spring.notification.dto.HotDealAlertToggleResponse;
 import demo.demo_spring.notification.service.NotificationService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -34,35 +35,30 @@ public class HotDealController {
 
     // 단건 조회
     @GetMapping("/hotdeals/{hotDealId}")
-    public HotDealDetailResponse findById(@PathVariable Long hotDealId){
-        return hotDealService.findHotDeal(hotDealId);
+    public HotDealDetailResponse findById(@PathVariable Long hotDealId, HttpSession session){
+        Member loginMember = (Member) session.getAttribute("loginMember");
+
+        // 알림 신청 여부 표시 -> 비로그인 경우 null
+        Long memberId = null;
+        if(loginMember != null){
+            memberId = loginMember.getId();
+        }
+
+        return hotDealService.findHotDeal(hotDealId, memberId);
     }
 
     // 핫딜 구매 -> PortOne 결제 도입 후 사용x 레거시 구매API.
     @PostMapping("/hotdeals/{hotDealId}/buy") // /payment/prepate -> /payment/complete로 연결
     public Long legacyByy(@PathVariable Long hotDealId, @RequestBody @Valid HotDealBuyRequest request, HttpSession session){
-//        Member loginMember = (Member)session.getAttribute("loginMember");
-//        return hotDealService.buy(
-//                hotDealId, request.getQuantity(), loginMember.getId(),
-//                request.getDeliveryInfo(), request.getPaymentMethod()
-//        );
         throw new ResponseStatusException(
                 HttpStatus.GONE,
                 "기존 HotDeal 구매 API는 더 이상 사용되지 않음. /paymnet/prepate 사용 바람."
         );
     }
 
-    // 시작 알림 신청
-    @PostMapping("/hotdeals/{hotDealId}/alerts")
-    public void subscribeAlert(@PathVariable Long hotDealId, HttpSession session){
-        Member loginMember = (Member)session.getAttribute("loginMember");
-        notificationService.subscribeAlert(hotDealId, loginMember.getId());
-    }
-
-    // 시작 알림 취소
-    @DeleteMapping("/hotdeals/{hotDealId}/alerts")
-    public void unsubscribeAlert(@PathVariable Long hotDealId, HttpSession session){
-        Member loginMember = (Member)session.getAttribute("loginMember");
-        notificationService.unsubscribeAlert(hotDealId, loginMember.getId());
+    @PostMapping("/hotdeals/{hotDealId}/alerts/toggle")
+    public HotDealAlertToggleResponse alertToggle(@PathVariable Long hotDealId, HttpSession session) {
+        Member loginMember = (Member) session.getAttribute("loginMember");
+        return notificationService.alertToggle(hotDealId, loginMember.getId());
     }
 }

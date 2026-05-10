@@ -4,7 +4,7 @@ import demo.demo_spring.hotdeal.domain.HotDeal;
 import demo.demo_spring.hotdeal.domain.HotDealStatus;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.*;
 
 @Getter
 public class HotDealDetailResponse {
@@ -26,8 +26,10 @@ public class HotDealDetailResponse {
     private LocalDateTime endTime;
     private HotDealStatus status;
 
+    private boolean alertSubscribed; // 알림 신청 여부
+
     //HotDeal 생성자 -> fromEntity()가 내부에서 호출할 생성자
-    private HotDealDetailResponse(HotDeal hotDeal){
+    private HotDealDetailResponse(HotDeal hotDeal, boolean alertSubscribed){
         this.hotDealId = hotDeal.getId();
         this.productId = hotDeal.getProduct().getId();
         // 응답DTO는 연관관계를 따라가서 필요한 값 꺼내올 수 있음.
@@ -37,11 +39,16 @@ public class HotDealDetailResponse {
         this.status = hotDeal.getStatus();
         this.description = hotDeal.getProduct().getDescription(); this.hotDealStock = hotDeal.getHotDealStock();
         this.discountRate = hotDeal.calculateDiscountRate();
+        this.alertSubscribed = alertSubscribed;
     }
 
     //엔티티 -> DTO
+    public static HotDealDetailResponse fromEntity(HotDeal hotDeal, boolean alertSubscribed) {
+        return new HotDealDetailResponse(hotDeal, alertSubscribed);
+    }
+
     public static HotDealDetailResponse fromEntity(HotDeal hotDeal) {
-        return new HotDealDetailResponse(hotDeal);
+        return new HotDealDetailResponse(hotDeal, false);
     }
 
 }

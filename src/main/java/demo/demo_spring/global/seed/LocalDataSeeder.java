@@ -32,7 +32,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.List;
 
 @Profile("local") // local에서만 작동하도록
@@ -172,7 +172,7 @@ public class LocalDataSeeder implements CommandLineRunner {
 
     // 핫딜 3개 만들기
     private void seedHotDeals(List<Product> products){
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         // 앱 실행 직후 테스트용
         HotDeal hotDeal1 = HotDeal.createHotDeal(
@@ -291,7 +291,7 @@ public class LocalDataSeeder implements CommandLineRunner {
 
     // 결제 완료 주문 2개 생성
     private SeedPaidOrders seedPaidOrders(List<Product> products, Member user){
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         DeliveryInfo deliveryInfo1 = new DeliveryInfo(
                 "회원1호",

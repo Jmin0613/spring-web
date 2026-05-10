@@ -6,6 +6,7 @@ import demo.demo_spring.hotdeal.dto.*;
 import demo.demo_spring.hotdeal.repository.HotDealRepository;
 import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.member.service.MemberService;
+import demo.demo_spring.notification.repository.HotDealAlertSubscriptionRepository;
 import demo.demo_spring.order.domain.DeliveryInfo;
 import demo.demo_spring.order.domain.PaymentMethod;
 import demo.demo_spring.order.dto.DeliveryInfoRequest;
@@ -29,14 +30,16 @@ public class HotDealService {
     private final OrderService orderService;
     private final MemberService memberService;
     private final HotDealRedisStockService hotDealRedisStockService;
+    private final HotDealAlertSubscriptionRepository hotDealAlertSubscriptionRepository;
 
     public HotDealService(HotDealRepository hotDealrepository,
-                          ProductRepository productRepository, OrderService orderService, MemberService memberService, HotDealRedisStockService hotDealRedisStockService){
+                          ProductRepository productRepository, OrderService orderService, MemberService memberService, HotDealRedisStockService hotDealRedisStockService, HotDealAlertSubscriptionRepository hotDealAlertSubscriptionRepository){
         this.hotDealRepository = hotDealrepository;
         this.productRepository = productRepository;
         this.orderService = orderService;
         this.memberService = memberService;
         this.hotDealRedisStockService = hotDealRedisStockService;
+        this.hotDealAlertSubscriptionRepository = hotDealAlertSubscriptionRepository;
     }
 
     // 핫딜 등록
@@ -46,7 +49,7 @@ public class HotDealService {
                 .orElseThrow(()-> new IllegalStateException("등록하려는 핫딜의 원본 상품이 없습니다."));
 
         // HotDeal.createHotDeal() 호출
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         HotDeal hotDeal = HotDeal.createHotDeal(
                 product, request.getHotDealPrice(), request.getHotDealStock(),
                 request.getStartTime(), request.getEndTime(), now
@@ -83,7 +86,7 @@ public class HotDealService {
     public void adminResume(Long id){
         HotDeal hotDeal = hotDealRepository.findById(id)
                 .orElseThrow(()-> new IllegalStateException("해당하는 핫딜이 없습니다."));
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         hotDeal.adminResume(now);
     }
 
@@ -98,7 +101,7 @@ public class HotDealService {
 
     // 관계자 핫딜 전체 조회
     public List<AdminHotDealListResponse> adminFindAllHotDeal(){
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         return hotDealRepository.findAll() // List<HotDeal>
                 .stream()
                 .peek(h -> h.refreshStatus(now)) //조회할 때 현재 시간 기준으로 상태 확인
@@ -107,7 +110,7 @@ public class HotDealService {
     }
     // 관계자 핫딜 단건 조회
     public AdminHotDealDetailResponse adminFindHotDeal(Long id){
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         HotDeal hotDeal = hotDealRepository.findById(id)
                 .orElseThrow(()->new IllegalStateException("해당하는 핫딜이 없습니다."));
         hotDeal.refreshStatus(now); //조회할 때 현재 시간 기준으로 상태 확인
@@ -116,7 +119,7 @@ public class HotDealService {
 
     // 사용자 핫딜 전체 조회
     public List<HotDealListResponse> findAllHotDeal(){
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         return hotDealRepository.findAll() // List<HotDeal>
                 .stream()
                 .peek(h -> h.refreshStatus(now)) //조회할 때 현재 시간 기준으로 상태 확인
@@ -126,18 +129,30 @@ public class HotDealService {
                 .toList(); //List<DTO>
     }
     // 사용자 핫딜 단건 조회
-    public HotDealDetailResponse findHotDeal(Long id){
-        LocalDateTime now = LocalDateTime.now();
+    public HotDealDetailResponse findHotDeal(Long id, Long memberId){
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+
         HotDeal hotDeal = hotDealRepository.findById(id)
                 .orElseThrow(()-> new IllegalStateException("해당하는 핫딜이 없습니다."));
         hotDeal.refreshStatus(now); //조회할 때 현재 시간 기준으로 상태 확인
+
         if(hotDeal.getStatus() == HotDealStatus.SOLD_OUT){
             throw new IllegalStateException("현재 재고 소진으로 품절된 핫딜입니다.");
         }
+
         if(hotDeal.getStatus() == HotDealStatus.END){
             throw new IllegalStateException("이미 판매가 종료된 핫딜입니다.");
         }
-        return HotDealDetailResponse.fromEntity(hotDeal);
+
+        // 알림 신청 여부
+        boolean alertSubscribed = false;
+
+        if(memberId != null && hotDeal.getStatus() == HotDealStatus.READY){
+            alertSubscribed = hotDealAlertSubscriptionRepository
+                    .existsByMemberIdAndHotDealId(memberId, id);
+        }
+
+        return HotDealDetailResponse.fromEntity(hotDeal, alertSubscribed);
     }
 
     // 지금 buy쪽이 파라미터가 너무 많은데, 나중에 DTO자체를 서비스로 넘기는 구조 생각해보기. (유지보수? 확장 가능할 듯)

@@ -6,7 +6,7 @@
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.context.SpringBootTest;
 //
-//import java.time.LocalDateTime;
+//import java.time.*;
 //import java.util.concurrent.CountDownLatch;
 //import java.util.concurrent.ExecutorService;
 //import java.util.concurrent.Executors;
@@ -49,8 +49,8 @@
 //        hotDeal.setPrice(10000);
 //        hotDeal.setDiscountPrice(5000);
 //        hotDeal.setQuantity(5); //재고
-//        hotDeal.setStartTime(LocalDateTime.now().minusMinutes(1)); // 1분전 시작 설정
-//        hotDeal.setEndTime(LocalDateTime.now().plusMinutes(10)); // 10분 후 종료 설정
+//        hotDeal.setStartTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")).minusMinutes(1)); // 1분전 시작 설정
+//        hotDeal.setEndTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")).plusMinutes(10)); // 10분 후 종료 설정
 //
 //        HotDeal savedHotDeal = hotDealRepository.save(hotDeal); //등록하여 핫딜 객체 가져오기
 //        //service를 이용하지 않고 repository를 이용해 save한 이유
@@ -125,8 +125,8 @@
 //        hotDeal.setPrice(10000);
 //        hotDeal.setDiscountPrice(5000);
 //        hotDeal.setQuantity(5); //재고
-//        hotDeal.setStartTime(LocalDateTime.now().minusMinutes(1)); // 1분전 시작 설정
-//        hotDeal.setEndTime(LocalDateTime.now().plusMinutes(10)); // 10분 후 종료 설정
+//        hotDeal.setStartTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")).minusMinutes(1)); // 1분전 시작 설정
+//        hotDeal.setEndTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")).plusMinutes(10)); // 10분 후 종료 설정
 //
 //        HotDeal savedHotDeal = hotDealRepository.save(hotDeal); //등록하여 핫딜 객체 가져오기
 //        Long id = savedHotDeal.getId();
@@ -186,8 +186,8 @@
 //        hotDeal.setPrice(10000);
 //        hotDeal.setDiscountPrice(5000);
 //        hotDeal.setQuantity(5); //재고
-//        hotDeal.setStartTime(LocalDateTime.now().minusMinutes(1)); // 1분전 시작 설정
-//        hotDeal.setEndTime(LocalDateTime.now().plusMinutes(10)); // 10분 후 종료 설정
+//        hotDeal.setStartTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")).minusMinutes(1)); // 1분전 시작 설정
+//        hotDeal.setEndTime(LocalDateTime.now(ZoneId.of("Asia/Seoul")).plusMinutes(10)); // 10분 후 종료 설정
 //
 //        HotDeal savedHotDeal = hotDealRepository.save(hotDeal); //등록하여 핫딜 객체 가져오기
 //        Long id = savedHotDeal.getId();

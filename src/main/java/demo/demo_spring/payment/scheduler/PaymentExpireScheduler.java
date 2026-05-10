@@ -5,11 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.ZoneId;
 
 @Component
 @RequiredArgsConstructor
 public class PaymentExpireScheduler {
     // 결제 대기 만료 주문 정리
+
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     private final PaymentService paymentService;
 

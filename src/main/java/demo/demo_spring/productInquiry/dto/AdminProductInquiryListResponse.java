@@ -4,7 +4,7 @@ import demo.demo_spring.productInquiry.domain.InquiryStatus;
 import demo.demo_spring.productInquiry.domain.ProductInquiry;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.*;
 
 @Getter
 public class AdminProductInquiryListResponse {

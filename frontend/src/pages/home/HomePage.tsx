@@ -185,12 +185,24 @@ export default function HomePage() {
         void loadProducts()
     }, [selectedProductSort])
 
+    // 진행 중 핫딜 -> 종료시간 빠른 순서
     const onSaleHotDeals = useMemo(() => {
-        return hotDeals.filter((item) => item.status === 'ON_SALE')
+        return hotDeals
+            .filter((item) => item.status === 'ON_SALE')
+            .sort(
+                (a, b) =>
+                    new Date(a.endTime).getTime() - new Date(b.endTime).getTime(),
+            )
     }, [hotDeals])
 
+    // 오픈 예정 핫딜 -> startTime 빠른 순서
     const readyHotDeals = useMemo(() => {
-        return hotDeals.filter((item) => item.status === 'READY')
+        return hotDeals
+            .filter((item) => item.status === 'READY')
+            .sort(
+                (a, b) =>
+                    new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+            )
     }, [hotDeals])
 
     const hotDealsPerPage = 4

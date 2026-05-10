@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.*;
 
 @Service
@@ -51,7 +51,7 @@ public class PaymentService {
            4. 결제 준비 상태Payment READY 생성
            5. Port One 결제창에 넘길 값 반환 */
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         //1. 주문한 회원 조회
         Member member = memberService.getMember(memberId);
@@ -302,7 +302,7 @@ public class PaymentService {
             5. Orders.markAsPaid() 결제 완료 + 주문 확정 처리.
             6. Payment.markAsPaid() 결제 완료 처리. */
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         // 1. 프론트로 부터 들어온 결제완료검증 요청값이 유효한지 확인
         // paymentId를 통해 해당 Payment결제 기록에 등록된 Order.getId()와 orderId를 서로 비교하여
@@ -373,7 +373,7 @@ public class PaymentService {
             4. 재고 복구
             5. 구매수 감소 */
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         // 결제 취소 요청request 들어온 orderId결제번호 확인
         if(request.getOrderId() == null){
@@ -436,7 +436,7 @@ public class PaymentService {
             2. 주문 만료 처리. Orders.expirePayment(now) -> 선점 재고 복구 + 상태 복구
             3. 결제 만료 처리. Payment.expire() */
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         // 만료된 Pending주문들 찾아오기
         List<Orders> expiredOrders =

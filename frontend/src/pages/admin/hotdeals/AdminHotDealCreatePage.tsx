@@ -441,7 +441,7 @@ export default function AdminHotDealCreatePage() {
             })
 
             alert('핫딜이 등록되었습니다.')
-            navigate('/admin')
+            navigate('/admin/hotdeals')
         } catch (error) {
             alert(getErrorMessage(error))
         } finally {

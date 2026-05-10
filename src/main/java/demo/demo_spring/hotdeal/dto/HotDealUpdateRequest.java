@@ -4,7 +4,7 @@ import demo.demo_spring.hotdeal.domain.HotDealStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.*;
 
 @Getter
 @NoArgsConstructor

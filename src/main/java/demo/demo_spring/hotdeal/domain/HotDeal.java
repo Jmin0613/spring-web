@@ -9,7 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import java.time.*;
 
 @Getter
 @Entity
@@ -93,7 +93,7 @@ public class HotDeal {
     public void updateHotDeal(Integer hotDealPrice, Integer hotDealStock,
                               LocalDateTime startTime, LocalDateTime endTime
                               ) { //HotDealStatus status
-        LocalDateTime now = LocalDateTime.now(); // 시간 변경 검증
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul")); // 시간 변경 검증
         LocalDateTime newStartTime = (startTime != null) ? startTime : this.startTime;
         LocalDateTime newEndTime = (endTime != null) ? endTime : this.endTime;
 

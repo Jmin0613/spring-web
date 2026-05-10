@@ -5,7 +5,7 @@ import demo.demo_spring.notification.domain.NotificationTargetType;
 import demo.demo_spring.notification.domain.NotificationType;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.*;
 
 @Getter
 public class NotificationListResponse {

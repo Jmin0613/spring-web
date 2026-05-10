@@ -17,6 +17,11 @@ type HotDealDetail = {
     productId: number | null
     startTime: string
     status: string
+    alertSubscribed: boolean
+}
+
+type HotDealAlertToggleResponse = {
+    subscribed: boolean
 }
 
 type HotDealDetailTab = 'detail' | 'review' | 'inquiry'
@@ -215,6 +220,9 @@ export default function HotDealDetailPage() {
     const [quantity, setQuantity] = useState(1)
     // 핫딜 구매 수량
 
+    const [alertSubscribed, setAlertSubscribed] = useState(false)
+    const [alertLoading, setAlertLoading] = useState(false)
+
     const tabParam = searchParams.get('tab')
     const activeTab: HotDealDetailTab =
         tabParam === 'review' || tabParam === 'inquiry' ? tabParam : 'detail'
@@ -293,6 +301,58 @@ export default function HotDealDetailPage() {
         })
     }
 
+    const handleToggleHotDealAlert = async () => {
+        if (!detail || alertLoading) return
+
+        if (detail.status !== 'READY') {
+            alert('오픈 예정 핫딜만 알림 신청이 가능합니다.')
+            return
+        }
+
+        try {
+            setAlertLoading(true)
+
+            const response = await axios.post<HotDealAlertToggleResponse>(
+                `${API_BASE_URL}/hotdeals/${detail.hotDealId}/alerts/toggle`,
+                {},
+                { withCredentials: true },
+            )
+
+            const subscribed = response.data.subscribed
+
+            setAlertSubscribed(subscribed)
+
+            setDetail((prev) =>
+                prev
+                    ? {
+                        ...prev,
+                        alertSubscribed: subscribed,
+                    }
+                    : prev,
+            )
+
+            alert(
+                subscribed
+                    ? '핫딜 오픈 알림을 신청했습니다.'
+                    : '핫딜 오픈 알림 신청을 취소했습니다.',
+            )
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    navigate('/login')
+                    return
+                }
+
+                alert(error.response?.data?.message ?? '알림 처리에 실패했습니다.')
+                return
+            }
+
+            alert('알림 처리에 실패했습니다.')
+        } finally {
+            setAlertLoading(false)
+        }
+    }
+
     useEffect(() => {
         async function loadHotDealDetail() {
             if (!id) {
@@ -304,6 +364,7 @@ export default function HotDealDetailPage() {
             try {
                 const response = await axios.get<HotDealDetail>(`${API_BASE_URL}/hotdeals/${id}`)
                 setDetail(response.data)
+                setAlertSubscribed(response.data.alertSubscribed)
             } catch (e) {
                 setError('핫딜 상세를 불러오지 못했습니다.')
             } finally {
@@ -535,7 +596,7 @@ export default function HotDealDetailPage() {
                             </div>
                         </div>
 
-                        <div className="hotdeal-detail-button-row hotdeal-detail-button-row--simple">
+                        <div className="hotdeal-detail-button-row">
                             <button
                                 type="button"
                                 className="hotdeal-detail-ghost-button"
@@ -543,6 +604,25 @@ export default function HotDealDetailPage() {
                             >
                                 공유
                             </button>
+
+                            {detail.status === 'READY' && (
+                                <button
+                                    type="button"
+                                    className={
+                                        alertSubscribed
+                                            ? 'hotdeal-detail-alert-button hotdeal-detail-alert-button--active'
+                                            : 'hotdeal-detail-alert-button'
+                                    }
+                                    onClick={handleToggleHotDealAlert}
+                                    disabled={alertLoading}
+                                >
+                                    {alertLoading
+                                        ? '처리 중...'
+                                        : alertSubscribed
+                                            ? '알림 신청 취소'
+                                            : '오픈 알림 신청'}
+                                </button>
+                            )}
 
                             <button
                                 type="button"

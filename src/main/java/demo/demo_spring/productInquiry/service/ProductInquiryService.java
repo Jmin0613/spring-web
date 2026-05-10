@@ -14,7 +14,7 @@ import demo.demo_spring.productInquiry.repository.ProductInquiryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.List;
 
 @Service
@@ -58,7 +58,7 @@ public class ProductInquiryService {
         // 작성자 본인 확인
         validateWriter(memberId, productInquiry);
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         // 업데이트 메서드 호출(update()에서 상태검사 실시)
         productInquiry.updateInquiry(request.getTitle(), request.getContent(), now);
@@ -94,7 +94,7 @@ public class ProductInquiryService {
         validateAdmin(memberId);
 
         //답변 날짜
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         //답글 메서드 호출(answer()에서 상태검사 실시)
         productInquiry.answer(request.getAnswerContent(),now);
