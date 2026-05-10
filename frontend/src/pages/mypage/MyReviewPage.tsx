@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import SiteHeader from '../../components/SiteHeader.tsx'
 import './MyReviewPage.css'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 const PAGE_SIZE = 10
 
 type MyReviewItem = {

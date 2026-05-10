@@ -9,7 +9,7 @@ import {
 } from '../../../api/adminProductApi.ts'
 import './AdminProductFormPage.css'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 
 type MemberInfo = {
     id: number

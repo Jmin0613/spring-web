@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 
 export type DeliveryStatus = 'READY' | 'IN_DELIVERY' | 'DELIVERED' | 'CANCELED'
 export type OrderStatus = 'PAID' | 'CANCELED'

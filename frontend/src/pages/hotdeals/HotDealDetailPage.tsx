@@ -66,7 +66,7 @@ type ProductInquiryListItem = {
     secret?: boolean
 }
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 
 function formatPrice(price: number) {
     return `${price.toLocaleString('ko-KR')}원`

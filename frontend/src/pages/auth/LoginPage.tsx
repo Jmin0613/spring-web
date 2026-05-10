@@ -6,7 +6,7 @@ import { IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'
 
 import './LoginPage.css'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 
 type LoginForm = {
     loginId: string

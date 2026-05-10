@@ -4,7 +4,7 @@ import axios from 'axios'
 import SiteHeader from '../../components/SiteHeader.tsx'
 import './OrderListPage.css'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 
 type OrderItem = {
     orderItemId: number

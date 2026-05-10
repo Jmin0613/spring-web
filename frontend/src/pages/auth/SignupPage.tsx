@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import './SignupPage.css'
 import { IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 
 type LoginIdCheckResponse = {
     available: boolean

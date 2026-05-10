@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { NoticeDetail, NoticeListItem } from '../types/notice'
 // 백엔드에서 올 데이터 모양 미리 정의
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 // 돌아가는 백엔드 서버 주소
 
 export type NoticeFormRequest = {

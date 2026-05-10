@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import SiteHeader from '../../components/SiteHeader.tsx'
 import './MyPage.css'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 
 type MemberInfo = {
     id: number

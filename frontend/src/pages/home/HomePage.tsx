@@ -29,7 +29,7 @@ type ProductApiItem = {
 
 type ProductSortType = 'LATEST' | 'BEST'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 
 const productCategories = ['전체', '식품', '생활', '가전', '뷰티·패션', '도서']
 

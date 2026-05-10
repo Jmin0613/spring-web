@@ -130,7 +130,7 @@ type MemberInfo = {
 
 type ProductDetailTab = 'detail' | 'review' | 'inquiry' // 상품 상세페이지 탭은 이 세가지만 사용하겠다.
 
-const API_BASE_URL = 'http://localhost:8080' // 서버 주소
+const API_BASE_URL = '/api' // 서버 주소
 const PAGE_SIZE = 10 // 페이지 크기. 한 페이지당 개수.
 
 function formatPrice(price: number) {

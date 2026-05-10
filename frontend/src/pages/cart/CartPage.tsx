@@ -4,7 +4,7 @@ import SiteHeader from '../../components/SiteHeader.tsx'
 import './CartPage.css'
 import { useNavigate } from 'react-router-dom'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 
 type CartItem = {
     cartItemId: number

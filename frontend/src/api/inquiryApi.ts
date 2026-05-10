@@ -6,7 +6,7 @@ import type { ProductInquiryListItem } from '../types/inquiry'
 // 이렇게 타입을 정해두면, 코드를 짤 때 오타를 내거나 잘못된 데이터를 넣으려고 하면
 // 에디터가 즉시 빩나 줄로 경고를 줌. 사고를 미리 막아주는 안전장치!!!
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 // 백엔드 서버가 살고 있는 집 주소
 // 모든 API 요청의 앞부분에 붙을 공통 주소임. 지금은 localhost8080에서 돌아가고있음.
 

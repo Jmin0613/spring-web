@@ -5,7 +5,7 @@ import * as PortOne from '@portone/browser-sdk/v2'
 import SiteHeader from '../../components/SiteHeader.tsx'
 import './OrderSheetPage.css'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 const ORDER_SHEET_REDIRECT_STATE_KEY = 'orderSheetRedirectState'
 
 type CartItem = {

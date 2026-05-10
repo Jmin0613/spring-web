@@ -11,7 +11,7 @@ import {
 } from '../../../api/adminOrderApi.ts'
 import './AdminOrderPage.css'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_BASE_URL = '/api'
 const ITEMS_PER_PAGE = 10
 
 // 관리자인지 아닌지 확인용도
