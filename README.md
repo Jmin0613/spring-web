@@ -42,14 +42,25 @@ WAT은 일반 상품 구매와 핫딜 상품 구매를 분리하여, 각 구매 
   일반 상품 구매는 MySQL Pessimistic Lock을 사용하여 재고 정합성을 보장했습니다.
   구매 요청이 들어오면 상품 row에 lock을 걸고, 현재 재고와 상품 상태를 확인한 뒤 주문 데이터를 생성합니다.
 
+  📌 코드 확인: [ProductService](src/main/java/demo/demo_spring/product/service/ProductService.java), 
+  [OrderService](src/main/java/demo/demo_spring/order/service/OrderService.java), 
+  [PaymentService](src/main/java/demo/demo_spring/payment/service/PaymentService.java)
+
   #### 2. 핫딜상품 구매 :
   핫딜 상품 구매는 Redis Lua Script를 사용하여 재고를 선점하였습니다. 
   Redis 재고 선점에 성공한 경우에만 Orders / OrderItem / Payment 데이터를 생성하고,
-  재고 선점에 실패하면 주문 데이터는 생성하지 않고 실패 응답을 반환합니다.
+  재고 선점에 실패하면 주문 데이터는 생성하지 않고 실패 응답을 반환합니다. 
+
+  📌 코드 확인: [HotDealService](src/main/java/demo/demo_spring/hotdeal/service/HotDealService.java), 
+  [HotDealRedisStockService](src/main/java/demo/demo_spring/hotdeal/service/HotDealRedisStockService.java), 
+  [PaymentService](src/main/java/demo/demo_spring/payment/service/PaymentService.java)
 
   #### 3. 핫딜 시작 알림 :
   핫딜 시작 알림은 RabbitMQ를 이용해서 비동기적으로 처리했습니다.
   알림 발행 로직과 알림 저장 로직을 분리하여, 알림 처리 지연이 주요 요청 흐름에 영향을 주지 않는 구조로 구현했습니다.
+
+  📌 코드 확인: [NotificationService](src/main/java/demo/demo_spring/notification/service/NotificationService.java), 
+  [HotDealService](src/main/java/demo/demo_spring/hotdeal/service/HotDealService.java)
 </details>
 
 ## 4. 기술적 의사결정
@@ -92,12 +103,16 @@ Lua Script를 이용하면 Redis 내부에서 조회/검증/차감 일련의 과
 - 회원가입 시 비밀번호와 휴대폰 번호에 정규식 패턴 검증을 적용하여, 잘못된 형식의 입력값이 저장되지 않도록 제한했습니다.
 - 로그인 성공 시, 세션에 사용자 정보를 저장하여 로그인 상태를 유지시켰습니다.
 - 관리자 기능은 회원가입 단계에서 분리하지 않고, 로그인 이후 관리자 권한 확인을 통해 접근을 제한했습니다.
-   📌 코드 확인: `member`, `interceptor`
-  
+
+📌 코드 확인: [MemberService](src/main/java/demo/demo_spring/member/service/MemberService.java), 
+[MemberController](src/main/java/demo/demo_spring/member/controller/MemberController.java)
+
 #### 2. 사용자용 상품 조회
 - 일반 상품과 핫딜 상품을 분리하여 조회할 수 있도록 구현했습니다.
 - 일반 상품은 목록은 최신순을 기본값으로 제공하고, 구매순 정렬 옵션을 추가했습니다.
-  📌 코드 확인: `product`
+
+📌 코드 확인: [ProductService](src/main/java/demo/demo_spring/product/service/ProductService.java), 
+[HotDealService](src/main/java/demo/demo_spring/hotdeal/service/HotDealService.java)
 
 #### 3. 사용자용 장바구니/찜/리뷰/문의
 - 장바구니는 로그인 회원의 세션 정보를 기준으로 상품담기, 수량 변경, 단건 삭제, 전체 삭제 기능을 구현했습니다.
@@ -106,24 +121,34 @@ Lua Script를 이용하면 Redis 내부에서 조회/검증/차감 일련의 과
 - 찜기능은 토글 방식으로 구현하여, 이미 찜한 상품은 다시 요청하면 찜이 취소되고 상품의 찜 개수도 함께 갱신되도록 처리했습니다.
 - 리뷰는 구매한 주문상품('OrderItem')에 대해서만 작성할 수 있도록 검증하고, 하나의 주문상품에 중복 리뷰가 작성되지 않도록 제한했습니다.
 - 상품 문의는 작성자 본인만 수정/삭제할 수 있도록 검증하고, 비밀글은 작성자 또는 관리자만 상세조회할 수 있도록 권한을 분리했습니다.
-  📌 코드 확인: `cart`, `wishlist`, `review`, `productInquiry`
+
+📌 코드 확인: [CartService](src/main/java/demo/demo_spring/cart/service/CartService.java), 
+[WishlistService](src/main/java/demo/demo_spring/wishlist/service/WishlistService.java), 
+[ReviewService](src/main/java/demo/demo_spring/review/service/ReviewService.java), 
+[ProductInquiryService](src/main/java/demo/demo_spring/productInquiry/service/ProductInquiryService.java)
 
 #### 4. 관리자용 상품 및 핫딜 등록/수정/삭제
 - 관리자는 일반상품을 등록/수정/삭제할 수 있으며, 상품 상태를 변경할 수 있도록 구현했습니다.
 - 관리자는 핫딜을 등록/수정/삭제할수 있고, 삭제 시 남은 핫딜 재고를 원상품 재고로 반환하도록 처리했습니다.
 - 핫딜 운영 중 문제가 발생할 경우를 대비해 긴급 중단(`STOPPED`)과 재개 기능을 추가하여, 운영자가 핫딜 상태를 직접 제어할 수 있도록 구현했습니다.
-  📌 코드 확인: `product`, `hotdeal`
-  
+
+📌 코드 확인: [ProductService](src/main/java/demo/demo_spring/product/service/ProductService.java), 
+[HotDealService](src/main/java/demo/demo_spring/hotdeal/service/HotDealService.java)
+
 #### 5. 관리자용 문의 답변
 - 문의 답변 등록 시 로그인 회원이 관리자 권한을 가진 사용자인지 검증하도록 처리했습니다.
 - 이미 답변 완료된 문의에는 다시 답변할 수 없도록 `WAITING` 상태에서만 답변 등록이 가능하게 제한했습니다.
 - 답변이 등록되면 문의 작성자에게 답변 완료 알림을 생성하여, 사용자 알림 흐름과 연결되도록 처리했습니다.
-  📌 코드 확인: `productInquiry`, `notification`
+
+📌 코드 확인: [ProductInquiryService](src/main/java/demo/demo_spring/productInquiry/service/ProductInquiryService.java), 
+[NotificationService](src/main/java/demo/demo_spring/notification/service/NotificationService.java)
 
 #### 6. 관리자용 주문, 배송 관리
 - 배송 상태는 `READY → IN_DELIVERY → DELIVERED` 순서로 변경되도록 제한하여, 잘못된 배송 상태 변경을 막았습니다.
 - 같은 배송 상태로 변경 요청이 들어온 경우에는 중복 변경 없이 그대로 반환하도록 처리했습니다.
-  📌 코드 확인: `order`, `payment`
+
+📌 코드 확인: [OrderService](src/main/java/demo/demo_spring/order/service/OrderService.java), 
+[PaymentService](src/main/java/demo/demo_spring/payment/service/PaymentService.java)
   
 ## 6. 시스템 설계
 ### ERD
@@ -739,8 +764,37 @@ JVM 튜닝은 현재 로컬 Docker 테스크 환경에서 개선 효과가 확�
 재인증 상태가 오래 유지될 경우 뒤로가기 또는 URL 직접 입력으로 변경 페이지에 재접근할 수 있는 문제가 있습니다.
 - 추후 재인증 상태를 일회성 토큰처럼 짧게 사용하고, 회원정보 변경 페이지 진입 또는 일정 시간 경과 후 제거하는 방식으로 개선할 예정입니다.
 
-## 9. 배포주소
-- aws 배포 후 추가 예정
+## 9. 배포 및 시연
+
+### 배포 주소
+- 배포 환경: AWS EC2 Ubuntu + Docker Compose
+- 배포 구성: Frontend, Backend, MySQL, Redis, RabbitMQ
+- 배포 URL: http://52.78.246.154
+
+>테스트용 관리자 계정
+> 
+> ID : admin 
+> 
+> PASSWORD : AdminPassword1234!
+
+>테스트용 회원 계정
+>
+> ID : user1
+>
+> PASSWORD : UserPassword1234!
+
+### 시연 영상
+[WAT 시연 영상 보기](영상_링크)
+
+### 주요 UI
+
+#### 1. 메인 페이지
+
+#### 2. 알림
+
+#### 3. 리뷰 페이지
+
+#### 4. PortOne 결제창
 
 ## 10. 회고록/블로그
 
