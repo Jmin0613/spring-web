@@ -784,6 +784,7 @@ JVM 튜닝은 현재 로컬 Docker 테스크 환경에서 개선 효과가 확�
 > PASSWORD : UserPassword1234!
 
 ### 주요 UI
+###### 상품 이미지 및 영상 BGM은 pixabay와 무료 BGM을 사용하였습니다.
 
 #### 1. 메인 페이지
 <details>
@@ -814,7 +815,8 @@ JVM 튜닝은 현재 로컬 Docker 테스크 환경에서 개선 효과가 확�
 </details>
 
 ### 시연 영상
-[WAT 시연 영상 보기](영상_링크)
+
+[![WAT 시연 영상](https://youtu.be/I02NP2FhcjE)](https://youtu.be/I02NP2FhcjE)
 
 ## 10. 회고록/블로그
 
