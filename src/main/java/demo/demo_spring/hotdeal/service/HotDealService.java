@@ -13,6 +13,7 @@ import demo.demo_spring.order.dto.DeliveryInfoRequest;
 import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.product.domain.Product;
 import demo.demo_spring.product.repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,24 +24,15 @@ import static demo.demo_spring.hotdeal.domain.HotDealStatus.*;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class HotDealService {
-    //Repository 주입 + DI
+
     private final HotDealRepository hotDealRepository;
     private final ProductRepository productRepository;
     private final OrderService orderService;
     private final MemberService memberService;
     private final HotDealRedisStockService hotDealRedisStockService;
     private final HotDealAlertSubscriptionRepository hotDealAlertSubscriptionRepository;
-
-    public HotDealService(HotDealRepository hotDealrepository,
-                          ProductRepository productRepository, OrderService orderService, MemberService memberService, HotDealRedisStockService hotDealRedisStockService, HotDealAlertSubscriptionRepository hotDealAlertSubscriptionRepository){
-        this.hotDealRepository = hotDealrepository;
-        this.productRepository = productRepository;
-        this.orderService = orderService;
-        this.memberService = memberService;
-        this.hotDealRedisStockService = hotDealRedisStockService;
-        this.hotDealAlertSubscriptionRepository = hotDealAlertSubscriptionRepository;
-    }
 
     // 핫딜 등록
     public Long create(HotDealCreateRequest request){
@@ -72,7 +64,6 @@ public class HotDealService {
                 request.getStartTime(), request.getEndTime()
         );
 
-        //save안해도 됨 -> jpa 더티체킹
     }
 
     // 관리자 긴급 중단
@@ -105,7 +96,7 @@ public class HotDealService {
         return hotDealRepository.findAll() // List<HotDeal>
                 .stream()
                 .peek(h -> h.refreshStatus(now)) //조회할 때 현재 시간 기준으로 상태 확인
-                .map(AdminHotDealListResponse::fromEntity) //Stream<DTO>
+                .map(h -> AdminHotDealListResponse.fromEntity(h, getCurrentHotDealStock(h))) //Stream<DTO>
                 .toList(); //List<DTO>
     }
     // 관계자 핫딜 단건 조회
@@ -114,7 +105,8 @@ public class HotDealService {
         HotDeal hotDeal = hotDealRepository.findById(id)
                 .orElseThrow(()->new IllegalStateException("해당하는 핫딜이 없습니다."));
         hotDeal.refreshStatus(now); //조회할 때 현재 시간 기준으로 상태 확인
-        return AdminHotDealDetailResponse.fromEntity(hotDeal);
+
+        return AdminHotDealDetailResponse.fromEntity(hotDeal, getCurrentHotDealStock(hotDeal));
     }
 
     // 사용자 핫딜 전체 조회
@@ -152,7 +144,20 @@ public class HotDealService {
                     .existsByMemberIdAndHotDealId(memberId, id);
         }
 
-        return HotDealDetailResponse.fromEntity(hotDeal, alertSubscribed);
+        return HotDealDetailResponse.fromEntity(hotDeal, alertSubscribed, getCurrentHotDealStock(hotDeal));
+    }
+
+    // 핫딜 상세 Redis 재고
+    private int getCurrentHotDealStock(HotDeal hotDeal){
+        if(hotDeal.getStatus() == HotDealStatus.ON_SALE || hotDeal.getStatus() == HotDealStatus.STOPPED){
+            try{
+                return hotDealRedisStockService.getStock(hotDeal.getId());
+            }catch (IllegalStateException e){
+                return hotDeal.getHotDealStock();
+            }
+        }
+
+        return hotDeal.getHotDealStock();
     }
 
     // 지금 buy쪽이 파라미터가 너무 많은데, 나중에 DTO자체를 서비스로 넘기는 구조 생각해보기. (유지보수? 확장 가능할 듯)

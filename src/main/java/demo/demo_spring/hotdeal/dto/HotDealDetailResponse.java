@@ -29,26 +29,25 @@ public class HotDealDetailResponse {
     private boolean alertSubscribed; // 알림 신청 여부
 
     //HotDeal 생성자 -> fromEntity()가 내부에서 호출할 생성자
-    private HotDealDetailResponse(HotDeal hotDeal, boolean alertSubscribed){
+    private HotDealDetailResponse(HotDeal hotDeal, boolean alertSubscribed, int currentHotDealStock){
         this.hotDealId = hotDeal.getId();
         this.productId = hotDeal.getProduct().getId();
-        // 응답DTO는 연관관계를 따라가서 필요한 값 꺼내올 수 있음.
         this.productName = hotDeal.getProduct().getName(); this.imageUrl = hotDeal.getProduct().getImageUrl();
         this.originalPrice = hotDeal.getProduct().getPrice(); this.hotDealPrice = hotDeal.getHotDealPrice();
         this.startTime = hotDeal.getStartTime(); this.endTime = hotDeal.getEndTime();
         this.status = hotDeal.getStatus();
-        this.description = hotDeal.getProduct().getDescription(); this.hotDealStock = hotDeal.getHotDealStock();
+        this.description = hotDeal.getProduct().getDescription();
+        this.hotDealStock = currentHotDealStock;
         this.discountRate = hotDeal.calculateDiscountRate();
         this.alertSubscribed = alertSubscribed;
     }
 
     //엔티티 -> DTO
-    public static HotDealDetailResponse fromEntity(HotDeal hotDeal, boolean alertSubscribed) {
-        return new HotDealDetailResponse(hotDeal, alertSubscribed);
+    public static HotDealDetailResponse fromEntity(HotDeal hotDeal, boolean alertSubscribed, int currentHotDealStock) {
+        return new HotDealDetailResponse(hotDeal, alertSubscribed, currentHotDealStock);
     }
-
     public static HotDealDetailResponse fromEntity(HotDeal hotDeal) {
-        return new HotDealDetailResponse(hotDeal, false);
+        return new HotDealDetailResponse(hotDeal, false, hotDeal.getHotDealStock());
     }
 
 }

@@ -28,11 +28,11 @@ public class AdminHotDealListResponse {
     private HotDealStatus status;
 
     // hotDeal 생성자 -> fromEntity()가 내부에서 호출할 생성자
-    private AdminHotDealListResponse(HotDeal hotDeal){
+    private AdminHotDealListResponse(HotDeal hotDeal, int currentHotDealStock){
         this.hotDealId = hotDeal.getId(); this.productId = hotDeal.getProduct().getId();
         this.productName = hotDeal.getProduct().getName();
         this.originalPrice = hotDeal.getOriginalPrice(); this.hotDealPrice = hotDeal.getHotDealPrice();
-        this.hotDealStock = hotDeal.getHotDealStock();
+        this.hotDealStock = currentHotDealStock;
         this.startTime = hotDeal.getStartTime(); this.endTime = hotDeal.getEndTime();
         this.createdAt = hotDeal.getCreatedAt();
         this.status = hotDeal.getStatus();
@@ -42,7 +42,10 @@ public class AdminHotDealListResponse {
     }
 
     //Entity -> DTO 변환 메서드
+    public static AdminHotDealListResponse fromEntity(HotDeal hotDeal, int currentHotDealStock){
+        return new AdminHotDealListResponse(hotDeal, currentHotDealStock);
+    }
     public static AdminHotDealListResponse fromEntity(HotDeal hotDeal){
-        return new AdminHotDealListResponse(hotDeal);
+        return new AdminHotDealListResponse(hotDeal, hotDeal.getHotDealStock());
     }
 }

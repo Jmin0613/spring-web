@@ -783,19 +783,38 @@ JVM 튜닝은 현재 로컬 Docker 테스크 환경에서 개선 효과가 확�
 >
 > PASSWORD : UserPassword1234!
 
-### 시연 영상
-[WAT 시연 영상 보기](영상_링크)
-
-
 ### 주요 UI
 
 #### 1. 메인 페이지
+<details>
+<summary>메인 페이지 화면 펼치기</summary>
+
+![main_page](./docs/ui/main.png)
+</details>
 
 #### 2. 알림
+<details>
+<summary>알림 화면 펼치기</summary>
+
+![notification_page](./docs/ui/notifcation_alert_inquiry.png)
+</details>
 
 #### 3. 리뷰 페이지
+<details>
+<summary>리뷰 화면 펼치기</summary>
+
+![review_page](./docs/ui/review.png)
+</details>
 
 #### 4. PortOne 결제창
+<details>
+<summary>PortOne 결제 화면 펼지기</summary>
+
+![PortOne_payment_page](./docs/ui/portone_payment.png)
+</details>
+
+### 시연 영상
+[WAT 시연 영상 보기](영상_링크)
 
 ## 10. 회고록/블로그
 
