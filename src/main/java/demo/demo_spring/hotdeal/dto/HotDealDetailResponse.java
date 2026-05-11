@@ -15,6 +15,7 @@ public class HotDealDetailResponse {
 
     private String productName;
     private String imageUrl; //대표 이미지
+    private String detailImageUrl; // 상세 설명 이미지
     private String description;
 
     private int originalPrice; //원가격
@@ -40,6 +41,7 @@ public class HotDealDetailResponse {
         this.hotDealStock = currentHotDealStock;
         this.discountRate = hotDeal.calculateDiscountRate();
         this.alertSubscribed = alertSubscribed;
+        this.detailImageUrl = hotDeal.getProduct().getDetailImageUrl();
     }
 
     //엔티티 -> DTO

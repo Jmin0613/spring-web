@@ -18,6 +18,7 @@ type HotDealDetail = {
     startTime: string
     status: string
     alertSubscribed: boolean
+    detailImageUrl: string | null
 }
 
 type HotDealAlertToggleResponse = {
@@ -677,14 +678,22 @@ export default function HotDealDetailPage() {
 
                     {activeTab === 'detail' && (
                         <div className="hotdeal-detail-content-wrap">
-                            <div className="hotdeal-detail-placeholder-image-box">
-                                <div className="hotdeal-detail-placeholder-title">
-                                    상세 설명 이미지
+                            {detail.detailImageUrl ? (
+                                <div className="hotdeal-detail-detail-image-box">
+                                    <img
+                                        src={detail.detailImageUrl}
+                                        alt={`${detail.productName} 상세 이미지`}
+                                        className="hotdeal-detail-detail-image"
+                                    />
                                 </div>
-                                <div className="hotdeal-detail-placeholder-subtitle">
-                                    리팩토링 전까지 임시 플레이스홀더
+                            ) : (
+                                <div className="hotdeal-detail-placeholder-image-box">
+                                    <div className="hotdeal-detail-placeholder-title">상세 이미지 준비 중</div>
+                                    <div className="hotdeal-detail-placeholder-subtitle">
+                                        상품의 상세 이미지가 아직 등록되지 않았습니다.
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div className="hotdeal-detail-text-box">
                                 <h2 className="hotdeal-detail-section-title">상품 설명</h2>

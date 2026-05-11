@@ -369,6 +369,22 @@
     gap: 12px;
 }
 
+.hotdeal-detail-detail-image-box {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    border-radius: 24px;
+    border: 1px solid #ececec;
+    background-color: #ffffff;
+    overflow: hidden;
+}
+
+.hotdeal-detail-detail-image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
 .hotdeal-detail-placeholder-title {
     color: #111827;
     font-size: 28px;
