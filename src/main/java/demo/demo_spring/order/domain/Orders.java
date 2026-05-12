@@ -16,21 +16,20 @@ import java.util.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class Orders {
-    /*  Orders 역할 :
-           PENDING_PAYMENT 주문 생성
-           결제 성공 시 PAID 확정
-           결제 만료 시 EXPIRED 처리
-           결제 완료 후 취소 시 CANCELED 처리
+    /*
+    Orders 역할 :
+       PENDING_PAYMENT 주문 생성
+       결제 성공 시 PAID 확정
+       결제 만료 시 EXPIRED 처리
+       결제 완료 후 취소 시 CANCELED 처리
     */
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; //PK. 주문번호(관계자용)
-    // private Long orderNum; // 주문번호(주문자/회원용) -> 시간 이용해서 만들기. ---> 나중에 별도규칙 만들어 추가하기.
+    private Long id; // 주문번호
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
-    // DB테이블에서 member_id라는 컬럼을 통해 회원(주문자) 테이블과 연결
     private Member member; //db -> member_id
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -48,11 +47,11 @@ public class Orders {
     @Enumerated(EnumType.STRING)
     private DeliveryStatus deliveryStatus;
 
-    @Embedded //@Embeddable로 정의된 객체 사용한다 선언
+    @Embedded //@Embeddable로 정의된 객체 사용 선언
     private DeliveryInfo deliveryInfo;
 
     @Enumerated(EnumType.STRING)
-    private PaymentMethod paymentMethod; //결제 수단
+    private PaymentMethod paymentMethod;
 
 
     private Orders(Member member, DeliveryInfo deliveryInfo, PaymentMethod paymentMethod,
@@ -81,7 +80,7 @@ public class Orders {
         this.paymentExpiresAt = paymentExpiresAt;
     }
 
-    // (기존) 주문서 생성 메서드 -> 나중에 흐름 완성하면 삭제하기.
+    // 주문서 생성 메서드 -> 레거시
     public static Orders createOrder(Member member, List<OrderItem> orderItems,
                                      DeliveryInfo deliveryInfo, PaymentMethod paymentMethod){
         if(orderItems == null || orderItems.isEmpty()){
@@ -128,17 +127,16 @@ public class Orders {
             order.addOrderItem(orderItem);
         }
 
-        // 결제 대기 단계에서 재고 선점
+        // 결제 대기 단계 재고 선점
         // PRODUCT -> DB에서 재고 선점.
         // HOTDEAL -> PaymentService에서 Redis로 재고 선점.
         for(OrderItem orderItem : order.orderItems){
             orderItem.reserveStock();
         }
 
-        // 총 결제금액 게산
         order.calculateTotalPrice();
 
-        // pending 주문 생성한 것 반환
+        // pending 주문 생성 반환
         return order;
     }
 

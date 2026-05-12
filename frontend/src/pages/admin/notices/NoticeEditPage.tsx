@@ -7,7 +7,6 @@ import './NoticeFormPage.css'
 
 const API_BASE_URL = '/api'
 
-// 관리자인지 아닌지 확인용도
 type MemberInfo = {
     id: number
     loginId?: string
@@ -16,7 +15,6 @@ type MemberInfo = {
     role?: 'ADMIN' | 'USER'
 }
 
-// 에러 메시지 꺼내기
 function getErrorMessage(error: unknown) {
     if (axios.isAxiosError(error)) {
         const responseData = error.response?.data
@@ -40,30 +38,21 @@ function getErrorMessage(error: unknown) {
 
 export default function NoticeEditPage() {
     const { id } = useParams()
-    // url에서 수정할 공지 id 가져오기
 
     const navigate = useNavigate()
-    // 수정 성공 후 상세 페이지로 이동할 때 사용
 
     const [checkingAdmin, setCheckingAdmin] = useState(true)
-    // 관리자 권한 확인 중인지 관리
 
     const [isAdmin, setIsAdmin] = useState(false)
-    // 관리자 여부
 
     const [loading, setLoading] = useState(true)
-    // 기존 공지 데이터를 불러오는 중인지 관리
 
     const [submitting, setSubmitting] = useState(false)
-    // 수정 요청 중인지 관리. 중복 클릭 방지용.
 
     const [title, setTitle] = useState('')
-    // 수정할 공지 제목
 
     const [content, setContent] = useState('')
-    // 수정할 공지 내용
 
-    // 관리자 권한 확인
     useEffect(() => {
         async function checkAdmin() {
             try {
@@ -85,7 +74,6 @@ export default function NoticeEditPage() {
         void checkAdmin()
     }, [])
 
-    // 기존 공지 정보 불러오기
     useEffect(() => {
         async function loadNotice() {
             if (!id) {
@@ -110,7 +98,6 @@ export default function NoticeEditPage() {
         void loadNotice()
     }, [id, navigate])
 
-    // 공지 수정
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
 

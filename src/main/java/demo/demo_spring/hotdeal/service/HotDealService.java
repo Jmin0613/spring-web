@@ -36,11 +36,9 @@ public class HotDealService {
 
     // 핫딜 등록
     public Long create(HotDealCreateRequest request){
-        // productId로 Product조회 -> 없으면 예외
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(()-> new IllegalStateException("등록하려는 핫딜의 원본 상품이 없습니다."));
 
-        // HotDeal.createHotDeal() 호출
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         HotDeal hotDeal = HotDeal.createHotDeal(
                 product, request.getHotDealPrice(), request.getHotDealStock(),
@@ -54,11 +52,9 @@ public class HotDealService {
 
     // 핫딜 수정
     public void update(Long id, HotDealUpdateRequest request) {
-        // hotDealId로 HotDeal조회 -> 없으면 예외
         HotDeal hotDeal = hotDealRepository.findById(id)
                 .orElseThrow(()-> new IllegalStateException("해당하는 핫딜이 없습니다."));
 
-        // HotDeal.updateHotDeal() 호출
         hotDeal.updateHotDeal(
                 request.getHotDealPrice(), request.getHotDealStock(),
                 request.getStartTime(), request.getEndTime()
@@ -83,27 +79,30 @@ public class HotDealService {
 
     // 핫딜 삭제
     public void delete(Long id){
-        // 삭제 전 핫딜 상품 존재 여부 확인
         HotDeal hotDeal = hotDealRepository.findById(id)
-                .orElseThrow(()-> new IllegalStateException("해당하는 핫딜이 없습니다.")); //없으면 예외
+                .orElseThrow(()-> new IllegalStateException("해당하는 핫딜이 없습니다."));
+
         hotDeal.returnRemainingStockToProduct(); // 삭제 전 남은 재고 반환
-        hotDealRepository.delete(hotDeal); // 삭제
+        hotDealRepository.delete(hotDeal);
     }
 
     // 관계자 핫딜 전체 조회
     public List<AdminHotDealListResponse> adminFindAllHotDeal(){
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-        return hotDealRepository.findAll() // List<HotDeal>
+
+        return hotDealRepository.findAll()
                 .stream()
-                .peek(h -> h.refreshStatus(now)) //조회할 때 현재 시간 기준으로 상태 확인
-                .map(h -> AdminHotDealListResponse.fromEntity(h, getCurrentHotDealStock(h))) //Stream<DTO>
-                .toList(); //List<DTO>
+                .peek(h -> h.refreshStatus(now))
+                .map(h -> AdminHotDealListResponse.fromEntity(h, getCurrentHotDealStock(h)))
+                .toList();
     }
     // 관계자 핫딜 단건 조회
     public AdminHotDealDetailResponse adminFindHotDeal(Long id){
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+
         HotDeal hotDeal = hotDealRepository.findById(id)
                 .orElseThrow(()->new IllegalStateException("해당하는 핫딜이 없습니다."));
+
         hotDeal.refreshStatus(now); //조회할 때 현재 시간 기준으로 상태 확인
 
         return AdminHotDealDetailResponse.fromEntity(hotDeal, getCurrentHotDealStock(hotDeal));
@@ -112,13 +111,14 @@ public class HotDealService {
     // 사용자 핫딜 전체 조회
     public List<HotDealListResponse> findAllHotDeal(){
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-        return hotDealRepository.findAll() // List<HotDeal>
+
+        return hotDealRepository.findAll()
                 .stream()
                 .peek(h -> h.refreshStatus(now)) //조회할 때 현재 시간 기준으로 상태 확인
                 .filter(hotDeal -> hotDeal.getStatus() == ON_SALE
                         || hotDeal.getStatus() == READY)
-                .map(HotDealListResponse::fromEntity) //Stream<DTO>
-                .toList(); //List<DTO>
+                .map(HotDealListResponse::fromEntity)
+                .toList();
     }
     // 사용자 핫딜 단건 조회
     public HotDealDetailResponse findHotDeal(Long id, Long memberId){
@@ -160,20 +160,18 @@ public class HotDealService {
         return hotDeal.getHotDealStock();
     }
 
-    // 지금 buy쪽이 파라미터가 너무 많은데, 나중에 DTO자체를 서비스로 넘기는 구조 생각해보기. (유지보수? 확장 가능할 듯)
+    // 지금 buy쪽이 파라미터가 너무 많은데, 나중에 DTO자체를 서비스로 넘기는 구조 생각해보기. (유지보수, 확장 가능할 듯)
     public Long buy(Long id, Integer quantity, Long memberId,
                     DeliveryInfoRequest deliveryInfoRequest, PaymentMethod paymentMethod){
-        // 회원 조회
         Member member = memberService.getMember(memberId);
 
-        // 수량 체크
         if(quantity == null){
             throw new IllegalStateException("구매 수량이 누락되었습니다.");
         }
 
-        // hoDeal 일반 조회
         HotDeal hotDeal = hotDealRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("해당하는 핫딜이 없습니다.")); //없으면 예외 던지기
+                .orElseThrow(() -> new IllegalStateException("해당하는 핫딜이 없습니다."));
+
         // 판매 상태 확인
         if(hotDeal.getStatus() != HotDealStatus.ON_SALE){
             throw new IllegalStateException("현재 판매 중인 핫딜이 아닙니다.");
@@ -212,7 +210,6 @@ public class HotDealService {
         // 변경 전 상태 저장
         HotDealStatus beforeStatus = hotDeal.getStatus();
 
-        // hotDeal.refreshStatus(now) 호출
         hotDeal.refreshStatus(now);
 
         // 상태 변경 확인
@@ -228,13 +225,15 @@ public class HotDealService {
         if(beforeStatus == HotDealStatus.ON_SALE && afterStatus == END){
             // Redis에서 남은 재고 수량 읽어오기
             int remainingStock = hotDealRedisStockService.getStock(hotDeal.getId());
+
             // HotDeal 재고에 반영
             hotDeal.syncHotDealStock(remainingStock);
+
             // 원 상품에 HotDeal 재고 반환
             hotDeal.returnRemainingStockToProduct();
+
             // Redis key 삭제
             hotDealRedisStockService.deleteStock(hotDeal.getId());
         }
-
     }
 }

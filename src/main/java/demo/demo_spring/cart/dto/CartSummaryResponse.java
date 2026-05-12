@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 public class CartSummaryResponse {
     // 가격 요약 전용 DTO
 
-    private int totalQuantity; //장바구니 담긴 총 상품 개수
-    private int totalProductPrice; // 장바구니 담긴 총 상품 가격
-    private int discountAmount; //할인 금액
-    private int shippingFee; //배송비
-    private int finalPrice; //최종 결제금액
+    private int totalQuantity;
+    private int totalProductPrice;
+    private int discountAmount;
+    private int shippingFee;
+    private int finalPrice;
 
     private CartSummaryResponse(Cart cart) {
         this.totalQuantity = cart.getCartItems()

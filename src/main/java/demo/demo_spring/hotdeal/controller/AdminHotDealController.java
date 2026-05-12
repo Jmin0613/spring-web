@@ -6,22 +6,21 @@ import demo.demo_spring.hotdeal.dto.HotDealCreateRequest;
 import demo.demo_spring.hotdeal.dto.HotDealUpdateRequest;
 import demo.demo_spring.hotdeal.service.HotDealService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
 @RequestMapping("/admin/hotdeals")
+@RequiredArgsConstructor
 public class AdminHotDealController {
-    //생성자주입 + di
+
     private final HotDealService hotDealService;
-    public AdminHotDealController(HotDealService hotDealService){
-        this.hotDealService = hotDealService;
-    }
 
     // 등록
     @PostMapping
     public Long create(@RequestBody @Valid HotDealCreateRequest request){
-        return hotDealService.create(request); //등록한 핫딜의 id값 반환
+        return hotDealService.create(request);
     }
 
     // 수정
@@ -52,7 +51,7 @@ public class AdminHotDealController {
         return hotDealService.adminFindAllHotDeal();
     }
 
-    // 단건 조회 -> 투머치 느낌. 사용x
+    // 단건 조회
     @GetMapping("/{hotDealId}")
     public AdminHotDealDetailResponse adminFindHotDeal(@PathVariable Long hotDealId){
         return hotDealService.adminFindHotDeal(hotDealId);

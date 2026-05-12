@@ -4,6 +4,7 @@ import demo.demo_spring.hotdeal.domain.HotDealStatus;
 import demo.demo_spring.hotdeal.repository.HotDealRepository;
 
 import demo.demo_spring.hotdeal.service.HotDealService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Component
 @Transactional
+@RequiredArgsConstructor
 public class HotDealStatusScheduler {
     // 핫딜 상태 변경 스케쥴러
 
@@ -20,11 +22,6 @@ public class HotDealStatusScheduler {
 
     private final HotDealRepository hotDealRepository;
     private final HotDealService hotDealService;
-
-    public HotDealStatusScheduler(HotDealRepository hotDealRepository, HotDealService hotDealService) {
-        this.hotDealRepository = hotDealRepository;
-        this.hotDealService = hotDealService;
-    }
 
     @Scheduled(fixedRate = 60000) //60초마다 실행.
     public void refreshHotDealStatus() {

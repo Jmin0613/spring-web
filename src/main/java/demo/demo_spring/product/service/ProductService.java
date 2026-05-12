@@ -11,6 +11,7 @@ import demo.demo_spring.product.domain.ProductSortType;
 import demo.demo_spring.product.domain.ProductStatus;
 import demo.demo_spring.product.dto.*;
 import demo.demo_spring.product.repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,35 +19,29 @@ import java.util.*;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ProductService {
 
-    //repository 주입 + DI
     private final ProductRepository productRepository;
     private final OrderService orderService;
     private final MemberService memberService;
 
-    public ProductService(ProductRepository productRepository, OrderService orderService, MemberService memberService){ //외부에서 받은 Repository를
-        this.productRepository = productRepository; //이 클래스에서 사용하기 위해 저장
-        this.orderService = orderService;
-        this.memberService = memberService;
-    }
-
-
     // (관리자) 등록
     public Long create(ProductCreateRequest request){
-        Product product = Product.createProduct( //Product생성 메서드 호출
+        Product product = Product.createProduct(
                 request.getName(), request.getDescription(), request.getImageUrl(), request.getDetailImageUrl(),
                 request.getPrice(), request.getStock(), request.getCategory(), ProductStatus.ON_SALE
         );
-        Product savedProduct = productRepository.save(product); //저장
-        return savedProduct.getId(); //저장한 상품 id 반환
+        Product savedProduct = productRepository.save(product);
+        return savedProduct.getId();
     }
 
     // (관리자) 수정
     public void update(Long productIdd, ProductUpdateRequest request){
-        Product product = productRepository.findById(productIdd) //id로 상품 찾기
-                .orElseThrow(() -> new IllegalStateException("해당하는 상품이 없습니다.")); //없으면 예외
-        product.updateProduct( //수정할 값 넣어주기
+        Product product = productRepository.findById(productIdd)
+                .orElseThrow(() -> new IllegalStateException("해당하는 상품이 없습니다."));
+
+        product.updateProduct(
                 request.getName(), request.getDescription(), request.getImageUrl(), request.getDetailImageUrl(),
                 request.getPrice(), request.getStock(), request.getCategory(),
                 request.getStatus()
@@ -61,7 +56,6 @@ public class ProductService {
         // 변경하려는 상태
         ProductStatus targetStatus = request.getStatus();
 
-        // null체크
         if(targetStatus == null){
             throw new IllegalStateException("변경할 상품 상태를 선택해주세요.");
         }
@@ -104,16 +98,16 @@ public class ProductService {
 
     // (관리자) 전체조회
     public List<AdminProductListResponse> adminFindAllProduct(){
-        return productRepository.findAllByOrderByCreatedAtDesc() //List<Product>
-                .stream().map(AdminProductListResponse::fromEntity) //Stream<DTO>
-                .toList(); //List<DTO>
+        return productRepository.findAllByOrderByCreatedAtDesc()
+                .stream().map(AdminProductListResponse::fromEntity)
+                .toList();
     }
-    // (관리자)  단건 상세조회
+    // (관리자) 단건 상세조회
     public AdminProductDetailResponse adminFindProduct(Long productId){
         Product product = productRepository.findById(productId)
                 .orElseThrow(()->new IllegalStateException("해당하는 상품이 없습니다."));
         return AdminProductDetailResponse.fromEntity(product);
-    } // 관리자페이지 확장할떄 정렬 추가하기
+    }
 
     // (사용자) 전체조회 + 정렬 추가
     public List<ProductListResponse> findAllProduct(ProductSortType sort){
@@ -146,7 +140,6 @@ public class ProductService {
                           DeliveryInfoRequest deliveryInfoRequest, PaymentMethod paymentMethod){
         Member member = memberService.getMember(memberId);
 
-        // quantity를 Integer로 받아서 null 체크
         if(quantity == null){
             throw new IllegalStateException("구매 요청 수량이 누락되었습니다.");
         }
@@ -162,15 +155,11 @@ public class ProductService {
         product.reserveStock(quantity);
 
         //4. 구매 완료 후, 주문 생성
-        // member -> 세션에서 꺼내오기
         DeliveryInfo deliveryInfo = toDeliveryInfo(deliveryInfoRequest);
-        return orderService.createSingle( //생성된 orderId 넘겨주기
+        return orderService.createSingle(
                 member, product, quantity, product.getPrice(),
                 deliveryInfo, paymentMethod
         );
-
-        // 락 조회 : Service/Repository
-        //재고 차감 규칙 : Entity
     }
     // 배송 정보
     private DeliveryInfo toDeliveryInfo(DeliveryInfoRequest request){

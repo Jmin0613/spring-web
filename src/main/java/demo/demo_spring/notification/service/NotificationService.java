@@ -42,7 +42,6 @@ public class NotificationService {
                 Notification.createInquiryAnswerNotification(member, inquiryTitle, inquiryId, productId);
 
         Notification savedNotification = notificationRepository.save(notification);
-        // return savedNotification.getId();
     }
 
     // 핫딜 시작 알림 생성 및 발송
@@ -72,8 +71,6 @@ public class NotificationService {
             // 알림 리스트에 추가
             notifications.add(notification);
         }
-
-        // System.out.println("저장할 알림 수 = " + notifications.size());
 
         // 생성한 알림 목록 저장 (알림 전체 저장)
         notificationRepository.saveAll(notifications);
@@ -110,14 +107,13 @@ public class NotificationService {
 
         return new HotDealAlertToggleResponse(true); // 신청 완료 상태
     }
-    // 핫딜 시작 알림 신청 여부 확인
+
+    /* 핫딜 시작 알림 신청 여부 확인 */
 
     // 내 알림 조회
     public List<NotificationListResponse> findMyNotifications(Long memberId){
-        // 멤버 확인
         memberService.getMember(memberId);
 
-        // 알림 조회
         return notificationRepository.findAllByMemberIdOrderByCreatedAtDesc(memberId)
                 .stream()
                 .map(NotificationListResponse::fromEntity)
@@ -126,15 +122,13 @@ public class NotificationService {
 
     // 알림 읽기
     public void readNotification(Long notificationId, Long memberId){
-        // 멤버 조회
         memberService.getMember(memberId);
 
-        // 알림 존재 여부 + 내 알림 여부 체크
         Notification notification = notificationRepository.findByIdAndMemberId(notificationId, memberId)
                 .orElseThrow(()->new IllegalStateException("읽어들일 알림이 없습니다."));
 
         notification.markAsRead();
-    } // ---> 알림 클릭 시, 읽음처리 + 이동 정보 반환하여 상세페이지로 이동하는걸로 리팩토링
+    }
 
     // 알림 모두 읽기
     public void readAllNotifications(Long memberId){

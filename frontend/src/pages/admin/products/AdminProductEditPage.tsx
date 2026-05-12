@@ -117,22 +117,16 @@ export default function AdminProductEditPage() {
     const navigate = useNavigate()
 
     const [checkingAdmin, setCheckingAdmin] = useState(true)
-    // 관리자 권한 확인 중인지 관리
 
     const [isAdmin, setIsAdmin] = useState(false)
-    // 관리자 여부
 
     const [loading, setLoading] = useState(true)
-    // 기존 상품 정보를 불러오는 중인지 관리
 
     const [error, setError] = useState('')
-    // 기존 상품 정보 조회 실패 메세지
 
     const [submitting, setSubmitting] = useState(false)
-    // 상품 수정 요청 중인지 관리. 중복 클릭 방지용.
 
     const [uploadingTarget, setUploadingTarget] = useState<ImageUploadTarget | null>(null)
-    // 현재 업로드 중인 이미지 위치. 대표 이미지인지 상세 설명 이미지인지 구분.
 
     const [form, setForm] = useState<ProductForm>({
         name: '',
@@ -143,9 +137,7 @@ export default function AdminProductEditPage() {
         stock: '',
         category: '',
     })
-    // 상품 수정 폼 값
 
-    // 관리자 권한 확인
     useEffect(() => {
         async function checkAdmin() {
             try {
@@ -167,7 +159,6 @@ export default function AdminProductEditPage() {
         void checkAdmin()
     }, [])
 
-    // 기존 상품 정보 불러오기
     useEffect(() => {
         async function loadProduct() {
             if (!id) {
@@ -214,7 +205,6 @@ export default function AdminProductEditPage() {
     ) {
         const file = e.target.files?.[0]
 
-        // 같은 파일을 다시 선택해도 change 이벤트가 다시 발생할 수 있게 비워둠.
         e.target.value = ''
 
         if (!file) {
@@ -296,7 +286,6 @@ export default function AdminProductEditPage() {
         return true
     }
 
-    // 상품 수정
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
 

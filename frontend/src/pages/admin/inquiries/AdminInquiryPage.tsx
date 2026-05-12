@@ -15,7 +15,6 @@ import './AdminInquiryPage.css'
 const API_BASE_URL = '/api'
 const ITEMS_PER_PAGE = 10
 
-// 관리자인지 아닌지 확인용도
 type MemberInfo = {
     id: number
     loginId?: string
@@ -75,40 +74,28 @@ export default function AdminInquiryPage() {
     const navigate = useNavigate()
 
     const [checkingAdmin, setCheckingAdmin] = useState(true)
-    // 관리자 권한 확인 중인지 관리
 
     const [isAdmin, setIsAdmin] = useState(false)
-    // 관리자 여부
 
     const [inquiries, setInquiries] = useState<AdminInquiryListItem[]>([])
-    // 관리자 문의 목록 데이터
 
     const [loading, setLoading] = useState(true)
-    // 문의 목록을 불러오는 중인지 관리
 
     const [error, setError] = useState('')
-    // 문의 목록 조회 실패 메세지
 
     const [openInquiryId, setOpenInquiryId] = useState<number | null>(null)
-    // 현재 상세보기가 열려있는 문의 id
 
     const [inquiryDetailMap, setInquiryDetailMap] = useState<Record<number, AdminInquiryDetail>>({})
-    // 한 번 조회한 문의 상세 데이터를 문의 id별로 저장
 
     const [detailLoadingId, setDetailLoadingId] = useState<number | null>(null)
-    // 특정 문의 상세 정보를 불러오는 중인지 관리
 
     const [detailErrorMap, setDetailErrorMap] = useState<Record<number, string>>({})
-    // 특정 문의 상세 조회 실패 메세지 저장
 
     const [answerMap, setAnswerMap] = useState<Record<number, string>>({})
-    // 문의 id별 답변 입력값 저장
 
     const [submittingInquiryId, setSubmittingInquiryId] = useState<number | null>(null)
-    // 답변 등록 중인 문의 id. 중복 클릭 방지용.
 
     const [currentPage, setCurrentPage] = useState(1)
-    // 현재 페이지 번호
 
     const totalPages = Math.max(1, Math.ceil(inquiries.length / ITEMS_PER_PAGE))
 
@@ -123,7 +110,6 @@ export default function AdminInquiryPage() {
         }
     }, [currentPage, totalPages])
 
-    // 관리자 권한 확인
     useEffect(() => {
         async function checkAdmin() {
             try {
@@ -145,7 +131,6 @@ export default function AdminInquiryPage() {
         void checkAdmin()
     }, [])
 
-    // 관리자 문의 목록 조회
     useEffect(() => {
         async function loadInquiries() {
             try {
@@ -165,7 +150,6 @@ export default function AdminInquiryPage() {
         void loadInquiries()
     }, [])
 
-    // 문의 상세 열기/닫기
     async function handleToggleDetail(inquiryId: number) {
         if (openInquiryId === inquiryId) {
             setOpenInquiryId(null)
@@ -210,7 +194,6 @@ export default function AdminInquiryPage() {
         }
     }
 
-    // 답변 입력값 변경
     function handleChangeAnswer(inquiryId: number, value: string) {
         setAnswerMap((prev) => ({
             ...prev,
@@ -218,7 +201,6 @@ export default function AdminInquiryPage() {
         }))
     }
 
-    // 관리자 문의 답변 등록
     async function handleSubmitAnswer(detail: AdminInquiryDetail) {
         const answerContent = answerMap[detail.inquiryId]?.trim() ?? ''
 

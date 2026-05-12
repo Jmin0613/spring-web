@@ -12,14 +12,14 @@ public class HotDealListResponse {
     // 그동안과 다른점. 그동안의 응답 dto는 해당 엔티티 하나만을 바라보았다면,
     // 이번 응답dto는 hotDeal이 참조하고 있는 연관 엔티티인 Product까지 보고 꺼내와야 함.
 
-    private Long hotDealId; //핫딜 고유 id
-    private Long productId; //원본 상품 고유 id
+    private Long hotDealId;
+    private Long productId;
     private String productName;
-    private String imageUrl; //대표 이미지
+    private String imageUrl;
 
-    private int originalPrice; //원가격
-    private int hotDealPrice; //핫딜 가격
-    private int discountRate; //할인율
+    private int originalPrice;
+    private int hotDealPrice;
+    private int discountRate;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;

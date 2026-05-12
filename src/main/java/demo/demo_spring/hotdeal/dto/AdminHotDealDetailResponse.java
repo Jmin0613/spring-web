@@ -48,6 +48,7 @@ public class AdminHotDealDetailResponse {
     public static AdminHotDealDetailResponse fromEntity(HotDeal hotDeal, int currentHotDealStock) {
         return new AdminHotDealDetailResponse(hotDeal, currentHotDealStock);
     }
+    //레거시
     public static AdminHotDealDetailResponse fromEntity(HotDeal hotDeal) {
         return new AdminHotDealDetailResponse(hotDeal, hotDeal.getHotDealStock());
     }

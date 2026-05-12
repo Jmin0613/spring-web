@@ -221,25 +221,18 @@ export default function AdminHotDealCreatePage() {
     const navigate = useNavigate()
 
     const [checkingAdmin, setCheckingAdmin] = useState(true)
-    // 관리자 권한 확인 중인지 관리
 
     const [isAdmin, setIsAdmin] = useState(false)
-    // 관리자 여부
 
     const [products, setProducts] = useState<AdminProductListItem[]>([])
-    // 핫딜 원본 상품 후보 목록
 
     const [productsLoading, setProductsLoading] = useState(true)
-    // 상품 목록 조회 중인지 관리
 
     const [productsError, setProductsError] = useState('')
-    // 상품 목록 조회 실패 메세지
 
     const [submitting, setSubmitting] = useState(false)
-    // 핫딜 등록 요청 중인지 관리. 중복 클릭 방지용.
 
     const [form, setForm] = useState<HotDealForm>(() => createDefaultHotDealForm())
-    // 핫딜 등록 폼 값
 
     const availableProducts = useMemo(() => {
         return products.filter((product) => {
@@ -304,7 +297,6 @@ export default function AdminHotDealCreatePage() {
         void checkAdmin()
     }, [])
 
-    // 핫딜 원본 상품 목록 조회
     useEffect(() => {
         async function loadProducts() {
             try {

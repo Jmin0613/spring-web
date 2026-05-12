@@ -6,16 +6,15 @@ import demo.demo_spring.notice.dto.NoticeListResponse;
 import demo.demo_spring.notice.dto.NoticeUpdateRequest;
 import demo.demo_spring.notice.service.NoticeService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class AdminNoticeController {
     private final NoticeService noticeService;
-    public AdminNoticeController(NoticeService noticeService){
-        this.noticeService = noticeService;
-    }
 
     // 등록
     @PostMapping("/admin/notice")

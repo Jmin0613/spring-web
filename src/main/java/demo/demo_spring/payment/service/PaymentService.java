@@ -45,24 +45,24 @@ public class PaymentService {
     // 결제 준비하기 -> PENDING주문 만들어서 재고 선점과 PortOne에 필요 정보 넘김. 결제를 완료하는게 x.
     @Transactional
     public PaymentPrepareResponse preparePayment(Long memberId, PaymentPrepareRequest request){
-        /* 1. Pending_Payment Orders주문 생성
-           2. 주문상품OrderItem 생성
-           3. 재고 선점
-           4. 결제 준비 상태Payment READY 생성
-           5. Port One 결제창에 넘길 값 반환 */
+        /*
+            1. Pending_Payment Orders주문 생성
+            2. 주문상품OrderItem 생성
+            3. 재고 선점
+            4. 결제 준비 상태Payment READY 생성
+            5. Port One 결제창에 넘길 값 반환
+        */
 
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
-        //1. 주문한 회원 조회
         Member member = memberService.getMember(memberId);
 
-        //2. 배송정보 생성
         if(request.getDeliveryInfo()==null){
             throw new IllegalStateException("배송 정보가 누락되었습니다.");
         }
         DeliveryInfo deliveryInfo = request.getDeliveryInfo().toDeliveryInfo();
 
-        //3. paymentOrderType별로 주문상품OrderItem 목록 생성
+        // paymentOrderType별로 주문상품OrderItem 목록 생성
         // -> 주문타입 : 나중에 실패/만료/취소 시, 재고 및 상태 복구를 위해 필요.
         // -> Product/Cart은 DB재고 선점. HotDeal은 Redis 재고 선점.
         boolean hotDealRedisReserved = false;
@@ -70,48 +70,45 @@ public class PaymentService {
         Integer reservedQuantity = null;
 
         try{
-            // 주문타입에 맞게 주문상품 상태 체크해서 구매목록 만들기.
-            // (createOrderItems -> createOrderTypeOrderItem)
+            // 주문타입에 맞게 주문상품 상태 체크해서 구매목록 만들기 (createOrderItems -> createOrderTypeOrderItem)
             List<OrderItem> orderItems = createOrderItems(memberId, request);
 
-            // 주문타입이 HOTDEAL이면 Redis에 넘기기.
+            // 주문타입 HOTDEAL -> Redis
             if(request.getPaymentOrderType() == PaymentOrderType.HOTDEAL_DIRECT){
-                reservedHotDealId = request.getHotDealId(); //구매 요청받은 HotDealId
-                reservedQuantity = request.getQuantity(); //구매 요청받은 재고 수
+                reservedHotDealId = request.getHotDealId();
+                reservedQuantity = request.getQuantity();
 
                 // reservedHotDealId -> KEY, reservedQuantity -> ARGV.
-                reserveHotDealStockWithRedis(reservedHotDealId, reservedQuantity); //Redis 재고선점으로 넘기기.
-                hotDealRedisReserved = true; // 통과되서 나오면 -> Redis로 재고 선점 체크.
+                reserveHotDealStockWithRedis(reservedHotDealId, reservedQuantity); //Redis 재고선점
+                hotDealRedisReserved = true; // 통과되서 나오면 재고 선점 체크
             }
 
-            // 4. 결제 만료 시간 생성
+            // 결제 만료 시간 생성
             LocalDateTime paymentExpiresAt = now.plusMinutes(PAYMENT_EXPIRE_MINUTES); // 현재시간 + 10분
 
-            // 5. PENDING 주문 생성
-            // 주문타입 PRODUCT/CART은 DB 재고 선점 처리. (HOTDEAL은 Redis에서 재고차감하니, 여기 또 끼면 이중차감됨.)
-            // HotDeal의 경우, OrderItem.restoreReservedStock()에서 no-op 처리해둠.
+            // PENDING 주문 생성
+            // 주문타입 PRODUCT/CART은 DB 재고 선점 처리.
+            // HotDeal의 경우, 이중차감 방지를 위해 OrderItem.restoreReservedStock()에서 no-op 처리해둠.
             Orders order = Orders.createPendingPaymentOrder( //결제 대기
                     member, orderItems, deliveryInfo, request.getPaymentMethod(),paymentExpiresAt
-                    // 여기서 재고 선점됨
             );
 
-            //6. Orders 저장 -> 이후 재고복구+상태복구를 위해, 결제 기준과 선점한 재고에 대한 정보 저장해두기.
+            // Orders 저장 -> 이후 재고복구+상태복구를 위해, 결제 기준과 선점한 재고에 대한 정보 저장해두기.
             Orders savedOrder = orderRepository.save(order);
 
-            //7. paymentId 생성 + READY상태
+            // paymentId 생성 + READY상태
             String paymentId = createPaymentId();
 
             Payment payment = Payment.createReadyPayment( //결제 준비
                     savedOrder, paymentId, savedOrder.getTotalPrice(), now
             );
 
-            //8. 결제 거래 기록Payment 저장 -> 결제 완료 검증을 위한 조회로 사용되어야 함.
+            // 결제 거래 기록Payment 저장 -> 결제 완료 검증을 위한 조회로 사용되어야 함.
             paymentRepository.save(payment);
 
-            //9. orderName 생성
             String orderName = createOrderName(savedOrder.getOrderItems()); // PortOne 결제창에 표시할 주문명
 
-            //10. PortOne 결제창에 넘길 PaymentPrepareResponse 만들어 반환 -> 결제 준비 끝.
+            // PortOne 결제창에 넘길 PaymentPrepareResponse 만들어 반환 -> 결제 준비 끝.
             return new PaymentPrepareResponse(
                     savedOrder.getId(), paymentId, orderName, savedOrder.getTotalPrice()
             );
@@ -119,7 +116,7 @@ public class PaymentService {
             if (hotDealRedisReserved) { //Redis 재고 선점 성공 후, 실패 -> Redis 재고 복구
                 hotDealRedisStockService.restoreStock(reservedHotDealId, reservedQuantity);
             }
-            // false면 선점 전 터진거니 복구 안해도 됨.
+            // false면 선점 전 터진거니 복구 x.
 
             throw e;
         }
@@ -130,15 +127,12 @@ public class PaymentService {
             throw new IllegalStateException("주문 타입이 누락되었습니다.");
         }
 
-        // PRODUCT_DIRECT면 Product 조회 후 createProductOrderItem()
         if(request.getPaymentOrderType() == PaymentOrderType.PRODUCT_DIRECT){
             return createProductDirectOrderItem(request);
         }
-        // HOTDEAL_DIRECT면 HotDeal 조회 후 createHotDealOrderItem()
         if(request.getPaymentOrderType() == PaymentOrderType.HOTDEAL_DIRECT){
             return createHotDealDirectOrderItem(request);
         }
-        // CART면 선택된 CartItem들로 OrderItem 생성
         if(request.getPaymentOrderType() == PaymentOrderType.CART){
             return createCartOrderItems(memberId, request);
         }
@@ -174,7 +168,6 @@ public class PaymentService {
     }
     // Product_Direct + 비관적 락 주문상품 생성
     private List<OrderItem> createProductDirectOrderItem(PaymentPrepareRequest request){
-        // 상품 존재 검증 + 수량 검증
         if(request.getProductId() == null){
             throw new IllegalStateException("상품 정보가 누락되었습니다.");
         }
@@ -190,14 +183,10 @@ public class PaymentService {
             throw new IllegalStateException("판매 중인 상품만 구매할 수 있습니다.");
         }
 
-        // product.buy() 직접 호출x.
-        // Orders.createPendingPaymentOrder()내부의 orderItem.reserveStock()에서
-        // product.reserveStock()호출하여 재고 선점.
         return List.of(OrderItem.createProductOrderItem(product, request.getQuantity()));
     }
     // HotDeal_Direct + Redis+lua 주문상품 생성
     private List<OrderItem> createHotDealDirectOrderItem(PaymentPrepareRequest request){
-        // 상품 존재 검증 + 수량 검증
         if(request.getHotDealId() == null){
             throw new IllegalStateException("핫딜 정보가 누락되었습니다.");
         }
@@ -205,7 +194,6 @@ public class PaymentService {
             throw new IllegalStateException("구매 수량이 잘못되었습니다.");
         }
 
-        // 핫딜 상품 존재 체크
         HotDeal hotDeal = hotDealRepository.findById(request.getHotDealId())
                 .orElseThrow(() -> new IllegalStateException("해당 핫딜을 찾을 수 없습니다."));
 
@@ -218,7 +206,6 @@ public class PaymentService {
     }
     // Cart + 비관적 락 주문상품 생성
     private List<OrderItem> createCartOrderItems(Long memberId, PaymentPrepareRequest request){
-        // 카트 및 상품 존재 검증
         if(request.getCartItemIds() == null || request.getCartItemIds().isEmpty()){
             throw new IllegalStateException("장바구니 상품 정보가 누락되었습니다.");
         }
@@ -235,7 +222,6 @@ public class PaymentService {
         }
 
         // 2. 받아온 장바구니 상품들에서 productId만 따로 추출하여 목록 만들기 + 데드락 방지
-        // -> 비관적 락은 CartItem이 아닌, Product에 걸어야 하기 떄문에 productId 추출.
         List<Long> productIds = cartItems.stream()
                 .map(cartItem -> cartItem.getProduct().getId())
                 .distinct() // 데드락 방지를 위하여
@@ -244,8 +230,6 @@ public class PaymentService {
 
         // 3. 정렬된 순서대로 Product에 비관적 락 걸어서 가져오기
         Map<Long, Product> lockedProducts = new HashMap<>();
-        // 락 걸어서 다시 조회한 Product들을 담아둘 맵
-        // cartItem마다 다시 db 조회안하고 이미 락 잡은거 바로 꺼내쓰기위해
 
         for(Long productId : productIds){
             Product lockedProduct = productRepository.findByIdWithPessimisticLock(productId)
@@ -257,15 +241,13 @@ public class PaymentService {
         List<OrderItem> orderItems = new ArrayList<>();
 
         for(CartItem cartItem : cartItems){
-            Product product = lockedProducts.get(cartItem.getProduct().getId()); //락 걸린 상품 꺼내기
-            // cartItem에서 product id만 참고하고, 실제 재고 차감은 락 걸린 lockedProduct로 진행.
+            Product product = lockedProducts.get(cartItem.getProduct().getId());
 
             // Product 판매 상태 체크. -> 비공개, 품절 상품 판매x.
             if(product.getStatus() != ProductStatus.ON_SALE){
                 throw new IllegalStateException("현재 판매하지 않는 상품이 포함되어 있습니다.");
             }
 
-            // 여기서 product.buy() 직접 호출
             // Orders.createPendingPaymentOrder()내부에서 OrderItem.reserveStock()으로 재고 선점함.
             orderItems.add(OrderItem.createProductOrderItem(product, cartItem.getQuantity()));
         }
@@ -278,7 +260,6 @@ public class PaymentService {
     }
     // 주문상품 목록 이용하여, 주문번호 만들기 -> PortOne 결제창에 표시할 주문명
     private String createOrderName(List<OrderItem> orderItems){
-        // 목록에 상품 들어가 있는지 체크
         if(orderItems == null || orderItems.isEmpty()){
             throw new IllegalStateException("주문 상품 정보가 누락되었습니다.");
         }
@@ -295,20 +276,20 @@ public class PaymentService {
     // 결제 완료하기 -> PortOne 결제 후, 프론트에서 백엔드로 결제완료 검증 요청
     @Transactional
     public PaymentCompleteResponse completePayment(Long memberId, PaymentCompleteRequest request){
-        /*  1. 프론트에서 받아온 값 유효성 검사
+        /*
+            1. 프론트에서 받아온 값 유효성 검사
             2. PortOne 결제 단건 조회
             3. 결제 상태 확인
             4. 결제 금액 == Orders.totalPrice 확인
             5. Orders.markAsPaid() 결제 완료 + 주문 확정 처리.
-            6. Payment.markAsPaid() 결제 완료 처리. */
+            6. Payment.markAsPaid() 결제 완료 처리.
+        */
 
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         // 1. 프론트로 부터 들어온 결제완료검증 요청값이 유효한지 확인
-        // paymentId를 통해 해당 Payment결제 기록에 등록된 Order.getId()와 orderId를 서로 비교하여
-        // 유효한 검증 요청 값인지 판단
+        // paymentId를 통해 해당 Payment결제 기록에 등록된 Order.getId()와 orderId를 서로 비교하여 유효한 검증 요청 값인지 판단
 
-        // request에 비교에 사용할 orderId와 paymentId가 제대로 들어왔는지 확인
         if(request.getOrderId() == null){
             throw new IllegalStateException("주문 ID가 누락되었습니다.");
         }
@@ -316,28 +297,25 @@ public class PaymentService {
             throw new IllegalStateException("결제 ID가 누락되었습니다.");
         }
 
-        // 유효한 paymentId, orderId인지 확인
         Payment payment = paymentRepository.findByPaymentId(request.getPaymentId())
                 .orElseThrow(() -> new IllegalStateException("결제 정보가 누락되었습니다."));
 
         Orders order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new IllegalStateException("주문 정보를 찾을 수 없습니다."));
-        // 해당 Order가 현재 로그인한 회원의 주문인지 확인
+
         if(!order.getMember().equals(memberService.getMember(memberId))){
             throw new IllegalStateException("본인의 주문만 결제 완료 처리할 수 있습니다.");
         }
 
-        // payment결제 기록에 들어있는 Order.getId()와, request에서 받아온 OrderId를 비교.
         if(!payment.getOrder().getId().equals(order.getId())){
             throw new IllegalStateException("결제 정보와 주문 정보가 일치하지 않습니다.");
         } //통과화면 일치 -> 유효한 값.
 
-        // 2. 백엔드에서 PortOne으로,
-        // PortOne이 진행한 결제정보에 대한 조회를 요청보내기 (결제상태, 결제금액 비교를 위해 필요)
+        // 2. 백엔드에서 PortOne으로, PortOne이 진행한 결제정보에 대한 조회를 요청보내기 (결제상태, 결제금액 비교를 위해 필요)
         PortOnePaymentResponse portOnePayment = portOneClient.getPayment(request.getPaymentId());
 
         // 3. 받아온 결제정보portOnePayment에서 결제가 완료PAID인지 확인. 아니면 예외처리.
-        if(portOnePayment == null){ //비어있으면 예외
+        if(portOnePayment == null){
             throw new IllegalStateException("PortOne 결제 조회 응답이 비어있습니다.");
         }
         if(!"PAID".equals(portOnePayment.getStatus())){ //PortOne에서 처리된 결제상태가 PAID결제 완료가 아니면
@@ -345,13 +323,13 @@ public class PaymentService {
         }
 
         // 4. PortOne에서 결제된 금액과 실제로 결제 요청된 금액이 같은지 비교.
-        if(portOnePayment.getAmount() == null){ // 결제 정보가 비어있으면,
+        if(portOnePayment.getAmount() == null){
             throw new IllegalStateException("PortOne 결제 금액 정보가 누락되었습니다.");
         }
 
         int paidAmount = portOnePayment.getAmount().getTotal(); //PortOne에서 결제된 금액.
 
-        if(!payment.isAmountMatched(paidAmount)){ // 금액 비교
+        if(!payment.isAmountMatched(paidAmount)){
             throw new IllegalStateException("결제 금액이 일치하지 않습니다.");
         }
 
@@ -367,24 +345,23 @@ public class PaymentService {
     // 결제 취소하기
     @Transactional
     public PaymentCancelResponse cancelPayment(Long memberId, PaymentCancelRequest request){
-        /*  1. PortOne 결제 취소 API 호출
+        /*
+            1. PortOne 결제 취소 API 호출
             2. Orders.cancel(now)
             3. Payment.cancel()
             4. 재고 복구
-            5. 구매수 감소 */
+            5. 구매수 감소
+        */
 
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
-        // 결제 취소 요청request 들어온 orderId결제번호 확인
         if(request.getOrderId() == null){
             throw new IllegalStateException("주문 ID가 누락되었습니다.");
         }
 
-        // orderId로 취소할 Order주문 가져오기
         Orders order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new IllegalStateException("주문 정보를 찾을 수 없습니다."));
 
-        // 결제를 요청하는 회원이 구매회원이 맞는지 비교
         if(!order.getMember().getId().equals(memberId)){
             throw new IllegalStateException("본인의 주문만 취소할 수 있습니다.");
         }
@@ -432,9 +409,11 @@ public class PaymentService {
     // 결제 시간 만료된 주문에 대해 재고+상태 복구 처리
     @Transactional
     public void expirePendingPayments(){
-        /*  1. 만료된 PENDING_PAYMENT 주문 조회
+        /*
+            1. 만료된 PENDING_PAYMENT 주문 조회
             2. 주문 만료 처리. Orders.expirePayment(now) -> 선점 재고 복구 + 상태 복구
-            3. 결제 만료 처리. Payment.expire() */
+            3. 결제 만료 처리. Payment.expire()
+        */
 
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
@@ -444,16 +423,16 @@ public class PaymentService {
                         OrderStatus.PENDING_PAYMENT, now
                 );
 
-        // 각각 for문 돌면서, 주문상태, 결제상태 설정.
+        // 각각 for문 돌면서 주문상태, 결제상태 설정.
         for(Orders order : expiredOrders){
             Payment payment = paymentRepository.findByOrderId(order.getId())
                     .orElseThrow(() -> new IllegalStateException("결제 정보를 찾을 수 없습니다."));
 
-            //HotDeal은 Redis에서 선점 -> Redis로 재고 복구
+            //HotDeal -> Redis로 재고 복구
             restoreRedisHotDealStocks(order);
 
             //Product + Cart는 DB에서 재고 선점
-            // HotDeal 통과해도 괜찮음. OrderItem.restoreReservedStock()에서 no-op해둠.
+            // HotDeal은 OrderItem.restoreReservedStock()에서 no-op해둠.
             order.expirePayment(now); //주문상태 : PENDING_PAYMENT(결제대기) -> EXPIRED(만료). 선점해둔 재고 복구 + 상태 복구
             payment.expire(now); //결제상태 : READY(결제준비) -> EXPIRED(만료).
         }
@@ -461,29 +440,29 @@ public class PaymentService {
     }
 }
 
-/*   < 전체 구매 흐름 >
+/*
+< 전체 구매 흐름 >
 
-HOTDEAL_DIRECT
-    -> HotDeal 조회
-    -> Redis Lua로 재고 선점
-    -> OrderItem 생성
-    -> Orders 생성
-    -> Payment READY 생성
+    HOTDEAL_DIRECT
+        -> HotDeal 조회
+        -> Redis Lua로 재고 선점
+        -> OrderItem 생성
+        -> Orders 생성
+        -> Payment READY 생성
 
-PRODUCT_DIRECT
-    -> Product 비관적 락 조회
-    -> OrderItem 생성
-    -> Orders.createPendingPaymentOrder()
-    -> Product 재고 차감
-    -> Payment READY 생성
+    PRODUCT_DIRECT
+        -> Product 비관적 락 조회
+        -> OrderItem 생성
+        -> Orders.createPendingPaymentOrder()
+        -> Product 재고 차감
+        -> Payment READY 생성
 
-CART
-    -> CartItem 조회
-    -> Product id 정렬
-    -> Product 비관적 락 조회
-    -> OrderItem 생성
-    -> Orders.createPendingPaymentOrder()
-    -> Product 재고 차감
-    -> Payment READY 생성
-
+    CART
+        -> CartItem 조회
+        -> Product id 정렬
+        -> Product 비관적 락 조회
+        -> OrderItem 생성
+        -> Orders.createPendingPaymentOrder()
+        -> Product 재고 차감
+        -> Payment READY 생성
  */

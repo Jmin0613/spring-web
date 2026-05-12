@@ -3,17 +3,16 @@ package demo.demo_spring.product.controller;
 import demo.demo_spring.product.dto.*;
 import demo.demo_spring.product.service.ProductService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
 @RequestMapping("/admin/products")
+@RequiredArgsConstructor
 public class AdminProductController {
-    private final ProductService productService;
 
-    public AdminProductController(ProductService productService) {
-        this.productService = productService;
-    }
+    private final ProductService productService;
 
     // 등록
     @PostMapping

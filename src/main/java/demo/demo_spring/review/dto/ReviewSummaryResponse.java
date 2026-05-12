@@ -6,10 +6,9 @@ import lombok.Getter;
 @Getter
 public class ReviewSummaryResponse {
     // 리뷰 통계
-    // 엔티티 1개를 옮겨 담는게 아닌,
-    // 여러 repository 조회 결과(집계 결과)를 조합해서 만드는 DTO
+    // 엔티티 1개를 옮겨 담는게 아닌, 여러 repository 조회 결과(집계 결과)를 조합해서 만드는 DTO
 
-    private Double averageRating; // 평균 별점
+    private Double averageRating;
     private Long totalCount; // 리뷰 개수
 
     // 각 별점

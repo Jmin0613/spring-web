@@ -185,7 +185,6 @@ export default function HomePage() {
         void loadProducts()
     }, [selectedProductSort])
 
-    // 진행 중 핫딜 -> 종료시간 빠른 순서
     const onSaleHotDeals = useMemo(() => {
         return hotDeals
             .filter((item) => item.status === 'ON_SALE')
@@ -195,7 +194,6 @@ export default function HomePage() {
             )
     }, [hotDeals])
 
-    // 오픈 예정 핫딜 -> startTime 빠른 순서
     const readyHotDeals = useMemo(() => {
         return hotDeals
             .filter((item) => item.status === 'READY')

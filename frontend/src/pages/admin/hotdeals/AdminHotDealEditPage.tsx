@@ -198,22 +198,16 @@ export default function AdminHotDealEditPage() {
     const navigate = useNavigate()
 
     const [checkingAdmin, setCheckingAdmin] = useState(true)
-    // 관리자 권한 확인 중인지 관리
 
     const [isAdmin, setIsAdmin] = useState(false)
-    // 관리자 여부
 
     const [hotDeal, setHotDeal] = useState<AdminHotDealDetail | null>(null)
-    // 서버에서 받아온 핫딜 상세 데이터
 
     const [loading, setLoading] = useState(true)
-    // 핫딜 상세 조회 중인지 관리
 
     const [error, setError] = useState('')
-    // 핫딜 상세 조회 실패 메세지
 
     const [submitting, setSubmitting] = useState(false)
-    // 핫딜 수정 요청 중인지 관리
 
     const [form, setForm] = useState<HotDealForm>({
         hotDealPrice: '',
@@ -229,7 +223,6 @@ export default function AdminHotDealEditPage() {
         endHour: '01',
         endMinute: '00',
     })
-    // 핫딜 수정 폼 값
 
     const discountRate = useMemo(() => {
         if (!hotDeal) {
@@ -251,7 +244,6 @@ export default function AdminHotDealEditPage() {
         )
     }, [hotDeal, form.hotDealPrice])
 
-    // 관리자 권한 확인
     useEffect(() => {
         async function checkAdmin() {
             try {
@@ -273,7 +265,6 @@ export default function AdminHotDealEditPage() {
         void checkAdmin()
     }, [])
 
-    // 수정할 핫딜 상세 조회
     useEffect(() => {
         async function loadHotDealDetail() {
             if (!hotDealId) {

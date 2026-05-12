@@ -11,6 +11,7 @@ import demo.demo_spring.product.service.ProductService;
 import demo.demo_spring.productInquiry.domain.ProductInquiry;
 import demo.demo_spring.productInquiry.dto.*;
 import demo.demo_spring.productInquiry.repository.ProductInquiryRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,18 +20,12 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ProductInquiryService {
     private final ProductInquiryRepository productInquiryRepository;
     private final MemberService memberService;
     private final ProductRepository productRepository;
     private final NotificationService notificationService;
-
-    public ProductInquiryService(ProductInquiryRepository productInquiryRepository, MemberService memberService, ProductService productService, ProductRepository productRepository, MemberRepository memberRepository, NotificationService notificationService){
-        this.productInquiryRepository = productInquiryRepository;
-        this.memberService = memberService;
-        this.productRepository = productRepository;
-        this.notificationService = notificationService;
-    }
 
     // (회원) 문의 작성
     public Long create(Long productId, Long memberId, ProductInquiryCreateRequest request){
@@ -41,7 +36,6 @@ public class ProductInquiryService {
         ProductInquiry productInquiry
                 = ProductInquiry.createInquiry(member, product,request.getTitle(),request.getContent(), request.isSecret());
 
-        //저장 및 문의 id 반환
         ProductInquiry savedInquiry = productInquiryRepository.save(productInquiry);
         return savedInquiry.getId();
     }
@@ -66,7 +60,6 @@ public class ProductInquiryService {
 
     // (회원) 문의글 삭제 메서드
     public void delete(Long productId, Long inquiryId, Long memberId){
-        // 문의글 존재 여부 확인
         ProductInquiry productInquiry = productInquiryRepository.findById(inquiryId)
                 .orElseThrow(()-> new IllegalStateException("삭제하려는 문의가 없습니다."));
 
@@ -76,7 +69,7 @@ public class ProductInquiryService {
         // 작성자 본인 확인
         validateWriter(memberId, productInquiry);
 
-        // 상태확인 -> waiting 상태만 삭제가능(관리자 답변 전까지)
+        // 상태확인 -> waiting 상태만 삭제가능(관리자 답변 전)
         productInquiry.validateWaitingStatus();
         productInquiryRepository.delete(productInquiry);
     }
@@ -139,7 +132,6 @@ public class ProductInquiryService {
 
     // (회원) 문의 단건 상세 조회 + 비밀글 -> 가드 클로즈 활용
     public ProductInquiryDetailResponse findInquiry(Long productId, Long inquiryId, Long memberId){
-        // 문의글 존재 여부 판단
         ProductInquiry productInquiry = productInquiryRepository.findById(inquiryId)
                 .orElseThrow(()-> new IllegalStateException("조회하시려는 문의가 없습니다."));
 

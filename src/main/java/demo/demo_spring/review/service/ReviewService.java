@@ -13,6 +13,7 @@ import demo.demo_spring.review.domain.ReviewSortType;
 import demo.demo_spring.review.dto.*;
 import demo.demo_spring.review.repository.ReviewLikeRepository;
 import demo.demo_spring.review.repository.ReviewRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
@@ -34,26 +36,13 @@ public class ReviewService {
     private final OrderItemRepository orderItemRepository;
     private final ReviewLikeRepository reviewLikeRepository;
 
-
-    public ReviewService(ReviewRepository reviewRepository, ProductRepository productRepository,
-                         MemberService memberService, OrderItemRepository orderItemRepository, ReviewLikeRepository reviewLikeRepository){
-        this.reviewRepository = reviewRepository;
-        this.productRepository = productRepository;
-        this.memberService = memberService;
-        this.orderItemRepository = orderItemRepository;
-        this.reviewLikeRepository = reviewLikeRepository;
-    }
-
     // 리뷰 작성
     public Long create(Long productId, Long memberId,
                        ReviewCreateRequest request){
-        // 멤버, 상품 조회
         Member member = memberService.getMember(memberId);
         Product product = productRepository.findById(productId)
                 .orElseThrow(()-> new IllegalStateException("리뷰를 작성하시려는 상품이 없습니다."));
-        // member는 서비스에서 이미 null체크해서 가져옴. product는 레포지토리에서 바로 꺼내와서 체크 해줘야 함.
 
-        // request.getOrderItemId()로 주문항목 조회
         Long orderItemId = request.getOrderItemId();
         if(orderItemId == null){
             throw new IllegalStateException("리뷰를 작성하시려는 주문상품이 없습니다.");
@@ -78,7 +67,6 @@ public class ReviewService {
             throw new IllegalStateException("이미 리뷰를 작성하였습니다.");
         }
 
-        // 리뷰 생성 + 저장
         Review review = Review.createReview(member, product, orderItem,
                 request.getRating(), request.getTitle(), request.getContent());
         Review savedReview = reviewRepository.save(review);
@@ -88,7 +76,6 @@ public class ReviewService {
     // 리뷰 수정
     public void update(Long productId, Long reviewId, Long memberId,
                        ReviewUpdateRequest request){
-        // 리뷰 존재 여부 확인
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(()-> new IllegalStateException("수정하려는 리뷰가 없습니다."));
 
@@ -98,16 +85,14 @@ public class ReviewService {
         // 작성자 본인 확인
         validateWriter(memberId, review);
 
-        // 시간 제한
+        // 수정 가능 시간 체크
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
-        // 업데이트
         review.updateReview(request.getTitle(), request.getContent(), request.getRating(), now);
     }
 
     // 리뷰 삭제
     public void delete(Long productId, Long reviewId, Long memberId){
-        // 리뷰 존재 여부 확인
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(()-> new IllegalStateException("삭제하려는 리뷰가 없습니다."));
 
@@ -117,9 +102,7 @@ public class ReviewService {
         // 작성자 본인 확인
         validateWriter(memberId, review);
 
-        // 삭제
         reviewRepository.delete(review);
-
     }
 
     // 리뷰 조회 목록
@@ -137,7 +120,6 @@ public class ReviewService {
         // 현재페이지에 들어있는 Review 목록 꺼내서
         // ReviewListResponse목록으로 변환
         List<ReviewListResponse> reviews = reviewPage.getContent()
-                // reviewPage.getContent() -> 현재 페이지에 해당하는 리뷰 목록만 꺼냄
                 .stream()
                 .map(review -> {
                     boolean likedByCurrentUser = false;
@@ -162,9 +144,8 @@ public class ReviewService {
 
     // 리뷰 추천
     public ReviewLikeToggleResponse likeToggle(Long productId, Long reviewId, Long memberId){
-        // 멤버 조회
         Member member = memberService.getMember(memberId);
-        // 리뷰 존재 여부 확인
+
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(()-> new IllegalStateException("추천하시려는 리뷰가 없습니다."));
 

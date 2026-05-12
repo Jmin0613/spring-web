@@ -117,10 +117,6 @@ function OrderListProductImage({
     )
 }
 
-// function canWriteReview(order: OrderListResponse) {
-//     return order.deliveryStatus === 'DELIVERED'
-// }
-
 export default function OrderListPage() {
     const navigate = useNavigate()
 
@@ -189,7 +185,6 @@ export default function OrderListPage() {
                     <section className="order-list-page__list">
                         {orders.map((order) => {
                             const totalPrice = getOrderTotalPrice(order.orderItems)
-                            // const reviewEnabled = canWriteReview(order)
 
                             return (
                                 <article className="order-list-card" key={order.orderId}>

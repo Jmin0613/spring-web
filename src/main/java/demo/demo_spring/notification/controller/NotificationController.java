@@ -4,6 +4,7 @@ import demo.demo_spring.member.domain.Member;
 import demo.demo_spring.notification.dto.NotificationListResponse;
 import demo.demo_spring.notification.service.NotificationService;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,11 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class NotificationController {
     private final NotificationService notificationService;
-    public NotificationController(NotificationService notificationService){
-        this.notificationService = notificationService;
-    }
 
     // 내 알림 목록 조회용
     @GetMapping("/notifications")

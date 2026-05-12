@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Component
-@RequiredArgsConstructor // PortOneProperties 생성자 주입받게 넣음.
-// -> 다른 생성자들도 빈 어노테이션 + final이면 이걸로 교체 가능.
+@RequiredArgsConstructor
 public class PortOneClient {
 
     private static final String BASE_URL = "https://api.portone.io"; //PortOne API 서버 기본 주소
@@ -27,18 +26,6 @@ public class PortOneClient {
 
     // 결제 정보 조회 요청
     public PortOnePaymentResponse getPayment(String paymentId) { //PortOne에 결제 단건 조회
-
-//        System.out.println("PORTONE apiSecret exists = " +
-//                (portOneProperties.getApiSecret() != null && !portOneProperties.getApiSecret().isBlank()));
-//
-//        System.out.println("PORTONE apiSecret length = " +
-//                (portOneProperties.getApiSecret() == null ? 0 : portOneProperties.getApiSecret().length()));
-//
-//        System.out.println("PORTONE storeId exists = " +
-//                (portOneProperties.getStoreId() != null && !portOneProperties.getStoreId().isBlank()));
-//
-//        System.out.println("PORTONE apiSecret = " + portOneProperties.getApiSecret());
-//        System.out.println("PORTONE storeId = " + portOneProperties.getStoreId());
 
         return restClient.get() //HTTP GET 요청 보내겠다
                 .uri("/payments/{paymentId}", paymentId) // 최종 주소 형태

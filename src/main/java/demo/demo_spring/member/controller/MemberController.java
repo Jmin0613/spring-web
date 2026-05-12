@@ -34,12 +34,8 @@ public class MemberController {
     @PostMapping("/login")
     public String login(@RequestBody @Valid MemberLoginRequest request,
                         HttpSession session){
-        //로그인id와 비밀번호 넘겨서 로그인
         Member member = memberService.login(request.getLoginId(), request.getPassword());
-
-        //loginMember라는 이름으로 member객체를 서버에 저장
-        session.setAttribute("loginMember", member); //세션 관리
-
+        session.setAttribute("loginMember", member);
         return "로그인 성공";
     }
 

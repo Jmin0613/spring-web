@@ -112,12 +112,10 @@ public class HotDealRedisStockService {
 
     // 실패 시 복구
     public void restoreStock(Long hotDealId, int quantity){
-        // 복구하려는 핫딜 상품 존재 여부 체크
         if(hotDealId == null){
             throw new IllegalStateException("핫딜 ID가 누락되었습니다.");
         }
 
-        // 유효한 수량인지 체크
         if(quantity < 1){
             throw new IllegalStateException("복구 수량이 잘못되었습니다.");
         }

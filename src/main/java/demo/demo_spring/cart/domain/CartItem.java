@@ -15,11 +15,11 @@ import java.time.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-@Table( //복합 unique는 컬럼 하나의 성질이 아닌, 여러 컬럼 보합에 대한 제약이라서 클래스 위에서 걸음.
-        uniqueConstraints = { // 1. 유니크 제약 조건들을 걸겠다 (여러 개 가능)
-                @UniqueConstraint( // 2. 개별 제약 조건 정의
-                        name = "uk_cartItem_cart_product", // 3. 이 제약 조건의 이름 (DB 관리용)
-                        columnNames = {"cart_id","product_id"} // 4. 묶어서 유니크하게 만들 컬럼들
+@Table( //복합 unique
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_cartItem_cart_product",
+                        columnNames = {"cart_id","product_id"}
                 )
         }
 )
@@ -51,7 +51,7 @@ public class CartItem {
         if(product == null){
             throw new IllegalStateException("장바구니 추가하려는 상품이 없습니다.");
         }
-        // 최소 수량
+
         if(quantity<1){
             throw new IllegalStateException("장바구니 수량이 잘못되었습니다. 수량은 최소 1개 입니다.");
         }
@@ -93,11 +93,10 @@ public class CartItem {
 
     // 재고/수량 검증 메서드
     private void validateQuantity(int quantity){
-        // 1 이상인지
         if(quantity < 1){
             throw new IllegalStateException("장바구니 수량은 1개 이상이여야 합니다.");
         }
-        // 재고 초과 아닌지
+
         if(quantity > product.getStock()){
             throw new IllegalStateException("준비된 수량보다 장바구니 수량이 높습니다.");
         }

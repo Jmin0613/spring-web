@@ -6,6 +6,7 @@ import demo.demo_spring.order.admin.dto.AdminOrderListResponse;
 import demo.demo_spring.order.domain.DeliveryStatus;
 import demo.demo_spring.order.domain.Orders;
 import demo.demo_spring.order.repository.OrderRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,13 +14,11 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class AdminOrderService {
     // 관리자 주문관리 서비스
 
     private final OrderRepository orderRepository;
-    public AdminOrderService(OrderRepository orderRepository){
-        this.orderRepository = orderRepository;
-    }
 
     // 관리자 주문목록 전체 조회
     public List<AdminOrderListResponse> findAllOrders(){
@@ -36,13 +35,11 @@ public class AdminOrderService {
 
     // 관리자 배송상태 변경
     public void updateDeliveryStatus(Long orderId, AdminOrderDeliveryStatusUpdateRequest request){
-        // 해당 주문 찾기
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalStateException("해당하는 주문이 없습니다."));
 
         DeliveryStatus targetOrderStatus = request.getDeliveryStatus();
 
-        // 배송상태 요청 null체크
         if(targetOrderStatus == null){
             throw new IllegalStateException("변경할 배송상태를 선택해주세요.");
         }

@@ -19,7 +19,7 @@ public class HotDeal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; //server hotdeal id
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) // HotDeal은 Product에 속해있음.
     @JoinColumn(name = "product_id", nullable = false)
@@ -97,7 +97,7 @@ public class HotDeal {
         LocalDateTime newStartTime = (startTime != null) ? startTime : this.startTime;
         LocalDateTime newEndTime = (endTime != null) ? endTime : this.endTime;
 
-        if(newStartTime.isBefore(now) || newEndTime.isBefore(now)){ // -> 진행 중인 핫딜 수정 불가
+        if(newStartTime.isBefore(now) || newEndTime.isBefore(now)){
             throw new IllegalStateException("핫딜 진행 중 수정 불가.");
         }
         if(newEndTime.isBefore(newStartTime)){
@@ -112,8 +112,6 @@ public class HotDeal {
         if (hotDealStock != null){
             if (hotDealStock < 1){
                 throw new IllegalStateException("수정될 핫딜의 재고값은 0보다 높아야 합니다.");
-                //update에서는 hotDealStock을 1 이상만 허용
-                //재고를 0으로 만들고 싶으면 STOPPED 또는 delete로 별도 처리하기
             }
             if(this.hotDealStock<hotDealStock){ // 새 > 기존 -> 재고 꺼내오기
                 int diff = hotDealStock-this.hotDealStock;
@@ -212,8 +210,7 @@ public class HotDeal {
 
     // 관리자 긴급 중단 메서드 -> 핫딜 자신의 상태와 재고를 바꾸는 것이기에 도메인에 넣음.
     public void adminEmergencyStop(){
-        // 이미 STOPPED면 그냥 return
-        if (this.status == HotDealStatus.STOPPED){
+        if (this.status == HotDealStatus.STOPPED){ // 이미 STOPPED면 그냥 return
             return;
         }
         if (this.status == HotDealStatus.SOLD_OUT){
@@ -229,14 +226,14 @@ public class HotDeal {
 
     // 관리자 중단 재개 메서드
     public void adminResume(LocalDateTime now){
-        // STOPPED 체크
+        // STOPPED, endTime 체크
         if(this.status != HotDealStatus.STOPPED){
             throw new IllegalStateException("중지된 핫딜만 재개할 수 있습니다.");
         }
-        // endTime 체크
         if(!now.isBefore(this.endTime)){
             throw new IllegalStateException("종료 시간이 지난 핫딜은 재개할 수 없습니다.");
         }
+
         // 시작전이면 READY, 재고 반환X
         if(now.isBefore(this.startTime)){
             this.status = HotDealStatus.READY;
@@ -247,10 +244,12 @@ public class HotDeal {
 
     // 할인율 계산 메서드 -> 파생값. 추후 필드 선언 고려
     public int calculateDiscountRate(){
-        if(originalPrice <= 0){ //원하 0 이하 체크
+        if(originalPrice <= 0){
             throw new IllegalStateException("잘못된 원가입니다.");
         }
+
         double rate = ((double) (originalPrice-hotDealPrice)/originalPrice)*100;
+
         return (int) Math.round(rate); //반올림하여 정수로 반환
     }
 }

@@ -10,18 +10,18 @@ import java.time.*;
 public class HotDealDetailResponse {
     // 사용자 핫딜 상세 응답 response DTO
 
-    private Long hotDealId; //핫딜 고유 id
-    private Long productId; //원본 상품 고유 id
+    private Long hotDealId;
+    private Long productId;
 
     private String productName;
-    private String imageUrl; //대표 이미지
-    private String detailImageUrl; // 상세 설명 이미지
+    private String imageUrl;
+    private String detailImageUrl;
     private String description;
 
-    private int originalPrice; //원가격
+    private int originalPrice;
     private int hotDealPrice;
-    private int discountRate; //할인율
-    private int hotDealStock; //핫딜은 한정수량 느낌 강함 -> 남은 재고 보여주기
+    private int discountRate;
+    private int hotDealStock;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
@@ -48,6 +48,7 @@ public class HotDealDetailResponse {
     public static HotDealDetailResponse fromEntity(HotDeal hotDeal, boolean alertSubscribed, int currentHotDealStock) {
         return new HotDealDetailResponse(hotDeal, alertSubscribed, currentHotDealStock);
     }
+    // 레거시
     public static HotDealDetailResponse fromEntity(HotDeal hotDeal) {
         return new HotDealDetailResponse(hotDeal, false, hotDeal.getHotDealStock());
     }

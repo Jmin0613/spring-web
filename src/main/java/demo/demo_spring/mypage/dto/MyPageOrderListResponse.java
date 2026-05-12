@@ -37,7 +37,7 @@ public class MyPageOrderListResponse {
         return new MyPageOrderListResponse(order, reviewedOrderItemIds);
     }
 
-    //기존 코드 호환용
+    //레거시
     public static MyPageOrderListResponse fromEntity(Orders order){
         return new MyPageOrderListResponse(order, Set.of()); //비어있는 set
     }

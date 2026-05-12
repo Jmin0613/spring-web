@@ -38,7 +38,6 @@ public class Member {
 
     private Member(String loginId, String password,
                    String email, String name, String nickName, String phoneNumber){
-        // 회원가입이기에 모두 체크
         if(loginId == null || loginId.isBlank()){ throw new IllegalStateException("로그인 아이디를 입력해주세요.");}
         if(password == null || password.isBlank()){ throw new IllegalStateException("비밀번호를 입력해주세요.");}
         if(email == null || email.isBlank()){ throw new IllegalStateException("이메일을 입력해주세요.");}
@@ -69,7 +68,7 @@ public class Member {
             if(nickName.isBlank()){ // blank = 잘못된 입력, 예외
                 throw new IllegalStateException("닉네임을 공백으로 수정할 수 없습니다.");
             }
-            if(!nickName.equals(this.nickName)){ // 회원정보수정은 중요 -> no-op
+            if(!nickName.equals(this.nickName)){
                 this.nickName = nickName;
             }
         }

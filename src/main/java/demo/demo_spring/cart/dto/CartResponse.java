@@ -10,6 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CartResponse {
     // 장바구니 전체 화면 응답
+
     private List<CartItemResponse> cartItems;
     private CartSummaryResponse summary;
 

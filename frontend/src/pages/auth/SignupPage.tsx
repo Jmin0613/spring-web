@@ -22,7 +22,6 @@ type SignupForm = {
     emailDomain: string
 }
 
-// 전화번호 하이픈
 function formatPhoneNumber(value: string) {
     const digits = value.replace(/\D/g, '').slice(0, 11)
 

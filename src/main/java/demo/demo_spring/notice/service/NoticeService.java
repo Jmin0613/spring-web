@@ -6,6 +6,7 @@ import demo.demo_spring.notice.dto.NoticeDetailResponse;
 import demo.demo_spring.notice.dto.NoticeListResponse;
 import demo.demo_spring.notice.dto.NoticeUpdateRequest;
 import demo.demo_spring.notice.repository.NoticeRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,12 +14,10 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class NoticeService {
-    //repository 주입 + DI
+
     private final NoticeRepository noticeRepository;
-    public NoticeService(NoticeRepository noticeRepository){
-        this.noticeRepository = noticeRepository;
-    }
 
     // 공지글 등록
     public Long createNotice(NoticeCreateRequest request){

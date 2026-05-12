@@ -10,6 +10,7 @@ import demo.demo_spring.notification.dto.HotDealAlertToggleResponse;
 import demo.demo_spring.notification.service.NotificationService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,15 +18,11 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
 
 @RestController
+@RequiredArgsConstructor
 public class HotDealController {
-    //생성자주입 + di
+
     private final HotDealService hotDealService;
     private final NotificationService notificationService;
-
-    public HotDealController(HotDealService hotDealService, MemberService memberService, NotificationService notificationService){
-        this.hotDealService = hotDealService;
-        this.notificationService = notificationService;
-    }
 
     // 전체 조회
     @GetMapping("/hotdeals")

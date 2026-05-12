@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class LoginIdCheckResponse {
+    // 아이디 중복 확인 결과 응답 DTO
 
     private boolean available;
     private String message;

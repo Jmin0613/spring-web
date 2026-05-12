@@ -11,15 +11,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.nio.file.Paths;
 
-@Configuration // 스프링에게 설정 클래스로 알려주기
+@Configuration
 public class WebConfig implements WebMvcConfigurer {
     //스프링 mvc에 인터셉트 등록하는 클래스
 
     @Override
     public void addInterceptors(InterceptorRegistry registry){
-        //InterceptorRegistry -> 인터셉터를 등록해두는 목록/관리자
-        // 우리가 인터셉터를 스프링mvc에 추가하고, 어떤 url에 붙일지 정하고, 순서를 정하게 해주는 도구임.
-
         //1-1. 로그인 체크 인터셉터 등록
         registry.addInterceptor(new LoginCheckInterceptor())
                 .order(1) //인터셉터 실행 순서
@@ -43,6 +40,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     }
 
+    // 프론트엔드 API 호출과 쿠키 기반 요청을 허용하기 위한 CORS 설정
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -52,6 +50,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true);
     }
 
+    // 서버에 저장된 업로드 이미지를 URL로 접근할 수 있도록 정적 리소스 경로 매핑
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String uploadPath = Paths.get("uploads", "images")

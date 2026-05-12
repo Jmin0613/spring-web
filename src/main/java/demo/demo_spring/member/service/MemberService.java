@@ -22,7 +22,6 @@ public class MemberService {
 
     // 회원가입 + 중복 체크
     public Long create(MemberCreateRequest request) {
-        // loginId, email, nickName, phoneNumber 중복 체크
         validateDuplicateLoginId(request.getLoginId());
         validateDuplicateEmail(request.getEmail());
         validateDuplicateNickName(request.getNickName());

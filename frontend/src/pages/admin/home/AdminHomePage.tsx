@@ -6,7 +6,6 @@ import './AdminHomePage.css'
 
 const API_BASE_URL = '/api'
 
-// 관리자인지 아닌지 확인용도
 type MemberInfo = {
     id: number
     loginId?: string
@@ -53,13 +52,10 @@ export default function AdminHomePage() {
     const navigate = useNavigate()
 
     const [checkingAdmin, setCheckingAdmin] = useState(true)
-    // 관리자 권한 확인 중인지 관리
 
     const [loginMember, setLoginMember] = useState<MemberInfo | null>(null)
-    // 현재 로그인한 회원 정보 저장
 
     const isAdmin = loginMember?.role === 'ADMIN'
-    // 관리자 여부
 
     // 관리자 권한 확인
     useEffect(() => {

@@ -4,7 +4,7 @@ public class PhoneNumberValidator {
 
     private PhoneNumberValidator(){
         // 상수만 모아둔 클래스.
-        // 객체 생성 막아, 메모리 낭비 방지.
+        // 객체 생성 막아 메모리 낭비 방지.
     }
 
     public static final String PHONE_NUMBER =

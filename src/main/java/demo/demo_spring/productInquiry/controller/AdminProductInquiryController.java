@@ -7,24 +7,22 @@ import demo.demo_spring.productInquiry.dto.AdminProductInquiryListResponse;
 import demo.demo_spring.productInquiry.service.ProductInquiryService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class AdminProductInquiryController {
-    // 관리자 문의관리
 
     private final ProductInquiryService productInquiryService;
-    public AdminProductInquiryController(ProductInquiryService productInquiryService){
-        this.productInquiryService = productInquiryService;
-    }
 
     // 관리자 전체 문의목록 조회
     @GetMapping("/inquiries")
     public List<AdminProductInquiryListResponse> findAllInquiries(HttpSession session){
-        Member loginMember = getLoginMember(session); // 로그인체크 다른곳에서도 이렇게 리팩토링해주기
+        Member loginMember = getLoginMember(session); // 로그인체크 다른곳에서도 리팩토링해주기
         return productInquiryService.adminFindAllInquiries(loginMember.getId());
     }
 

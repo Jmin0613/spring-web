@@ -4,19 +4,18 @@ import demo.demo_spring.order.admin.dto.AdminOrderDeliveryStatusUpdateRequest;
 import demo.demo_spring.order.admin.dto.AdminOrderDetailResponse;
 import demo.demo_spring.order.admin.dto.AdminOrderListResponse;
 import demo.demo_spring.order.admin.service.AdminOrderService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/admin/orders") //다른 컨트롤러에도 적용하기 (리팩토링)
+@RequiredArgsConstructor
 public class AdminOrderController {
     // 관리자 주문관리
 
     private final AdminOrderService adminOrderService;
-    public AdminOrderController(AdminOrderService adminOrderService) {
-        this.adminOrderService = adminOrderService;
-    }
 
     // 관리자 주문목록 전체 조회
     @GetMapping

@@ -8,19 +8,16 @@ import demo.demo_spring.order.service.OrderService;
 import demo.demo_spring.wishlist.dto.WishlistListResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class MyPageController {
     private final MyPageService mypageService;
     private final OrderService orderService;
-
-    public MyPageController(MyPageService mypageService, OrderService orderService) {
-        this.mypageService = mypageService;
-        this.orderService = orderService;
-    }
 
     @GetMapping("/mypage/inquiries") // 내 문의 목록 보기
     public List<MyPageInquiryListResponse> findMyInquiries(HttpSession session){
@@ -94,7 +91,7 @@ public class MyPageController {
 
     /* 헬퍼 메서드 */
 
-    //로그인한 회원인지 체크. 두 번이나 쓰여서 빼둠.
+    //로그인한 회원인지 체크
     private Member getLoginMember(HttpSession session) {
         Member loginMember = (Member)session.getAttribute("loginMember");
 

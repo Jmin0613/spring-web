@@ -137,40 +137,29 @@ export default function AdminProductManagePage() {
     const navigate = useNavigate()
 
     const [checkingAdmin, setCheckingAdmin] = useState(true)
-    // 관리자 권한 확인 중인지 관리
 
     const [isAdmin, setIsAdmin] = useState(false)
-    // 관리자 여부
 
     const [products, setProducts] = useState<AdminProductListItem[]>([])
-    // 관리자 상품 목록 데이터
 
     const [loading, setLoading] = useState(true)
-    // 상품 목록을 불러오는 중인지 관리
 
     const [error, setError] = useState('')
-    // 상품 목록 조회 실패 메세지
 
     const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('전체')
-    // 선택한 카테고리 필터
 
     const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('전체')
-    // 선택한 상품 상태 필터
 
     const [searchInput, setSearchInput] = useState('')
-    // 검색창에 입력 중인 값
+
 
     const [appliedKeyword, setAppliedKeyword] = useState('')
-    // 실제 검색에 적용된 값
 
     const [currentPage, setCurrentPage] = useState(1)
-    // 현재 페이지 번호
 
     const [updatingProductId, setUpdatingProductId] = useState<number | null>(null)
-    // 상태변경 요청 중인 상품 id. 중복 클릭 방지용.
 
     const [openStatusProductId, setOpenStatusProductId] = useState<number | null>(null)
-    // 상태변경 드롭다운이 열려있는 상품 id.
 
     const filteredProducts = useMemo(() => {
         const keyword = appliedKeyword.trim().toLowerCase()
@@ -197,7 +186,6 @@ export default function AdminProductManagePage() {
         return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE)
     }, [filteredProducts, currentPage])
 
-    // 관리자 권한 확인
     useEffect(() => {
         async function checkAdmin() {
             try {
@@ -219,7 +207,6 @@ export default function AdminProductManagePage() {
         void checkAdmin()
     }, [])
 
-    // 관리자 상품 목록 조회
     useEffect(() => {
         async function loadProducts() {
             try {
@@ -239,7 +226,6 @@ export default function AdminProductManagePage() {
         void loadProducts()
     }, [])
 
-    // 필터/검색 결과가 줄어서 현재 페이지가 없는 페이지가 되었을 때 보정
     useEffect(() => {
         if (currentPage > totalPages) {
             setCurrentPage(totalPages)

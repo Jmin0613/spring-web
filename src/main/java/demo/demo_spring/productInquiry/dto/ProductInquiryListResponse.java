@@ -10,9 +10,9 @@ import java.time.*;
 public class ProductInquiryListResponse {
     private Long id;
     private String title;
-    private String writerNickName; //작성자 닉네임
+    private String writerNickName;
     private InquiryStatus status;
-    private LocalDateTime createdAt; // 작성일
+    private LocalDateTime createdAt;
     private Long writerId; //작성자 id
 
     private ProductInquiryListResponse(ProductInquiry productInquiry){

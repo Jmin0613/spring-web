@@ -139,34 +139,24 @@ export default function AdminHotDealManagePage() {
     const navigate = useNavigate()
 
     const [checkingAdmin, setCheckingAdmin] = useState(true)
-    // 관리자 권한 확인 중인지 관리
 
     const [isAdmin, setIsAdmin] = useState(false)
-    // 관리자 여부
 
     const [hotDeals, setHotDeals] = useState<AdminHotDealListItem[]>([])
-    // 관리자 핫딜 목록 데이터
 
     const [loading, setLoading] = useState(true)
-    // 핫딜 목록 조회 중인지 관리
 
     const [error, setError] = useState('')
-    // 핫딜 목록 조회 실패 메세지
 
     const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('전체')
-    // 선택한 핫딜 상태 필터
 
     const [searchInput, setSearchInput] = useState('')
-    // 검색창 입력값
 
     const [appliedKeyword, setAppliedKeyword] = useState('')
-    // 실제 검색에 적용된 키워드
 
     const [currentPage, setCurrentPage] = useState(1)
-    // 현재 페이지 번호
 
     const [updatingHotDealId, setUpdatingHotDealId] = useState<number | null>(null)
-    // 중단/재개 요청 중인 핫딜 id
 
     const sortedHotDeals = useMemo(() => {
         return [...hotDeals].sort((a, b) => {
@@ -203,7 +193,6 @@ export default function AdminHotDealManagePage() {
         return filteredHotDeals.slice(startIndex, startIndex + ITEMS_PER_PAGE)
     }, [filteredHotDeals, currentPage])
 
-    // 관리자 권한 확인
     useEffect(() => {
         async function checkAdmin() {
             try {
@@ -225,7 +214,6 @@ export default function AdminHotDealManagePage() {
         void checkAdmin()
     }, [])
 
-    // 관리자 핫딜 목록 조회
     useEffect(() => {
         async function loadHotDeals() {
             try {
@@ -245,7 +233,6 @@ export default function AdminHotDealManagePage() {
         void loadHotDeals()
     }, [])
 
-    // 필터 결과가 줄어서 현재 페이지가 없는 페이지가 되었을 때 보정
     useEffect(() => {
         if (currentPage > totalPages) {
             setCurrentPage(totalPages)

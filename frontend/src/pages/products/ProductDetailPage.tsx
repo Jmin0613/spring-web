@@ -1,35 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
-// useState(상태 관리자) : 화면에 보여줄 데이터를 기억하고 관리
-// 좋아요 개수처럼 사용자가 클릭할때마다 숫자가 바뀌어야 한다면 useState를 써서 그 값을 저장.
-// 값이 바뀌면 리액트가 알아서 화면을 다시 그림.
-// -> 변수 선언 (데이터 보관용)
-
-// useMemo(계산 결과 캐싱) : 계산 비용이 비싼 데이터를 메모리에 들고 있다가 재사용
-// -> Redis 캐싱 또는 Local Cache
-
-// useEffect(실행 감시자) : 컴포넌트가 화면에 나타날 때(등장), 사라질 때(퇴장), 혹은 특정 데이터가 바뀔 때 자동실행될 코드를 적는 곳
-// "페이지가 열리자마자 백엔드에서 공지사항 목록을 가져와라 같은 명령을 내릴 때 사용"
-// -> 생성자(Constructor) 또는 특정 Event Listener
 
 import axios from 'axios'
 
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-// 페이지 이동(라우팅) 담당하는 별도의 라이브러리 도구들
 
 import SiteHeader from '../../components/SiteHeader.tsx'
-// 다른곳에 만들어둔 상단바 컴포넌트 가져오기
 
 import './ProductDetailPage.css'
 
-// 프론트엔드에서 이렇게 type을 명시적으로 만드는 이유는 개발자의 실수를 컴퓨터가 실시간으로 잡아내기 위해.
-// 코드 짤때 오타나거나 틀릴때 바로 알려주는 자동 검사기 역할
-// 역할 : 오타 방지, 데이터 유무 확인(?이용), 프론트엔드와 백엔드 사이의 약속
-
 type ProductDetail = {
-    // 상품 상세정보
     id: number
     category: string
-    imageUrl: string | null // imageUrl 있을수도 있고 없을수도 있고.
+    imageUrl: string | null
     detailImageUrl: string | null
     name: string
     description: string
@@ -47,12 +29,8 @@ type ProductActionType = 'wishlist' | 'cart' | null
 type WriterLabelTarget = ProductInquiryListItem | ProductInquiryDetailItem | ProductReviewItem
 
 type ReviewSortType = 'BEST' | 'LATEST'
-// type -> 새로운 타입을 만들겠다는 키워드
-// ReviewSortType이라는 새로운 데이터 타입을 정의하는 것
-// java의 Enum과 완벽히 대응
 
 type ReviewSummary = {
-    // 리뷰 통계 요약
     averageRating: number
     totalCount: number
     fiveStarCount: number
@@ -63,7 +41,6 @@ type ReviewSummary = {
 }
 
 type ProductReviewItem = {
-    // 리뷰 상품 정보
     reviewId: number
     writerNickName?: string
     rating: number
@@ -77,7 +54,6 @@ type ProductReviewItem = {
 }
 
 type ReviewPageResponse = {
-    // 리뷰 페이지
     summary: ReviewSummary
     reviews: ProductReviewItem[]
     page: number
@@ -89,25 +65,22 @@ type ReviewPageResponse = {
 }
 
 type ReviewLikeToggleResponse = {
-    // 리뷰 추천 toggle
     reviewId: number
     liked: boolean
     likeCount: number
 }
 
 type ProductInquiryListItem = {
-    // 문의 게시글
     id: number
     title: string
     writerNickName?: string
     writerId?: number
-    status: 'WAITING' | 'ANSWERED' // 정해진 문자열만 쓰기 (Enum)
+    status: 'WAITING' | 'ANSWERED'
     createdAt: string
     secret?: boolean
 }
 
 type ProductInquiryDetailItem = {
-    // 문의 상세보기
     inquiryId: number
     productId: number
     productNameSnapshot: string
@@ -122,16 +95,15 @@ type ProductInquiryDetailItem = {
 }
 
 type MemberInfo = {
-    // 로그인 멤버 정보
     id: number
     nickName?: string
     name?: string
 }
 
-type ProductDetailTab = 'detail' | 'review' | 'inquiry' // 상품 상세페이지 탭은 이 세가지만 사용하겠다.
+type ProductDetailTab = 'detail' | 'review' | 'inquiry'
 
-const API_BASE_URL = '/api' // 서버 주소
-const PAGE_SIZE = 10 // 페이지 크기. 한 페이지당 개수.
+const API_BASE_URL = '/api'
+const PAGE_SIZE = 10
 
 function formatPrice(price: number) {
     return `${price.toLocaleString('ko-KR')}원`
@@ -167,7 +139,6 @@ function getRatingPercent(count: number, total: number) {
 }
 
 function getReviewLikeLabel(likeCount: number) {
-    // 리뷰 추천버튼에 들어가는 텍스트
     if (likeCount <= 0) {
         return '도움이 돼요'
     }
@@ -175,7 +146,6 @@ function getReviewLikeLabel(likeCount: number) {
     return `${likeCount}명에게 도움이 됐어요`
 }
 
-// 화면에 보여줄 작성자 닉네임
 function getWriterLabel(target: WriterLabelTarget) {
     return target.writerNickName ?? '알 수 없음'
 }
@@ -184,7 +154,6 @@ function isSecretInquiry(inquiry: ProductInquiryListItem) {
     return inquiry.secret === true
 }
 
-// 문의 작성 에러 메세지
 function getInquirySubmitErrorMessage(error: unknown, mode: 'create' | 'edit') {
     if (axios.isAxiosError(error)) {
         const status = error.response?.status
@@ -242,8 +211,6 @@ function getInquiryDetailErrorMessage(error: unknown) {
 }
 
 function getInquiryListErrorMessage(error: unknown) {
-    // 여기서는 401, 403 체크 X -> API성격이 다름.
-    // 로그인 안해도 접근 가능하기 때문.
 
     if (axios.isAxiosError(error)) {
         const responseData = error.response?.data
@@ -265,7 +232,6 @@ function getInquiryListErrorMessage(error: unknown) {
     return '상품문의를 불러오지 못했습니다.'
 }
 
-// 상품 상세 페이지 버튼 처리 에러 메세지
 function getProductActionErrorMessage(error: unknown, fallback: string) {
     if (axios.isAxiosError(error)) {
         const status = error.response?.status
@@ -292,13 +258,10 @@ function getProductActionErrorMessage(error: unknown, fallback: string) {
     return fallback
 }
 
-// 로그인 관련 에러인지 확인
 function isLoginError(error: unknown) {
     return axios.isAxiosError(error) && [401, 403].includes(error.response?.status ?? 0)
 }
 
-// 별점(rating)별 비율 바(bar)
-// 별점 바 한 줄 그리는 재사용 조각
 function ReviewRatingRow({ label, percent }: { label: string; percent: number }) {
     return (
         <div className="product-review-rating-row">
@@ -318,8 +281,6 @@ function ReviewRatingRow({ label, percent }: { label: string; percent: number })
     )
 }
 
-// 데이터 로딩 중이거나, 에러 발생했을 때, 검색 결과 없을 때같이
-// 특정한 상황(State)을 사용자에게 알리는 메세지 박스 부품
 function PageState({ text }: { text: string }) {
     return <div className="product-detail-state-box">{text}</div>
 }
@@ -386,21 +347,17 @@ export default function ProductDetailPage() {
     const navigate = useNavigate()
     const location = useLocation()
 
-    /* 주소 및 url 파라미터 관리 */
     const { id } = useParams()
     const [searchParams, setSearchParams] = useSearchParams()
 
-    /* 상품 상세 정보 상태 */
     const [detail, setDetail] = useState<ProductDetail | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
-    /* 탭tab(상세설명/리뷰/문의) 전환 로직 */
     const tabParam = searchParams.get('tab')
     const activeTab: ProductDetailTab =
         tabParam === 'review' || tabParam === 'inquiry' ? tabParam : 'detail'
 
-    /* 리뷰(후기) 관리 상태 */
     const [reviewSort, setReviewSort] = useState<ReviewSortType>('BEST')
     const [reviewRatingFilter, setReviewRatingFilter] = useState<number | 'ALL'>('ALL')
     const [reviewPage, setReviewPage] = useState(0)
@@ -409,27 +366,23 @@ export default function ProductDetailPage() {
     const [reviewsLoading, setReviewsLoading] = useState(false)
     const [reviewsError, setReviewsError] = useState('')
 
-    /* 리뷰 추천(도움이 돼요) 기능 */
     const [likedReviewMap, setLikedReviewMap] = useState<Record<number, boolean>>({})
     const [reviewLikeLoadingMap, setReviewLikeLoadingMap] = useState<Record<number, boolean>>({})
 
-    /* 문의 목록 관리 */
     const [inquiries, setInquiries] = useState<ProductInquiryListItem[]>([])
     const [inquiriesLoading, setInquiriesLoading] = useState(true)
     const [inquiriesError, setInquiriesError] = useState('')
 
-    /* 문의사항 상세 내용 */
     const [openInquiryId, setOpenInquiryId] = useState<number | null>(null)
     const [inquiryDetailMap, setInquiryDetailMap] = useState<Record<number, ProductInquiryDetailItem>>({})
     const [inquiryDetailLoadingId, setInquiryDetailLoadingId] = useState<number | null>(null)
     const [inquiryDetailErrorMap, setInquiryDetailErrorMap] = useState<Record<number, string>>({})
 
-    /* 사용자 및 화면 모드 */
     const [currentMember, setCurrentMember] = useState<MemberInfo | null>(null)
     const [viewMode, setViewMode] = useState<'all' | 'mine'>('all')
     const [currentPage, setCurrentPage] = useState(1)
 
-    /* 문의 작성 폼(글쓰기) */
+
     const [showInquiryForm, setShowInquiryForm] = useState(false)
     const [inquiryForm, setInquiryForm] = useState({
         title: '',
@@ -442,13 +395,10 @@ export default function ProductDetailPage() {
     const [editingInquiryId, setEditingInquiryId] = useState<number | null>(null)
 
     const [productActionLoading, setProductActionLoading] = useState<ProductActionType>(null)
-    // 공유/찜하기/장바구니/구매하기 버튼 중 어떤 요청이 처리 중인지 관리
 
     const [isWished, setIsWished] = useState(false)
-    // 현재 상품이 내 찜목록에 들어가 있는지 여부
 
     const [quantity, setQuantity] = useState(1)
-    // 일반상품 구매 수량
 
     function moveToLoginPage() {
         navigate('/login', {
@@ -586,7 +536,6 @@ export default function ProductDetailPage() {
             const wished = response.data.some((item) => item.productId === productId)
             setIsWished(wished)
         } catch (e) {
-            // 비로그인 상태거나 찜목록 조회 실패 시에는 기본 흰색 버튼으로 둠
             setIsWished(false)
         }
     }

@@ -6,16 +6,15 @@ import demo.demo_spring.review.dto.*;
 import demo.demo_spring.review.service.ReviewService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
-    public ReviewController(ReviewService reviewService){
-        this.reviewService = reviewService;
-    }
 
     // 리뷰글 작성
     @PostMapping("/products/{productId}/reviews")

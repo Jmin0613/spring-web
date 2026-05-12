@@ -14,7 +14,6 @@ import './AdminOrderPage.css'
 const API_BASE_URL = '/api'
 const ITEMS_PER_PAGE = 10
 
-// 관리자인지 아닌지 확인용도
 type MemberInfo = {
     id: number
     loginId?: string
@@ -57,7 +56,6 @@ function getDeliveryStatusLabel(status: DeliveryStatus) {
     return status
 }
 
-// 배송상태 버튼 문구/동작 설정
 function getDeliveryButtonConfig(status: DeliveryStatus) {
     if (status === 'READY') {
         return {
@@ -121,37 +119,26 @@ function getErrorMessage(error: unknown) {
 
 export default function AdminOrderPage() {
     const [checkingAdmin, setCheckingAdmin] = useState(true)
-    // 관리자 권한 확인 중인지 관리
 
     const [isAdmin, setIsAdmin] = useState(false)
-    // 관리자 여부
 
     const [orders, setOrders] = useState<AdminOrderListItem[]>([])
-    // 관리자 주문 목록 데이터
 
     const [loading, setLoading] = useState(true)
-    // 주문 목록을 불러오는 중인지 관리
 
     const [error, setError] = useState('')
-    // 주문 목록 조회 실패 메세지
 
     const [openOrderId, setOpenOrderId] = useState<number | null>(null)
-    // 현재 상세보기가 열려있는 주문 id
 
     const [orderDetailMap, setOrderDetailMap] = useState<Record<number, AdminOrderDetail>>({})
-    // 한 번 조회한 주문 상세 데이터를 주문 id별로 저장
 
     const [detailLoadingId, setDetailLoadingId] = useState<number | null>(null)
-    // 특정 주문 상세 정보를 불러오는 중인지 관리
 
     const [detailErrorMap, setDetailErrorMap] = useState<Record<number, string>>({})
-    // 특정 주문 상세 조회 실패 메세지 저장
 
     const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null)
-    // 배송상태 변경 중인 주문 id. 중복 클릭 방지용.
 
     const [currentPage, setCurrentPage] = useState(1)
-    // 현재 페이지 번호
 
     const totalPages = Math.max(1, Math.ceil(orders.length / ITEMS_PER_PAGE))
 
@@ -160,7 +147,6 @@ export default function AdminOrderPage() {
         return orders.slice(startIndex, startIndex + ITEMS_PER_PAGE)
     }, [orders, currentPage])
 
-    // 관리자 권한 확인
     useEffect(() => {
         async function checkAdmin() {
             try {
@@ -182,7 +168,6 @@ export default function AdminOrderPage() {
         void checkAdmin()
     }, [])
 
-    // 관리자 주문 목록 조회
     useEffect(() => {
         async function loadOrders() {
             try {
@@ -202,14 +187,12 @@ export default function AdminOrderPage() {
         void loadOrders()
     }, [])
 
-    // 현재 페이지가 전체 페이지보다 커졌을 때 보정
     useEffect(() => {
         if (currentPage > totalPages) {
             setCurrentPage(totalPages)
         }
     }, [currentPage, totalPages])
 
-    // 주문 상세 열기/닫기
     async function handleToggleDetail(orderId: number) {
         if (openOrderId === orderId) {
             setOpenOrderId(null)
@@ -249,7 +232,6 @@ export default function AdminOrderPage() {
         }
     }
 
-    // 배송상태 변경
     async function handleUpdateDeliveryStatus(
         order: AdminOrderListItem,
         nextStatus: DeliveryStatus,

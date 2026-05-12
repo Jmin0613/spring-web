@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductCreateRequest {
     //상품 등록 요청 DTO
+
     @NotBlank(message = "등록하시려는 상품 이름을 입력해주세요.")
     private String name;
     @NotBlank(message = "등록하시려는 상품 설명을 입력해주세요.")

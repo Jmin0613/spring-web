@@ -33,7 +33,6 @@ public class HotDealAlertScheduler {
     @Scheduled(fixedRate = 60000) // 60초마다 실행
     public void preStartAlertHotDeal(){
         // 현재시간
-        // System.out.println("사전 알림 스케쥴러 실행");
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
         // 현재시간 + 9min~10min

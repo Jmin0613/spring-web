@@ -15,11 +15,11 @@ import java.time.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-@Table( //복합 unique는 컬럼 하나의 성질이 아닌, 여러 컬럼 보합에 대한 제약이라서 클래스 위에서 걸음.
-        uniqueConstraints = { // 1. 유니크 제약 조건들을 걸겠다 (여러 개 가능)
-                @UniqueConstraint( // 2. 개별 제약 조건 정의
-                        name = "uk_wishlist_member_product", // 3. 이 제약 조건의 이름 (DB 관리용)
-                        columnNames = {"member_id", "product_id"} // 4. 묶어서 유니크하게 만들 컬럼들
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_wishlist_member_product",
+                        columnNames = {"member_id", "product_id"}
                 )
         })
 public class Wishlist {

@@ -27,9 +27,9 @@ public class AdminProductInquiryDetailResponse {
 
     private String answerContent;
 
-    private LocalDateTime createdAt; //작성일
-    private LocalDateTime updatedAt; //수정일
-    private LocalDateTime answeredAt; //답변일
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime answeredAt;
 
     private AdminProductInquiryDetailResponse(ProductInquiry inquiry) {
         this.inquiryId = inquiry.getId();

@@ -28,11 +28,11 @@ public class Notification {
     // 알림이 발생한 비즈니스 이벤트를 표현
     // -> 지금은 문의 알람뿐이지만, 추후 선택한 핫딜 시작 알림 등 확장 예정 (리팩토링)
 
-    private String title; // 회원에게 보여줄 알림 문구 (제목)
-    private String content; // 회원에게 보여줄 알림 문구 (내용)
+    private String title;
+    private String content;
 
     @CreatedDate
-    private LocalDateTime createdAt; // 알림 생성 일시
+    private LocalDateTime createdAt;
     private boolean isRead; // 알람 읽음 여부
 
     //추후 프론트엔드 확장을 위한 식별값. 이거 받아서 상세페이지로 이동시키기.
@@ -52,11 +52,6 @@ public class Notification {
         if(type == null){ throw new IllegalStateException("알림의 종류가 없습니다."); }
         if(targetType == null) { throw new IllegalStateException("알림 대상 종류가 없습니다."); }
         if(targetId == null) { throw new IllegalStateException("알림 대상 ID가 없습니다."); }
-//        if(targetType != NotificationTargetType.NONE && targetId == null){
-//            // targetType이 PRODUCT, HOTDEAL, ORDER같은 실제 대상이 있는 알람 -> targetId있어야 함
-//            // targetType이 NONE -> 굳이 이동할 필요X, 대상 targetId없어도 됨 (서비스 점검 예정 메세지, 정책 변경 메세지 등등???)
-//            throw new IllegalStateException("알림 대상 id가 없습니다.");
-//        }
 
         this.member = member;
         this.type = type; this.targetType = targetType;

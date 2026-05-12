@@ -12,6 +12,7 @@ import demo.demo_spring.productInquiry.repository.ProductInquiryRepository;
 import demo.demo_spring.review.repository.ReviewRepository;
 import demo.demo_spring.wishlist.dto.WishlistListResponse;
 import demo.demo_spring.wishlist.repository.WishlistRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class MyPageService {
     private final ProductInquiryRepository inquiryRepository;
     private final ReviewRepository reviewRepository;
@@ -29,16 +31,7 @@ public class MyPageService {
     private final MemberService memberService;
     private final MemberRepository memberRepository;
 
-    public MyPageService(ProductInquiryRepository inquiryRepository,
-                         ReviewRepository reviewRepository, WishlistRepository wishlistRepository, OrderRepository orderRepository, MemberService memberService, MemberRepository memberRepository){
-        this.inquiryRepository = inquiryRepository;
-        this.reviewRepository = reviewRepository; this.wishlistRepository = wishlistRepository;
-        this.orderRepository = orderRepository; this.memberService = memberService;
-        this.memberRepository = memberRepository;
-    }
-
     public List<MyPageOrderListResponse> findMyOrders(Long memberId){
-        // 멤버 조회
         memberService.getMember(memberId);
 
         // 특정 회원이 단 모든 리뷰 가져오기
@@ -55,7 +48,6 @@ public class MyPageService {
     private Set<Long> findReviewedOrderItemIds(List<Orders> orders){
         return orders.stream() //하나씩 꺼내기
                 .flatMap(order -> order.getOrderItems().stream())
-                // 각 order안에 들어가있는 orderItem들을 하나씩 펼쳐서 꺼내기
                 .filter(orderItem -> reviewRepository.existsByOrderItemId(orderItem.getId()))
                 // 이 orderItemId로 작성된 리뷰 있는지 존재 체크. false면 orderItem값 버리기.
                 .map(orderItem -> orderItem.getId()) //남은 orderItem객체들 중에서 id만 꺼내기
@@ -64,9 +56,7 @@ public class MyPageService {
 
     // 내 문의 목록 보기
     public List<MyPageInquiryListResponse> findMyInquiries(Long memberId){
-        // 멤버 조회
         memberService.getMember(memberId);
-        // memberId로 조회
         return inquiryRepository.findAllByMemberIdOrderByCreatedAtDesc(memberId)
                 .stream()
                 .map(MyPageInquiryListResponse::fromEntity)
@@ -76,9 +66,7 @@ public class MyPageService {
 
     // 내 리뷰 목록 보기
     public List<MyPageReviewListResponse> findMyReviews(Long memberId){
-        // 멤버 조회
         memberService.getMember(memberId);
-        // memberId로 조회
         return reviewRepository.findAllByMemberIdOrderByCreatedAtDesc(memberId)
                 .stream()
                 .map(MyPageReviewListResponse::fromEntity)
@@ -88,9 +76,7 @@ public class MyPageService {
 
     // 내 찜하기 보기 + DTO 재활용
     public List<WishlistListResponse> findMyWishlist(Long memberId){
-        //멤버 조회
         memberService.getMember(memberId);
-        //찜 목록 조회
         return wishlistRepository.findAllByMemberIdOrderByCreatedAtDesc(memberId)
                 .stream()
                 .map(WishlistListResponse::fromEntity)
@@ -100,10 +86,8 @@ public class MyPageService {
 
     // 내 주문 상세보기
     public MyPageOrderDetailResponse findMyOrderDetail(Long orderId, Long memberId){
-        // 멤버 조회
         memberService.getMember(memberId);
 
-        // 주문 조회
         Orders order = orderRepository.findByIdAndMemberId(orderId, memberId)
                 .orElseThrow(()-> new IllegalStateException("해당하는 주문이 없거나 접근 권한이 없습니다."));
 
@@ -118,7 +102,6 @@ public class MyPageService {
 
     // 내 정보 변경 전, 비밀번호 인증
     public void checkPassword(MemberPasswordCheckRequest request, Long memberId) {
-        // 멤버 조회
         Member member = memberService.getMember(memberId);
 
         // 비밀번호 인증
@@ -129,7 +112,6 @@ public class MyPageService {
 
     // 내 정보 변경 - nickName, email, phoneNumber, password
     public void editMyInfo(MemberEditMyInfoRequest request, Long memberId){
-        //멤버 조회
         Member member = memberService.getMember(memberId);
 
         //normalize -> 앞뒤 공백 제거
@@ -156,7 +138,7 @@ public class MyPageService {
             throw new IllegalStateException("수정할 정보가 없습니다.");
         }
 
-        //하나라도 변경 시도 있을 경우
+        // 하나라도 변경 시도 있을 경우
         // 회원 기본정보 변경 - 중복체크 + 기존값과 비교 후, 변경
         if (profileChanged) {
             validateProfile(member, nickName, email, phoneNumber);
@@ -179,22 +161,19 @@ public class MyPageService {
 
         if(trimmed.isEmpty()){ // 공백만 들어왔을 경우, trim()이후 값이 비어버림.
             return null;
-        } // 변경값 썻다가 지우고 저장해도 오류아니라, 변경 안함으로 처리.
+        }
 
         return trimmed;
     }
 
     // 회원 기본정보 변경 시도 체크
     private boolean hasProfileChange(Member member, String nickName, String email, String phoneNumber){
-        // 닉네임 변경
         if(nickName != null && !nickName.equals(member.getNickName())){
             return true;
         }
-        // 이메일 변경
         if(email != null && !email.equals(member.getEmail())){
             return true;
         }
-        // 핸드폰 번호 변경
         if(phoneNumber != null && !phoneNumber.equals(member.getPhoneNumber())){
             return true;
         }
@@ -210,19 +189,16 @@ public class MyPageService {
 
     // 회원 기본정보 변경 - 중복체크 + 기존값과 비교 후, 변경
     private void validateProfile(Member member, String nickName, String email, String phoneNumber){
-        // 닉네임 중복체크 + 기본 닉네임과 같은지 체크
         if(nickName != null && !nickName.equals(member.getNickName())){
             if (memberRepository.existsByNickName(nickName)) {
                 throw new IllegalStateException("중복된 닉네임입니다.");
             }
         }
-        // 이메일 중복체크 + 기존 이메일과 같은지 체크
         if(email != null && !email.equals(member.getEmail())){
             if (memberRepository.existsByEmail(email)) {
                 throw new IllegalStateException("중복된 이메일입니다.");
             }
         }
-        // 핸드폰 번호 중복체크 + 기존 번호와 같은지 체크
         if(phoneNumber != null && !phoneNumber.equals(member.getPhoneNumber())){
             if (memberRepository.existsByPhoneNumber(phoneNumber)) {
                 throw new IllegalStateException("중복된 전화번호입니다.");

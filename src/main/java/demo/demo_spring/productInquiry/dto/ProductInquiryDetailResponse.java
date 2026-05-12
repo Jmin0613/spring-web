@@ -10,8 +10,8 @@ import java.time.*;
 public class ProductInquiryDetailResponse {
     private Long inquiryId;
     private Long productId;
-    private String productNameSnapshot; //구매 당시 상품 이름
-    private String riternickName; //작성자 닉네임
+    private String productNameSnapshot;
+    private String riternickName;
 
     private String title;
     private String content;
@@ -19,8 +19,8 @@ public class ProductInquiryDetailResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private String answerContent; //답변 내용
-    private LocalDateTime answeredAt; //답변일
+    private String answerContent;
+    private LocalDateTime answeredAt;
 
 
     private ProductInquiryDetailResponse(ProductInquiry productInquiry){

@@ -26,19 +26,19 @@ public class Payment {
     @Column(nullable = false, unique = true)
     private String paymentId; // PortOne에 넘길 결제 고유 id. 절대 null X.
 
-    @Column(nullable = false) // int라 null어차피 안들어가겠지만, 의도를 조금 더 보여주기.
+    @Column(nullable = false)
     private int amount; // 결제 요청 금액
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentStatus status; //결제 상태
 
-    private LocalDateTime requestedAt; // 결제 요청 시간
-    private LocalDateTime paidAt; // 결제 완료 시간
-    private LocalDateTime canceledAt; // 결제 취소 시간
-    private LocalDateTime expiredAt; //결제 만료 시간
+    private LocalDateTime requestedAt;
+    private LocalDateTime paidAt;
+    private LocalDateTime canceledAt;
+    private LocalDateTime expiredAt;
 
-    private String cancelReason; //취소 사유
+    private String cancelReason;
 
     private Payment(Orders order, String paymentId, int amount, LocalDateTime now){
         // 필수값 null 체크

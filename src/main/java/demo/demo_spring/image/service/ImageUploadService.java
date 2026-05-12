@@ -30,11 +30,9 @@ public class ImageUploadService {
             .normalize(); // 경로 정리
 
     @PostConstruct
-    // 스프링이 객체 생성 + 의존성 주입 끝낸 다음, 이 메서드를 한 번 실행하라.
-    // 즉, 서버가 켜질떄 uploads/images 폴더 미리 만듦.
     public void init(){ //서비스 생성 직후, 자동으로 실행되는 초기화 메서드
         try{
-            Files.createDirectories((uploadRootPath)); //폴더 없으면 만들기. 이거 있어서 업로드할떄마다 폴더 존재 여부 매번 확인x
+            Files.createDirectories((uploadRootPath)); //폴더 없으면 만들기. 업로드할떄마다 폴더 존재 여부 매번 확인x.
         } catch(IOException e){
             throw new IllegalStateException("이미지 업로드 폴더를 생성하지 못했습니다.", e);
         }
@@ -52,13 +50,10 @@ public class ImageUploadService {
 
         // 파일 저장 경로 만들기
         Path targetPath = uploadRootPath.resolve(savedFileName).normalize();
-        //resolve() -> 폴더경로 + 파일명 (합쳐주는 메서드)
 
         // 실제 파일 저장
         try{
-            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-            //file.getInputStream() -> 업로드된 파일의 실제 데이터를 읽어오는 통로
-            //StandardCopyOption.REPLACE_EXISTING -> 만약 같은 이름의 파일이 이미 있으면 덮어쓴다는 의미.(UUID라 겹칠 가능성 X)
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING); // UUID라 겹칠 가능성X
 
         } catch (IOException e){
             throw new IllegalStateException("이미지 파일 저장에 실패했습니다.", e);

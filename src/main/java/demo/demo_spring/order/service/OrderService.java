@@ -8,6 +8,7 @@ import demo.demo_spring.order.domain.Orders;
 import demo.demo_spring.order.domain.PaymentMethod;
 import demo.demo_spring.order.repository.OrderRepository;
 import demo.demo_spring.product.domain.Product;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,16 +17,12 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class  OrderService {
     // 구매가 성공한 뒤 주문을 생성하는 서비스
 
     private final OrderRepository orderRepository;
     private final MemberService memberService;
-
-    public OrderService(OrderRepository orderRepository, MemberService memberService){
-        this.orderRepository = orderRepository;
-        this.memberService = memberService;
-    }
 
     // 주문 생성 - HotDeal 즉시 구매 + Product 즉시 구매
     public Long createSingle(Member member, Product product, int quantity, int orderPrice,

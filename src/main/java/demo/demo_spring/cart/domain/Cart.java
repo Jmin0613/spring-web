@@ -39,9 +39,8 @@ public class Cart {
     private LocalDateTime updatedAt;
 
     private Cart(Member member, String guestToken){
-        // member null 체크
         if(member == null && (guestToken == null || guestToken.isBlank())){
-            throw new IllegalStateException("장바구니 주인 정보가 없습니다."); //멤버x, 게스트x
+            throw new IllegalStateException("장바구니 주인 정보가 없습니다.");
         }
         this.member = member;
         this.guestToken = guestToken;

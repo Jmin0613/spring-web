@@ -10,6 +10,7 @@ import java.time.*;
 @NoArgsConstructor
 public class CartItemResponse {
     // 장바구니 상품 1개 정보
+
     private Long cartItemId;
     private Long productId;
 

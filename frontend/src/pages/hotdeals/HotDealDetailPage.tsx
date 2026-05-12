@@ -219,7 +219,6 @@ export default function HotDealDetailPage() {
     const [inquiriesError, setInquiriesError] = useState('')
 
     const [quantity, setQuantity] = useState(1)
-    // 핫딜 구매 수량
 
     const [alertSubscribed, setAlertSubscribed] = useState(false)
     const [alertLoading, setAlertLoading] = useState(false)

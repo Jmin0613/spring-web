@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true) //PortOne응답에 당장 안쓰는 필드 많을 수 있어서 에러 안나게.
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PortOnePaymentResponse {
     //PortOne 결제 조회 응답DTO (포트원 -> 백)
 

@@ -11,24 +11,24 @@ import java.util.List;
 @Getter
 public class AdminOrderDetailResponse {
 
-    private Long orderId; //주문 번호
-    private LocalDateTime orderDate; //주문 날짜
+    private Long orderId;
+    private LocalDateTime orderDate;
 
     private OrderStatus orderStatus; //주문 상태
     private DeliveryStatus deliveryStatus; //배송 상태
 
     // 보내는 사람
-    private String memberName; //구매자 이름
-    private String memberLoginId; //구매자 로그인 아이디
-    private String memberEmail; // 구매자 이메일
+    private String memberName;
+    private String memberLoginId;
+    private String memberEmail;
 
     // 받는 사람
-    private String receiverName; //받는 사람
-    private String phoneNumber; //연락처
-    private String address; //배송지
-    private String deliveryMemo; //배송메모
+    private String receiverName;
+    private String phoneNumber;
+    private String address;
+    private String deliveryMemo;
 
-    private int totalPrice; //총 구매금액/결제금액
+    private int totalPrice; //총 구매금액
     private List<AdminOrderItemResponse> orderItems; // 상품목록
 
     //Order 생성자 -> -> fromEntity()가 내부에서 호출할 생성자
@@ -48,7 +48,6 @@ public class AdminOrderDetailResponse {
                 .stream()
                 // 각 OrderItem을 OrderItemResponse로 변환
                 .map(AdminOrderItemResponse::fromEntity)
-                //변환한 DTO로 리스트 채우기
                 .toList();
     }
 

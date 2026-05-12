@@ -8,16 +8,15 @@ import demo.demo_spring.productInquiry.dto.ProductInquiryUpdateRequest;
 import demo.demo_spring.productInquiry.service.ProductInquiryService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class ProductInquiryController {
     private final ProductInquiryService productInquiryService;
-    public ProductInquiryController(ProductInquiryService productInquiryService){
-        this.productInquiryService = productInquiryService;
-    }
 
     // 문의글 작성
     @PostMapping("/products/{productId}/inquiries")

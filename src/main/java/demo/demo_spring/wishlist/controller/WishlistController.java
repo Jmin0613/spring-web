@@ -5,14 +5,15 @@ import demo.demo_spring.wishlist.dto.WishlistListResponse;
 import demo.demo_spring.wishlist.dto.WishlistToggleResponse;
 import demo.demo_spring.wishlist.service.WishlistService;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class WishlistController {
     private final WishlistService wishlistService;
-    public WishlistController(WishlistService wishlistService){ this.wishlistService = wishlistService;}
 
     // 찜하기/해제 -> Toggle
     @PostMapping("/products/{productId}/wishlist")

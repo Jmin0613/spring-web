@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DeliveryInfo {
-    private String receiverName; //받는 사람
-    private String phoneNumber; //연락처 contact
-    private String address; //배송 주소
-    private String deliveryMemo; //배송 메모
+    private String receiverName;
+    private String phoneNumber;
+    private String address;
+    private String deliveryMemo;
 
     // 생성자 -> 값 변경 불가, 불변 객체
     public DeliveryInfo(String receiverName, String phoneNumber, String address, String deliveryMemo){

@@ -9,12 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductUpdateRequest {
     //상품 수정 요청 DTO
+
     private String name;
     private String description;
     private String imageUrl;
     private String detailImageUrl;
 
-    private Integer price; //누락시 0 막기위해 사용
+    private Integer price;
     private Integer stock;
     private ProductCategory category;
 

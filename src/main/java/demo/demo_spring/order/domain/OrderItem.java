@@ -28,31 +28,30 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // PK -> 주문상품 레코드 1개 자체의 고유id
 
-    @ManyToOne(fetch = FetchType.LAZY) //OrderItem은 Order속 주문상품들 정보. 어떤 Order에 속하는지 Order와 연결.
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="order_id", nullable = false)
-    //DB테이블에서 order_id라는 컬럼을 통해 주문 테이블과 연결
     private Orders order; // 어떤 주문에 속하는지 Order객체 참조용 FK
 
     @Enumerated(EnumType.STRING)
     private OrderItemType orderItemType; //PRODUCT, HOTDEAL. 결제 취소시, 재고복구를 위해 필요.
 
-    @ManyToOne(fetch = FetchType.LAZY) //어떤 상품을 샀는지 Product와 연결
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="product_id", nullable = false)
-    //DB테이블에서 product_id라는 컬럼을 통해 상품 테이블과 연결
     private Product product; // db -> product_id -> 원본 상품 참조용 FK
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hot_deal_id")
     private HotDeal hotDeal; //주문 타입이 HotDeal일떄만 값 존재. -> null 체크 x.
 
-    private String productNameSnapshot; // 구매당시 상품명
-    private String imageUrlSnapshot; //구매당시 이미지
-    private int quantity; // 주문수량
+    // 스냅샷
+    private String productNameSnapshot;
+    private String imageUrlSnapshot;
+
+    private int quantity;
     private int orderPrice; // 주문 당시 가격(일반구매 or 핫딜구매)
 
     private OrderItem(Product product, HotDeal hotDeal, OrderItemType orderItemType,
                       int quantity, int orderPrice){
-        //Product null 체크
         if(product == null){
             throw new IllegalStateException("구매하려는 원본 상품 정보가 누락되었습니다.");
         }
@@ -60,20 +59,18 @@ public class OrderItem {
         if(orderItemType == null){
             throw new IllegalStateException("주문 상품 타입이 누락되었습니다.");
         }
-        // 구매수량 1이상 확인
         if(quantity < 1){
             throw new IllegalStateException("구매 수량이 잘못되었습니다.");
         }
-        // 구매 당시 가격 0보다 큰지
         if(orderPrice < 1){
             throw new IllegalStateException("구매 가격이 잘못되었습니다.");
         }
 
-        // HotDeal 주문일 시, hotDeal 널 체크
+        // HotDeal 주문일 시, hotDeal null 체크
         if(orderItemType == OrderItemType.HOTDEAL && hotDeal == null){
             throw new IllegalStateException("핫딜 주문에는 핫딜 정보가 필요합니다.");
         }
-        // Product 주문인데, hotDeal 잘 비어있나 체크
+        // Product 주문일 시, hotDeal null 체크
         if(orderItemType == OrderItemType.PRODUCT && hotDeal != null){
             throw new IllegalStateException("일반 상품 주문에는 핫딜 정보가 들어갈 수 없습니다.");
         }
@@ -120,10 +117,9 @@ public class OrderItem {
         // OrderItem생성메서드로 order를 연결할 수 있지만, order는 orderItem이 추가된걸 모를 수 있기 떄문.
     }
 
-    // 구매수량*구매가격
+    // 총 구매가
     public int getTotalPrice(){
         return this.orderPrice * this.quantity;
-        // Order가 getTotalPrice를 for문으로 호출해서 order의 총 구매가 구하기
     }
 
     // 결제 준비 시 재고 선점
@@ -136,9 +132,6 @@ public class OrderItem {
 
         // HotDeal 재고 선점
         if(this.orderItemType == OrderItemType.HOTDEAL){
-            //hotDeal.buy(this.quantity);
-            // HOTDEAL 재고선점/차감은 PaymentService에서 Redis로 처리.
-            // 여기서 hotDeal.buy()를 호출하면 Redis + DB 이중 차감이 발생.
             return;
         }
 

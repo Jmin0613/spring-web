@@ -8,12 +8,10 @@ import java.time.*;
 
 @Getter
 public class AdminHotDealListResponse {
-    // 관리자 목록 응답response DTO -> 운영상태를 한눈에 보기 위함
+    // 관리자 목록 응답response DTO
 
     private Long hotDealId;
     private Long productId;
-    // 운영/관리 용도이니, productId 추가
-    // 어떤 상품에 붙은 핫딜인지 식별, 나중에 상품 상세/수정 연결 용이, db나 운영 관점에서 추적 쉬움
     private String productName;
     private String imageUrl;
 
@@ -45,6 +43,7 @@ public class AdminHotDealListResponse {
     public static AdminHotDealListResponse fromEntity(HotDeal hotDeal, int currentHotDealStock){
         return new AdminHotDealListResponse(hotDeal, currentHotDealStock);
     }
+    // 레거시
     public static AdminHotDealListResponse fromEntity(HotDeal hotDeal){
         return new AdminHotDealListResponse(hotDeal, hotDeal.getHotDealStock());
     }

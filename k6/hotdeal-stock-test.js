@@ -41,7 +41,6 @@ const STRATEGY = __ENV.STRATEGY || 'redis-lua';
 // no-lock 전략일때만 URL에 포함됨
 const DELAY_MS = Number(__ENV.DELAY_MS || 0);
 
-// 실패 응답 body를 보고 싶을 때만 true
 const DEBUG_FAIL = (__ENV.DEBUG_FAIL || 'false') === 'true';
 
 function buildUrl() {

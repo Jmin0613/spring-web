@@ -25,7 +25,6 @@ public enum ProductCategory {
 
     @JsonCreator // 역직렬화 위해 사용 (프론트 "식품" -> 백 "FOOD")
     public static ProductCategory from(String value){
-        // 값 비어있는지, 공백만있는지 검사
         if (value == null || value.isBlank()){
             throw new IllegalStateException("카테고리를 입력해주세요.");
         }
